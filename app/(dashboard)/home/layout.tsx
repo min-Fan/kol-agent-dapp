@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, CircleIcon, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,7 +11,9 @@ import Image from "next/image";
 import UserCard from "./user-card";
 import ClickSpark from "@/components/Animations/ClickSpark/ClickSpark";
 import NullCreate from "@/app/components/slidebar/null-create";
-
+import Login from "./login";
+import { useAppSelector } from "@/app/store/hooks";
+import { useLoginDrawer } from "@/app/hooks/useLoginDrawer";
 export default function DashboardLayout({
   children,
 }: {
@@ -19,11 +21,21 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);
+  const { openDrawer } = useLoginDrawer();
+  const router = useRouter();
   const navItems: any[] = [
     // { href: "/home", icon: House, label: "Home" },
     // { href: "/home/general", icon: Grip, label: "Kol List" },
   ];
+
+  const toCreate = () => {
+    if (isLoggedIn) {
+      router.push("/home/create/kol");
+    } else {
+      openDrawer();
+    }
+  };
 
   return (
     <div className="flex flex-col h-[100dvh] max-w-full mx-auto w-full text-primary">
@@ -71,12 +83,10 @@ export default function DashboardLayout({
             </div>
             <nav className="h-full overflow-y-auto p-4 flex flex-col gap-1">
               <div className="flex items-center justify-center my-2">
-                <Link href="/home/create/kol">
-                  <Button className="w-full flex items-center justify-center gap-2">
+                  <Button className="w-full flex items-center justify-center gap-2" onClick={toCreate}>
                     <Plus className="h-4 w-4" />
                     <span className="text-base">Create KOL Agent</span>
                   </Button>
-                </Link>
               </div>
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href} passHref>
@@ -97,17 +107,10 @@ export default function DashboardLayout({
               </div>
             </nav>
             <div className="flex items-center justify-center p-4 mt-auto">
-              {true ? (
+              {isLoggedIn ? (
                 <UserCard />
               ) : (
-                <Button className="w-full flex items-center justify-center gap-2">
-                  <Image
-                    src={Twitter}
-                    alt="Twitter"
-                    className="h-4 w-4 text-white"
-                  />
-                  <span className="inline-block text-base">Sign In</span>
-                </Button>
+                <Login />
               )}
             </div>
           </div>
