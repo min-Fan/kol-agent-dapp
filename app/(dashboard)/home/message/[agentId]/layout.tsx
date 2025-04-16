@@ -1,12 +1,27 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Power } from "lucide-react";
+import { ChevronLeft, Play, Power } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 import TurnOffConfirmation from "../compontents/turn-off-confirmation";
+import { useAppSelector } from "@/app/store/hooks";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const [isTurnOff, setIsTurnOff] = useState(true);
+  const isLoggedIn = useAppSelector(
+    (state: any) => state.userReducer.isLoggedIn
+  );
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/home");
+    }
+  }, [isLoggedIn]);
   return (
     <div className="w-full h-full overflow-hidden flex">
       <div className="w-full h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">
@@ -17,13 +32,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h1 className="text-base font-bold">Message</h1>
             </div>
           </Link>
-          <TurnOffConfirmation>
+          <TurnOffConfirmation setIsTurnOff={setIsTurnOff}>
             <Button
               variant="outline"
               className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
             >
-              <Power className="size-4 min-w-4 text-destructive" />
-              <span className="text-md text-destructive">Turn Off</span>
+              {isTurnOff ? (
+                <Power className="size-4 min-w-4 text-destructive" />
+              ) : (
+                <Play className="size-4 min-w-4 text-secondary" />
+              )}
+              <span
+                className={cn(
+                  "text-md font-bold",
+                  isTurnOff ? "text-destructive" : "text-secondary"
+                )}
+              >
+                {isTurnOff ? "Turn Off" : "Turn On"}
+              </span>
             </Button>
           </TurnOffConfirmation>
         </div>

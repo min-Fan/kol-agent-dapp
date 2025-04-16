@@ -276,3 +276,47 @@ export async function getKolMessage(params: any) {
 }
 
 
+// 获取订单列表
+export async function getOrderList(params: any) {
+  try {
+    const res = await request.get('/kol/api/v1/kol/order/list', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 获取订单详情
+export async function getOrderDetail(params: any) {
+  try {
+    const res = await request.get('/kol/api/v1/kol/order/detail', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 修改订单选项审核状态或agent_id接口
+export async function updateOrderOption(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/kol/order/item/edit', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 上传自己发的推文链接
+export async function uploadSelfPost(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/submit/tweets/', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
