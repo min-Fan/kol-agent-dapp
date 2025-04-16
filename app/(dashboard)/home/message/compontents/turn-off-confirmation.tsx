@@ -14,8 +14,9 @@ import { toast } from "sonner";
 
 export default function TurnOffConfirmation(props: {
   children: React.ReactNode;
+  setIsTurnOff: (isTurnOff: boolean) => void;
 }) {
-  const { children } = props;
+  const { children, setIsTurnOff } = props;
 
   const [isOpen, setOpen] = useState<boolean>(false);
 
@@ -24,6 +25,7 @@ export default function TurnOffConfirmation(props: {
   };
 
   const handleConfirm = () => {
+    setIsTurnOff(false);
     setOpen(false);
   };
 

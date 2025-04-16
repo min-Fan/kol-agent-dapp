@@ -180,10 +180,12 @@ const AnimatedList: React.FC<AnimatedListProps> = ({
             className="absolute -top-4 left-0 right-0 h-10 bg-gradient-to-b from-background via-background to-transparent pointer-events-none transition-opacity duration-300 ease"
             style={{ opacity: topGradientOpacity }}
           ></div>
-          <div
-            className="absolute -bottom-4 left-0 right-0 h-10 bg-gradient-to-t from-background via-background to-transparent pointer-events-none transition-opacity duration-300 ease"
-            style={{ opacity: bottomGradientOpacity }}
-          ></div>
+          {items.length > 1 && (
+            <div
+              className="absolute -bottom-4 left-0 right-0 h-10 bg-gradient-to-t from-background via-background to-transparent pointer-events-none transition-opacity duration-300 ease"
+              style={{ opacity: bottomGradientOpacity }}
+            ></div>
+          )}
         </>
       )}
     </div>

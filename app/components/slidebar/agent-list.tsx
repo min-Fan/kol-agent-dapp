@@ -82,10 +82,10 @@ export default function AgentList({ agents }: { agents: any[] }) {
           name={agent.name}
           avatar={agent.icon}
           description={`@${agent.x_username}`}
-          isRunning={true}
+          isRunning={agent.status === "RUNING"}
         />
       ))}
-      <AgentItem
+      {/* <AgentItem
         agentId="12345"
         name="AI"
         avatar={avatar}
@@ -97,7 +97,7 @@ export default function AgentList({ agents }: { agents: any[] }) {
         name="Reddit"
         avatar={avatar}
         description="Open reddit Open reddit Open reddit"
-      />
+      /> */}
     </ul>
   );
 }

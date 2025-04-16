@@ -1,8 +1,10 @@
-export default function PostTime() {
+import { formatTimestamp } from "@/app/utils/date-utils";
+
+export default function PostTime({ time, views }: { time: string, views: number }) {
   return (
     <div className="text-muted-foreground text-md">
-      8:00 AM · Apr 6, 2025 ·{" "}
-      <strong className="font-bold text-primary">79K</strong> Views
+      {formatTimestamp(Number(time))} ·{" "}
+      <strong className="font-bold text-primary">{views}</strong> Views
     </div>
   );
 }

@@ -22,6 +22,7 @@ import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
 import { updateFrom, clearFrom, updateTwitterFullProfile } from "@/app/store/reducers/userSlice";
 import { useRef, useEffect } from "react";
 import CreateTwitterAuth from "./create-twitter-auth";
+import { toast } from "sonner";
 const formSchema = z.object({
   price: z.string(),
   address: z
@@ -85,7 +86,10 @@ export default function StepSix() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
-    // handleComplete();
+    if (!isTwitterAuth) {
+      toast.error("Please connect your Twitter account");
+      return;
+    }
   }
 
   const create = () => {

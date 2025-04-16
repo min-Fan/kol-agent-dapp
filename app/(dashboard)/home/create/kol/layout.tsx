@@ -8,8 +8,8 @@ import Preview from "./compontents/preview";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full overflow-hidden flex">
-      <div className="w-full h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">
+    <div className="w-full h-full overflow-hidden grid grid-cols-24">
+      <div className="col-span-16 h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">
         <div className="w-full flex items-center justify-between shadow-[0_10px_10px_20px_rgba(251,249,250,1)] pb-4">
           <Link href="/home">
             <div className="flex items-center gap-2">
@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="w-full flex-1 overflow-auto">{children}</div>
       </div>
-      <div className="hidden md:block">
+      <div className="col-span-8 h-full overflow-hidden bg-foreground shadow-md">
         <Preview />
       </div>
     </div>

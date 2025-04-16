@@ -56,8 +56,8 @@ const formSchema = z.object({
   region: z.number().min(1, {
     message: "Please select a region",
   }),
-  language: z.number().min(1, {
-    message: "Please select a language",
+  language: z.string({
+    required_error: "Language is required",
   }),
 });
 
@@ -343,7 +343,7 @@ export default function StepOne() {
                         >
                           {field.value
                             ? language.find(
-                                (item: any) => item.id === field.value
+                                (item: any) => item.name === field.value
                               )?.name
                             : "Select language..."}
                           <ChevronsUpDown className="opacity-50" />
@@ -361,13 +361,13 @@ export default function StepOne() {
                               {language.map((item: any) => (
                                 <CommandItem
                                   key={item.id}
-                                  value={item.id}
+                                  value={item.name}
                                   onSelect={(currentValue) => {
                                     const value = language.find(
                                       (item: any) => item.name === currentValue
                                     );
                                     field.onChange(
-                                      value.id === field.value ? "" : value.id
+                                      value.name === field.value ? "" : value.name
                                     );
                                     setOpenLanguage(false);
                                   }}
@@ -376,7 +376,7 @@ export default function StepOne() {
                                   <Check
                                     className={cn(
                                       "ml-auto text-primary",
-                                      field.value === item.id
+                                      field.value === item.name
                                         ? "opacity-100"
                                         : "opacity-0"
                                     )}
