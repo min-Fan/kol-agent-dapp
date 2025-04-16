@@ -125,7 +125,6 @@ export interface SelfData {
   topic?: string;
 }
 
-
 /** ======================================== 订单列表 request types ========================================= */
 export interface Datum {
   /**
@@ -153,8 +152,8 @@ export interface Datum {
 }
 
 /**
-* 订单信息
-*/
+ * 订单信息
+ */
 export interface BuyAgentOrder {
   /**
    * 订单id
@@ -171,13 +170,17 @@ export interface BuyAgentOrder {
 }
 
 /**
-* 项目信息
-*/
+ * 项目信息
+ */
 export interface Project {
   /**
    * 项目名字
    */
   name: string;
+  /**
+   * 项目icon
+   */
+  icon: string;
 }
 
 export interface Kol {
@@ -223,3 +226,119 @@ export interface Kol {
   username: string;
 }
 /** ======================================== 订单列表 response types ========================================= */
+
+/** ======================================== 订单详情 request types ========================================= */
+
+export interface OrderDetail {
+  /**
+   * 订单信息
+   */
+  buy_agent_order: OrderDetailBuyAgentOrder;
+  /**
+   * 创建时间
+   */
+  created_at: string;
+  /**
+   * order item id，订单选项id
+   */
+  id: number;
+  kol: OrderKol;
+  /**
+   * kol审核状态，可选值:pending,doing,finished,reject
+   */
+  kol_audit_status: string;
+  /**
+   * 单价(单位分)
+   */
+  price: number;
+  /**
+   * 购买数量，默认1
+   */
+  tweets: number;
+  [property: string]: any;
+}
+
+/**
+ * 订单信息
+ */
+export interface OrderDetailBuyAgentOrder {
+  /**
+   * 项目信息
+   */
+  project: OrderDetailProject;
+  /**
+   * 宣传需求
+   */
+  promotional_materials: string;
+  [property: string]: any;
+}
+
+/**
+ * 项目信息
+ */
+export interface OrderDetailProject {
+  /**
+   * 项目描述
+   */
+  desc: string;
+  /**
+   * 项目名称
+   */
+  name: string;
+  /**
+   * 项目网站
+   */
+  website: string;
+}
+
+export interface OrderKol {
+  /**
+   * 粉丝数
+   */
+  followers_count: number;
+  /**
+   * kol的id
+   */
+  id: number;
+  /**
+   * 获赞总量
+   */
+  like_count: number;
+  /**
+   * 列表收录数
+   */
+  listed_count: number;
+  /**
+   * KOL名称
+   */
+  name: string;
+  /**
+   * 头像URL
+   */
+  profile_image_url: string;
+  /**
+   * 已购买kol的项目名字串，用逗号分隔
+   */
+  project_names?: string;
+  /**
+   * 标签，标签字符串用/分隔
+   */
+  tags?: string;
+  /**
+   * 推文总数
+   */
+  tweet_count: number;
+  /**
+   * 推特用户名
+   */
+  username: string;
+  /**
+   * 推特创建时间
+   */
+  x_created_at: string;
+  /**
+   * 推特描述
+   */
+  description: string;
+}
+/** ======================================== 订单详情 response types ========================================= */

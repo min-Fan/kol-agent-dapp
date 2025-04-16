@@ -9,21 +9,42 @@ import Post from "../compontents/post";
 import Repost from "../compontents/repost";
 import Reply from "../compontents/reply";
 import { useParams } from "next/navigation";
-import { getKolMessage } from "@/app/request/api";
-
+import { getKolMessage, getAgentList } from "@/app/request/api";
+import { useAppSelector } from "@/app/store/hooks";
+import { formatDate } from "@/app/utils/date-utils";
+import { LoaderCircle, MessageSquareDashed } from "lucide-react";
 export default function page() {
   const { agentId } = useParams();
   const [messageList, setMessageList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);
+
+  const [agents, setAgents] = useState<any[]>([]);
+  const getAgents = async () => {
+    const res = await getAgentList();
+    if (res && res.code === 200) {
+      setAgents(res.data);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      getAgents();
+    }
+  }, [isLoggedIn]);
 
   // 获取kol message
   const getKolMessageList = async () => {
     try {
+      setLoading(true);
       const res = await getKolMessage({ agent_id: agentId });
-      console.log(res);
-      setMessageList(res.data);
+      setLoading(false);
+      if (res && res.code === 200) {
+        setMessageList(res.data);
+      }
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -33,87 +54,124 @@ export default function page() {
   return (
     <div className="w-full h-full">
       <ScrollArea className="w-full h-full">
-        <div className="space-y-8 pb-1">
-          <div className="flex space-x-4">
-            <div className="min-w-8 size-8 rounded-full overflow-hidden">
-              <Image src={avatar} alt="avatar" className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <dl className="flex items-baseline space-x-2">
-                <dt className="text-base font-bold leading-8">John Doe</dt>
-                <dd className="text-md text-muted-foreground">
-                  2025-03-28 10:00
-                </dd>
-              </dl>
-              <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
-              </div>
-            </div>
+        {loading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <LoaderCircle className="w-10 h-10 animate-spin text-secondary" />
           </div>
-          <div className="flex space-x-4">
-            <div className="min-w-8 size-8 rounded-full overflow-hidden">
-              <Image src={avatar} alt="avatar" className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <dl className="flex items-baseline space-x-2">
-                <dt className="text-base font-bold leading-8">John Doe</dt>
-                <dd className="text-md text-muted-foreground">
-                  2025-03-28 10:00
-                </dd>
-              </dl>
-              <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                Our extension is safe and available on the official Chrome Web
-                Store, meeting all security standards. We prioritize your
-                privacy and do not collect personal data without your consent.
-                Regular updates keep it secure and efficient. All data is
-                encrypted to protect your safety. You can also review the
-                manifest.json file to confirm that your cookies are not accessed
-                without permission.
-              </div>
-            </div>
+        ) : messageList.length === 0 ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+            <MessageSquareDashed className="w-10 h-10 text-muted-foreground" />
+            <span className="text-muted-foreground text-md">No messages</span>
           </div>
-          <div className="flex space-x-4">
-            <div className="min-w-8 size-8 rounded-full overflow-hidden">
-              <Image src={avatar} alt="avatar" className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <dl className="flex items-baseline space-x-2">
-                <dt className="text-base font-bold leading-8">John Doe</dt>
-                <dd className="text-md text-muted-foreground">
-                  2025-03-28 10:00
-                </dd>
-              </dl>
-              <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                来自于XXX的广告上合作需求，已付款100USDT，付款时间2025年3月28日，平台获取20%佣金，20USDT，您可以获取80USDT，项目名称“xxx”,项目介绍“xxxx”
-              </div>
-              <div className="space-x-2 pt-2">
-                <Button variant="primary">
-                  <span>Accept</span>
-                </Button>
-                <Button variant="destructive">
-                  <span>Reject</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div className="flex space-x-4">
-            <div className="min-w-8 size-8 rounded-full overflow-hidden">
-              <Image src={avatar} alt="avatar" className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <dl className="flex items-baseline space-x-2">
-                <dt className="text-base font-bold leading-8">John Doe</dt>
-                <dd className="text-md text-muted-foreground">
-                  2025-03-28 10:00
-                </dd>
-              </dl>
-              <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                <Post />
-              </div>
-            </div>
-          </div>
-          <div className="flex space-x-4">
+        ) : (
+          messageList.map((item: any, index: number) => (
+            <div className="space-y-8 pb-1" key={index}>
+              {item.detail && (
+                <div className="flex space-x-4">
+                  <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                    {agents.find((agent) => agent.id == agentId)
+                      ?.icon ? (
+                      <img
+                        src={
+                          agents.find((agent) => agent.id == agentId)
+                            ?.icon
+                        }
+                        alt="avatar"
+                        className="w-10 h-10 object-cover"
+                      />
+                    ) : (
+                      <Image src={avatar} alt="avatar" className="w-10 h-10" />
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <dl className="flex items-baseline space-x-2">
+                      <dt className="text-base font-bold leading-8">
+                        {agents.find((agent) => agent.id == agentId)
+                          ?.name || "Agent"}
+                      </dt>
+                      <dd className="text-md text-muted-foreground">
+                        {formatDate(item.created_at)}
+                      </dd>
+                    </dl>
+                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                      Advertised co-op request from {item.detail.user}, paid{" "}
+                      {item.detail.amount}USDT, paid on{" "}
+                      {formatDate(item.detail.pay_at * 1000)}, platform gets{" "}
+                      {item.detail.platform_percent}% commission,{" "}
+                      {item.detail.platform_amount}USDT, you can get{" "}
+                      {item.detail.agent_amount}USDT, item name “
+                      {item.detail.user}. ”
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {item.d && (
+                <div className="flex space-x-4">
+                  <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                    {agents.find((agent) => agent.id == agentId)
+                      ?.icon ? (
+                      <img
+                        src={
+                          agents.find((agent) => agent.id == agentId)
+                            ?.icon
+                        }
+                        alt="avatar"
+                        className="w-10 h-10 object-cover"
+                      />
+                    ) : (
+                      <Image src={avatar} alt="avatar" className="w-10 h-10" />
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <dl className="flex items-baseline space-x-2">
+                      <dt className="text-base font-bold leading-8">
+                        {agents.find((agent) => agent.id == agentId)
+                          ?.name || "Agent"}
+                      </dt>
+                      <dd className="text-md text-muted-foreground">
+                        {formatDate(item.created_at * 1000)}
+                      </dd>
+                    </dl>
+                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                      <Post
+                        agent={agents.find(
+                          (agent) => agent.id == agentId
+                        )}
+                        content={item.d.content}
+                        time={formatDate(item.created_at * 1000)}
+                        views={item.d.view}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* <div className="flex space-x-4">
+                <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                  <Image src={avatar} alt="avatar" className="w-10 h-10" />
+                </div>
+                <div className="space-y-1">
+                  <dl className="flex items-baseline space-x-2">
+                    <dt className="text-base font-bold leading-8">John Doe</dt>
+                    <dd className="text-md text-muted-foreground">
+                      2025-03-28 10:00
+                    </dd>
+                  </dl>
+                  <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                    来自于XXX的广告上合作需求，已付款100USDT，付款时间2025年3月28日，平台获取20%佣金，20USDT，您可以获取80USDT，项目名称“xxx”,项目介绍“xxxx”
+                  </div>
+                  <div className="space-x-2 pt-2">
+                    <Button variant="primary">
+                      <span>Accept</span>
+                    </Button>
+                    <Button variant="destructive">
+                      <span>Reject</span>
+                    </Button>
+                  </div>
+                </div>
+              </div> */}
+              {/* <div className="flex space-x-4">
             <div className="min-w-8 size-8 rounded-full overflow-hidden">
               <Image src={avatar} alt="avatar" className="w-10 h-10" />
             </div>
@@ -128,8 +186,8 @@ export default function page() {
                 <Repost />
               </div>
             </div>
-          </div>
-          <div className="flex space-x-4">
+              </div> */}
+              {/* <div className="flex space-x-4">
             <div className="min-w-8 size-8 rounded-full overflow-hidden">
               <Image src={avatar} alt="avatar" className="w-10 h-10" />
             </div>
@@ -144,8 +202,10 @@ export default function page() {
                 <Reply />
               </div>
             </div>
-          </div>
-        </div>
+              </div> */}
+            </div>
+          ))
+        )}
       </ScrollArea>
     </div>
   );

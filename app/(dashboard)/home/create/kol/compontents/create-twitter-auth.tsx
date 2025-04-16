@@ -89,13 +89,11 @@ export default function CreateTwitterAuth({
       if (res && res.code === 200) {
         return res.data.id;
       } else {
-        toast.error("Please try again");
         closeCreateXauthDialog();
         return "";
       }
     } catch (error) {
       console.log(error);
-      toast.error("Please try again");
       closeCreateXauthDialog();
       return "";
     }
@@ -116,34 +114,37 @@ export default function CreateTwitterAuth({
       });
       setIsLoading(false);
       if (res && res.code === 200) {
-        setAuthParams(res.data);
+        // setAuthParams(res.data);
         localStorage.setItem("oauth_token_secret", res.data.oauth_token_secret);
-        if (params.get("oauth_verifier")) {
-          handleTwitterAuthCallback();
-        }
+        return res.data.authorization_url;
+        // if (params.get("oauth_verifier")) {
+        //   handleTwitterAuthCallback();
+        // }
       }
     } catch (error) {
       setIsLoading(false);
       console.log(error);
-      toast.error("Please try again");
     }
   };
 
-  const goAuth = () => {
-    window.location.href = authParams.authorization_url;
+  const goAuth = async () => {
+    const authorization_url = await handleTwitterAuth();
+    setIsLoading(true);
+    if (authorization_url) {
+      window.location.href = authorization_url;
+    }
   };
 
-  useEffect(() => {
-    const oauth_token = params.get("oauth_token");
-    if (!oauth_token && isOpen) {
-      handleTwitterAuth();
-    }
-  }, [isOpen]);
+  // useEffect(() => {
+  //   const oauth_token = params.get("oauth_token");
+  //   if (!oauth_token && isOpen) {
+  //     handleTwitterAuth();
+  //   }
+  // }, [isOpen]);
 
   const handleTwitterAuthCallback = async () => {
     try {
       if (!localStorage.getItem("oauth_token_secret")) {
-        toast.error("Please try again");
         return;
       }
       setIsLoading(true);
@@ -157,14 +158,12 @@ export default function CreateTwitterAuth({
       if (res && res.code === 200) {
         handleGetUserInfoByTwitter(res.data);
       } else {
-        toast.error("Please try again");
         clearUrlParams();
         closeCreateXauthDialog();
       }
     } catch (error) {
       setIsLoading(false);
       console.log(error);
-      toast.error("Please try again");
       clearUrlParams();
       closeCreateXauthDialog();
     }
@@ -185,7 +184,6 @@ export default function CreateTwitterAuth({
     } catch (error) {
       setIsLoading(false);
       console.log(error);
-      toast.error("Please try again");
       clearUrlParams();
       closeCreateXauthDialog();
     }
@@ -211,14 +209,13 @@ export default function CreateTwitterAuth({
         toast.success("Twitter authorization successful");
         await dispatch(updateTwitterFullProfile(full_profile));
       } else {
-        toast.error("Please try again");
+        toast.error(res.msg);
         clearUrlParams();
         closeCreateXauthDialog();
       }
     } catch (error) {
       setIsLoading(false);
       console.log(error);
-      toast.error("Please try again");
       clearUrlParams();
       closeCreateXauthDialog();
     }
