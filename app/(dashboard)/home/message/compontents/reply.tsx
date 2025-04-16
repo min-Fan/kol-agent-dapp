@@ -6,9 +6,9 @@ import PostReply from "./post-reply";
 export default function Reply() {
   return (
     <div className="space-y-4">
-      <PostUser />
+      {/* <PostUser />
       <PostContent />
-      <PostTime />
+      <PostTime /> */}
       <div>
         <PostReply />
         <PostReply />
