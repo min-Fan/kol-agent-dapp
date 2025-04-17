@@ -2,7 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { OrderDetail } from "@/app/types/types";
-import { getOrderDetail } from "@/app/request/api";
+import {
+  getOrderDetail,
+  bindOrderOptionAgentId,
+  uploadSelfPostLink,
+  updateOrderOption,
+} from "@/app/request/api";
 import {
   CircleDashed,
   LoaderCircle,
@@ -13,26 +18,120 @@ import { formatDate } from "@/app/utils/date-utils";
 import { Button } from "@/components/ui/button";
 import AgentsDialog from "./compontents/agents-dialog";
 import { AnimatePresence, motion } from "motion/react";
-
+import { cn } from "@/lib/utils";
+import { Mars, Power, PowerOff, Venus } from "lucide-react";
+import { toast } from "sonner";
+import { useAppSelector } from "@/app/store/hooks";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import EvmConnect from "@/app/components/evm-connect";
+import { useAccount } from "wagmi";
+import { extractTweetId } from "@/app/utils/twitter-utils";
+import { OrderPreviewType } from "@/app/types/types";
+import { useOrderPreview } from "@/app/context/OrderPreviewContext";
 export default function Page() {
   const { orderid } = useParams();
+  const router = useRouter();
   const [orderDetail, setOrderDetail] = useState<OrderDetail>();
   const [selectedAgent, setSelectedAgent] = useState<any>();
+  const agents = useAppSelector((state) => state.userReducer.agents);
+  const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);
+  const [isPostLink, setIsPostLink] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const { address } = useAccount();
+  const [tweetUrl, setTweetUrl] = useState("");
+
   const getDetail = async () => {
     try {
-      console.log(orderid);
       const res = await getOrderDetail({ order_item_id: orderid });
       if (res.code === 200) {
         const data: OrderDetail = res.data[0];
         setOrderDetail(data);
+        if (data.agent_id) {
+          setSelectedAgent(
+            agents.find((agent: any) => agent.id === data.agent_id)
+          );
+        }
       }
     } catch (error) {
       console.error(error);
     }
   };
   useEffect(() => {
-    getDetail();
-  }, [orderid]);
+    if (isLoggedIn) {
+      getDetail();
+    } else {
+      router.push("/home");
+    }
+  }, [orderid, isLoggedIn]);
+
+  const changeAgent = async (agent: any) => {
+    try {
+      setSelectedAgent(agent);
+      const res = await bindOrderOptionAgentId({
+        order_item_id: orderid,
+        agent_id: agent.id,
+      });
+      if (res.code === 200) {
+        toast.success("Agent bind successfully");
+      } else {
+        toast.error("Failed to bind agent");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const { status, setStatus, setTweetId, tweetId, isVerified } = useOrderPreview();
+  const [isUploading, setIsUploading] = useState(false);
+  const uploadTweet = async () => {
+    try {
+      if (!isVerified) {
+        toast.error("Please verify the post");
+        return;
+      }
+
+      setIsUploading(true);
+      const res = await uploadSelfPostLink({
+        tweet_url: tweetUrl,
+        wallet_address: address,
+        order_item_id: orderid,
+      });
+      setIsUploading(false);
+      if (res.code === 200) {
+        const upd = await updateOrderOption({
+          order_item_id: orderid,
+          kol_audit_status: "finished",
+        });
+        if (upd.code === 200 && upd.data.result === "success") {
+          toast.success("Tweet uploaded successfully");
+          router.push(`/home/order`);
+        } else {
+          toast.error(upd.msg);
+        }
+      } else {
+        toast.error(res.msg);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsUploading(false);
+    }
+  };
+
+  const handleTweetLinkSubmit = () => {
+    const tweetId = extractTweetId(tweetUrl);
+    if (!tweetId) {
+      toast.error("Invalid tweet URL");
+      return;
+    }
+
+    console.log("Tweet ID:", tweetId);
+    setTweetId(tweetId);
+    setTweetUrl(tweetUrl);
+    setStatus(OrderPreviewType.POST_VIEW);
+    setIsPostLink(false);
+    setIsComplete(true);
+  };
+
   return (
     <div className="w-full h-full space-y-4">
       <div className="grid grid-cols-24 gap-1 p-4 bg-foreground shadow-sm rounded-md border">
@@ -111,7 +210,7 @@ export default function Page() {
         </div>
       )}
 
-      <div className="w-full flex items-center justify-center my-6">
+      <div className="w-full flex items-center justify-start my-6">
         <div className="flex flex-col items-center justify-center w-full md:w-[300px] shadow-sm rounded-md border overflow-hidden">
           <h1 className="w-full text-md font-bold p-2 text-center bg-foreground">
             Payment Amount
@@ -127,40 +226,141 @@ export default function Page() {
         <AnimatePresence mode="wait">
           {selectedAgent ? (
             <motion.div
+              key="selected-agent"
               className="w-full flex items-center justify-center"
               initial={{ opacity: 0, filter: "blur(10px)" }}
               animate={{ opacity: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, filter: "blur(10px)" }}
               transition={{ duration: 0.3 }}
             >
-              <div className="flex flex-col items-center justify-center w-full md:w-[300px] shadow-sm rounded-md border overflow-hidden">
-                <h1 className="w-full text-md font-bold p-2 text-center bg-foreground">
-                  Agent
-                </h1>
-                <p className="text-lg p-2 text-white w-full font-bold text-center bg-gradient-to-r from-green-400 to-blue-500">
-                  <span className="text-2xl font-bold">
-                    {selectedAgent.name}
+              <div
+                className={cn(
+                  "w-full flex items-center justify-between bg-white rounded-md p-4 shadow-sm border",
+                  selectedAgent.status !== "RUNING" &&
+                    "opacity-50 pointer-events-none"
+                )}
+                key={selectedAgent.id}
+              >
+                <div className="flex flex-col gap-1 w-full">
+                  <div className="text-md font-bold flex items-center gap-1">
+                    <span className="text-md font-bold">
+                      {selectedAgent.name}
+                    </span>
+                    {selectedAgent.sex === "male" ? (
+                      <Mars className="w-3 h-3 text-blue-500" />
+                    ) : (
+                      <Venus className="w-3 h-3 text-pink-500" />
+                    )}{" "}
+                    <span className="text-md text-gray-500 pr-2 border-r border-gray-400">
+                      ({selectedAgent.region})
+                    </span>
+                    {selectedAgent.characters.length > 0 &&
+                      selectedAgent.characters.map((character: any) => (
+                        <span className="text-sm text-gray-500 bg-gray-100 rounded-md px-2">
+                          {character}
+                        </span>
+                      ))}
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {selectedAgent.abilitys}
                   </span>
-                </p>
+                </div>
+                <AgentsDialog
+                  name="Change Agent"
+                  ButtonClassName="w-auto rounded-full h-8"
+                  selectedAgent={changeAgent}
+                />
               </div>
             </motion.div>
-          ) : (
+          ) : isPostLink ? (
             <motion.div
+              key="post-link"
               className="w-full flex items-center justify-center gap-6"
               initial={{ opacity: 0, filter: "blur(10px)" }}
               animate={{ opacity: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, filter: "blur(10px)" }}
               transition={{ duration: 0.3 }}
             >
-              <AgentsDialog
-                name="Select Agent"
-                selectedAgent={(agent) => {
-                  setSelectedAgent(agent);
-                }}
-              />
+              <div className="w-full flex items-center flex-col justify-center gap-2 p-2">
+                <Input
+                  placeholder="Enter Tweet Link"
+                  className="w-full"
+                  value={tweetUrl}
+                  onChange={(e) => setTweetUrl(e.target.value)}
+                />
+                <div className="w-full flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-full hover:bg-foreground hover:text-primary"
+                    onClick={() => setIsPostLink(false)}
+                  >
+                    <span className="text-base font-bold">Cancel</span>
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="w-full"
+                    onClick={handleTweetLinkSubmit}
+                  >
+                    <span className="text-base font-bold">Add Tweet Link</span>
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          ) : isComplete ? (
+            <motion.div
+              key="complete"
+              className="w-full flex items-center justify-center gap-6"
+              initial={{ opacity: 0, filter: "blur(10px)" }}
+              animate={{ opacity: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, filter: "blur(10px)" }}
+            >
+              <div className="w-full flex items-center justify-between gap-2 bg-foreground shadow-sm border p-2 rounded-md">
+                <EvmConnect />
+                {address && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-auto rounded-full h-6 hover:bg-foreground hover:text-primary"
+                      onClick={() => {
+                        setStatus(OrderPreviewType.POST_CONTENT);
+                        setIsPostLink(true);
+                        setIsComplete(false);
+                      }}
+                    >
+                      <span className="text-sm font-bold">Cancel</span>
+                    </Button>
+                    <Button
+                      variant="primary"
+                      className="w-auto rounded-full h-6"
+                      onClick={uploadTweet}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <LoaderCircle className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <span className="text-sm font-bold">Confirm</span>
+                      )}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="select-agent"
+              className="w-full flex items-center justify-center gap-6"
+              initial={{ opacity: 0, filter: "blur(10px)" }}
+              animate={{ opacity: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, filter: "blur(10px)" }}
+              transition={{ duration: 0.3 }}
+            >
+              <AgentsDialog name="Select Agent" selectedAgent={changeAgent} />
               <Button
                 variant="outline"
                 className="h-10 w-full flex gap-2 hover:bg-foreground hover:text-primary"
+                onClick={() => {
+                  setIsPostLink(true);
+                }}
               >
                 <span className="text-base font-bold">
                   Already prepared the tweet

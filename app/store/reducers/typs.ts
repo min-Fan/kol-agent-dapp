@@ -43,3 +43,39 @@ export type From = {
   step5: any;
   step6: any; 
 }
+
+export enum AgentStatus {
+  RUNING = "RUNING",
+  CLOSE = "CLOSE",
+}
+export interface Agent {
+  /**
+   * 能力
+   */
+  abilitys: string;
+  characters: string[];
+  /**
+   * 头像
+   */
+  icon?: string;
+  /**
+   * agent id
+   */
+  id: number;
+  /**
+   * agent名字
+   */
+  name?: string;
+  /**
+   * 地区
+   */
+  region: string;
+  /**
+   * 状态，RUNING 是运行中，CLOSE是关闭了
+   */
+  status: AgentStatus;
+  /**
+   * 推特名
+   */
+  x_username?: string;
+}

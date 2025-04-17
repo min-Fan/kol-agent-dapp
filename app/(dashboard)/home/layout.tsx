@@ -10,11 +10,12 @@ import UserCard from "./user-card";
 import ClickSpark from "@/components/Animations/ClickSpark/ClickSpark";
 import NullCreate from "@/app/components/slidebar/null-create";
 import Login from "./login";
-import { useAppSelector } from "@/app/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
 import SidebarNav from "@/app/components/slidebar/sidebar-nav";
 import { useEffect } from "react";
 import { getAgentList } from "@/app/request/api";
 import AgentList from "@/app/components/slidebar/agent-list";
+import { updateAgents } from "@/app/store/reducers/userSlice";
 export default function DashboardLayout({
   children,
 }: {
@@ -23,6 +24,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);
+  const dispatch = useAppDispatch();
   const navItems: any[] = [
     // { href: "/home", icon: House, label: "Home" },
     // { href: "/home/general", icon: Grip, label: "Kol List" },
@@ -33,6 +35,7 @@ export default function DashboardLayout({
     const res = await getAgentList();
     if (res && res.code === 200) {
       setAgents(res.data);
+      dispatch(updateAgents(res.data));
     }
   };
 
@@ -98,7 +101,7 @@ export default function DashboardLayout({
               ))}
               <div className="w-full h-full">
                 {isLoggedIn && agents.length !== 0 ? (
-                  <AgentList agents={agents} />
+                  <AgentList />
                 ) : (
                   <NullCreate />
                 )}

@@ -16,33 +16,31 @@ import { useEffect } from "react";
 import { Mars, Power, PowerOff, Venus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function AgentsDialog({name, selectedAgent}: {name: string, selectedAgent: (agent: any) => void}) {
-  const [agents, setAgents] = useState<any[]>([]);
-  const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);
-  const getAgents = async () => {
-    const res = await getAgentList();
-    if (res && res.code === 200) {
-      setAgents(res.data);
-    }
-  };
+export default function AgentsDialog({
+  name,
+  selectedAgent,
+  ButtonClassName,
+}: {
+  name: string;
+  selectedAgent: (agent: any) => void;
+  ButtonClassName?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const agents = useAppSelector((state) => state.userReducer.agents);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      getAgents();
-    }
-  }, [isLoggedIn]);
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="primary" className="h-10 w-full">
-          <span className="text-base font-bold">{name}</span>
+        <Button
+          variant="primary"
+          className={cn("h-10 w-full", ButtonClassName)}
+        >
+          <span className="text-md font-bold">{name}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="w-lg min-w-[300px] text-primary">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">
-            Select Agent
-          </DialogTitle>
+          <DialogTitle className="text-lg font-bold">Select Agent</DialogTitle>
           <DialogDescription>
             Select a agent to use for your order
           </DialogDescription>
@@ -56,13 +54,36 @@ export default function AgentsDialog({name, selectedAgent}: {name: string, selec
                   agent.status !== "RUNING" && "opacity-50 pointer-events-none"
                 )}
                 key={agent.id}
-                onClick={() => selectedAgent(agent)}
+                onClick={() => {
+                  selectedAgent(agent);
+                  setOpen(false);
+                }}
               >
                 <div className="flex flex-col gap-1 w-full">
                   <div className="text-md font-bold flex items-center gap-1">
-                    {agent.name} {agent.sex === "male" ? <Mars className="w-4 h-4 text-blue-500" /> : <Venus className="w-4 h-4 text-pink-500" />} ({agent.region})
+                    <span className="text-md font-bold whitespace-nowrap">
+                      {agent.name}
+                    </span>
+                    {agent.sex === "male" ? (
+                      <Mars className="w-3 h-3 text-blue-500" />
+                    ) : (
+                      <Venus className="w-3 h-3 text-pink-500" />
+                    )}{" "}
+                    <span className="text-md text-gray-500 pr-2 border-r border-gray-400">
+                      ({agent.region})
+                    </span>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {agent.characters.length > 0 &&
+                        agent.characters.map((character: any) => (
+                          <span className="text-sm text-gray-500 bg-white rounded-md px-2">
+                            {character}
+                          </span>
+                        ))}
+                    </div>
                   </div>
-                  <span className="text-sm text-gray-500">{agent.abilitys}</span>
+                  <span className="text-sm text-gray-500">
+                    {agent.abilitys}
+                  </span>
                 </div>
                 {agent.status == "RUNING" ? (
                   <Power className="size-4 min-w-4 text-green-500" />

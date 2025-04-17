@@ -17,7 +17,9 @@ export default function OrderItem({ order }: { order: Datum }) {
     <div
       className="w-full p-3 rounded-lg bg-foreground shadow-sm flex flex-col gap-2 cursor-pointer hover:bg-slate-100 transition-all duration-300"
       onClick={() => {
-        router.push(`/home/order/${order.id}`);
+        if (order.kol_audit_status === "pending" || order.kol_audit_status === "doing") {
+          router.push(`/home/order/${order.id}`);
+        }
       }}
     >
       <div className="w-full flex items-center justify-between border-b border-dashed pb-2">

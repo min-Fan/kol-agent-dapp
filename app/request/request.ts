@@ -94,7 +94,7 @@ class HttpRequest {
 // 创建请求实例
 const request = new HttpRequest({
   baseURL: process.env.NEXT_PUBLIC_API_URL, // 设置基础URL
-  // timeout: 10000, // 设置超时时间
+  timeout: 60000, // 设置超时时间
   headers: {
     'Content-Type': 'application/json',
   },

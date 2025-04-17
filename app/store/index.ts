@@ -11,14 +11,14 @@ import localForage from "localforage";
 // 导入自己封装好的reducers
 import userReducer, { UserState } from "./reducers/userSlice";
 import { updateVersion } from "./global/actions";
-
+import { DEFAULT_CHAIN } from "@/app/constants/chains";
 // 持久化存储配置对象
 const persistConfig = {
   key: "interface",
   storage: localForage.createInstance({
     name: "redux",
   }),
-  version: 0.6,
+  version: 0.8,
   throttle: 1000, // ms
   serialize: false,
   deserialize: false,
@@ -32,6 +32,7 @@ const persistConfig = {
       userReducer: {
         theme: "dark",
         isLoggedIn: false,
+        chainId: DEFAULT_CHAIN.id,
         userInfo: {
           id: 0,
           username: "",
@@ -85,6 +86,7 @@ const persistConfig = {
           step6: {},
         },
         twitter_full_profile: {},
+        agents: [],
       } as UserState,
     };
 

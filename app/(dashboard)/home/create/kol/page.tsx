@@ -69,10 +69,23 @@ export default function Page() {
   const { openCreateXauthDialog } = useCreateXauthDialog();
   const params = useSearchParams();
   useEffect(() => {
+    dispatch(clearFrom());
+    dispatch(
+      updateConfig({
+        key: "currentStep",
+        value: 1,
+      })
+    );
     const oauth_token = params.get("oauth_token");
     if (oauth_token) {
       // 打开twitter授权弹窗
-      openCreateXauthDialog();
+      dispatch(updateConfig({
+        key: "currentStep",
+        value: 6,
+      }));
+      setTimeout(() => {
+        openCreateXauthDialog();
+      }, 500);
     }
   }, []);
 

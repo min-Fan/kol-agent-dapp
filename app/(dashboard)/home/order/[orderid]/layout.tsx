@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { useAppSelector } from "@/app/store/hooks";
 import { useRouter } from "next/navigation";
 import OrderPreview from "./compontents/order-preview";
-import { OrderDetail } from "@/app/types/types";
+import { OrderDetail, OrderPreviewType } from "@/app/types/types";
 import { getOrderDetail } from "@/app/request/api";
 import { useParams } from "next/navigation";
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -51,7 +51,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="col-span-8 h-full overflow-hidden bg-foreground shadow-md">
-        {orderDetail && <OrderPreview kol={orderDetail.kol} />}
+        {orderDetail && <OrderPreview kol={orderDetail.kol} orderDetail={orderDetail} />}
       </div>
     </div>
   );

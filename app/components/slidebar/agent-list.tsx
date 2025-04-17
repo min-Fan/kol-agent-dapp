@@ -7,7 +7,8 @@ import clsx from "clsx";
 
 import avatar from "@/app/assets/image/avatar.png";
 import { Settings } from "lucide-react";
-
+import { useAppSelector } from "@/app/store/hooks";
+import { AgentStatus } from "@/app/store/reducers/typs";
 const AgentItem = (props: {
   agentId: string;
   name: string;
@@ -72,17 +73,18 @@ const AgentItem = (props: {
   );
 };
 
-export default function AgentList({ agents }: { agents: any[] }) {
+export default function AgentList() {
+  const agents = useAppSelector((state) => state.userReducer.agents);
   return (
     <ul className="space-y-2">
       {agents.map((agent) => (
         <AgentItem
           key={agent.id}
-          agentId={agent.id}
-          name={agent.name}
-          avatar={agent.icon}
+          agentId={agent.id.toString()}
+          name={agent.name || ""}
+          avatar={agent.icon || avatar}
           description={`@${agent.x_username}`}
-          isRunning={agent.status === "RUNING"}
+          isRunning={agent.status === AgentStatus.RUNING}
         />
       ))}
       {/* <AgentItem
