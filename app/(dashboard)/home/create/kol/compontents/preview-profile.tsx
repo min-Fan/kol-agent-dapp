@@ -158,7 +158,7 @@ export default function PreviewProfile() {
     <div className="text-md">
       <div className="h-30 relative bg-primary/10">
         <Image src={banner} alt="banner" fill className="object-cover" />
-        <div className="absolute bottom-0 left-4 w-28 h-28 rounded-full bg-muted-foreground border-4 translate-y-1/2 border-background overflow-hidden">
+        <div className="absolute bottom-0 left-4 w-20 h-20 rounded-full bg-muted-foreground border-4 translate-y-1/2 border-background overflow-hidden">
           {fullUserInfo.profile_image_url ? (
             <img
               src={fullUserInfo.profile_image_url}
@@ -171,7 +171,7 @@ export default function PreviewProfile() {
         </div>
       </div>
       <div className="p-4 space-y-2">
-        <div className="h-10"></div>
+        <div className="h-6"></div>
         <dl className="flex flex-col gap-1">
           <dt className="h-7">
             {Step1.name ? (

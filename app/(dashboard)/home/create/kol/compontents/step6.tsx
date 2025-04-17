@@ -23,6 +23,8 @@ import { updateFrom, clearFrom, updateTwitterFullProfile } from "@/app/store/red
 import { useRef, useEffect } from "react";
 import CreateTwitterAuth from "./create-twitter-auth";
 import { toast } from "sonner";
+import { useGetConst } from "@/app/hooks/useGetConst";
+import { useGetAgents } from "@/app/hooks/useGetAgents";
 const formSchema = z.object({
   price: z.string(),
   address: z
@@ -92,8 +94,12 @@ export default function StepSix() {
     }
   }
 
+  const { getConst } = useGetConst();
+  const { getAgents } = useGetAgents();
   const create = () => {
     console.log("create");
+    getConst();
+    getAgents();
     setIsTwitterAuth(true);
     dispatch(clearFrom());
     dispatch(updateTwitterFullProfile({}));
@@ -215,7 +221,7 @@ export default function StepSix() {
                 </dd>
               </dl>
               <div className="border rounded-md shadow-sm flex justify-center items-center p-4">
-                <CreateTwitterAuth setTwitterAuth={create} />
+                <CreateTwitterAuth setTwitterAuth={(isTwitterAuth: boolean) => setIsTwitterAuth(isTwitterAuth)} create={create}/>
               </div>
             </div>
             <div className="flex justify-between">

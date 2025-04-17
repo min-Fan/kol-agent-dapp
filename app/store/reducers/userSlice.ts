@@ -1,20 +1,23 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserInfo, Config, From } from "./typs";
+import { UserInfo, Config, From, Agent } from "./typs";
 import { UserInfoData } from "@/app/types/types";
-
+import { DEFAULT_CHAIN } from "@/app/constants/chains";
 // 定义用户状态接口
 export interface UserState {
   theme: string;
   isLoggedIn: boolean;
+  chainId: number;
   userInfo: UserInfo;
   config: Config;
   from: From;
   twitter_full_profile: any;
+  agents: Agent[];
 }
 
 const initialState: UserState = {
   theme: "dark",
   isLoggedIn: false,
+  chainId: DEFAULT_CHAIN.id,
   userInfo: {
     id: 0,
     username: "",
@@ -68,6 +71,7 @@ const initialState: UserState = {
     step6: {},
   },
   twitter_full_profile: {},
+  agents: [],
 };
 
 const userSlice = createSlice({
@@ -152,6 +156,18 @@ const userSlice = createSlice({
     updateTwitterFullProfile: (state, action: PayloadAction<any>) => {
       state.twitter_full_profile = action.payload;
     },
+    updateAgents: (state, action: PayloadAction<Agent[]>) => {
+      state.agents = action.payload;
+    },
+    updateAgentItem: (state, action: PayloadAction<Agent>) => {
+      const index = state.agents.findIndex((agent) => agent.id === action.payload.id);
+      if (index !== -1) {
+        state.agents[index] = action.payload;
+      }
+    },
+    updateChain: (state, action: PayloadAction<number>) => {
+      state.chainId = action.payload;
+    },
   },
 });
 
@@ -164,6 +180,9 @@ export const {
   clearFrom,
   updateTwitterFullProfile,
   updateDetails,
+  updateAgents,
+  updateAgentItem,
+  updateChain,
 } = userSlice.actions;
 
 export default userSlice.reducer;

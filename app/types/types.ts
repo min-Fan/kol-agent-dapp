@@ -233,7 +233,7 @@ export interface OrderDetail {
   /**
    * 订单信息
    */
-  buy_agent_order: OrderDetailBuyAgentOrder;
+  buy_agent_order: OrderBuyAgentOrder;
   /**
    * 创建时间
    */
@@ -255,32 +255,42 @@ export interface OrderDetail {
    * 购买数量，默认1
    */
   tweets: number;
-  [property: string]: any;
+  /**
+   * 代理id
+   */
+  agent_id: number;
 }
 
 /**
- * 订单信息
- */
-export interface OrderDetailBuyAgentOrder {
+* 订单信息
+*/
+export interface OrderBuyAgentOrder {
   /**
    * 项目信息
    */
-  project: OrderDetailProject;
+  project: OrderProject;
   /**
    * 宣传需求
    */
   promotional_materials: string;
-  [property: string]: any;
 }
 
 /**
- * 项目信息
- */
-export interface OrderDetailProject {
+* 项目信息
+*/
+export interface OrderProject {
   /**
    * 项目描述
    */
   desc: string;
+  /**
+   * 项目icon
+   */
+  icon: string;
+  /**
+   * 项目id
+   */
+  id: number;
   /**
    * 项目名称
    */
@@ -333,12 +343,17 @@ export interface OrderKol {
    */
   username: string;
   /**
+   * 描述
+   */
+  description: string;
+  /**
    * 推特创建时间
    */
   x_created_at: string;
-  /**
-   * 推特描述
-   */
-  description: string;
 }
 /** ======================================== 订单详情 response types ========================================= */
+
+export enum OrderPreviewType {
+  POST_CONTENT = 'POST_CONTENT',
+  POST_VIEW = 'POST_VIEW',
+}
