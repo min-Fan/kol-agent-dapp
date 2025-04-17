@@ -71,38 +71,31 @@ export default function SidebarNav() {
   const userInfo = useAppSelector((state) => state.userReducer.userInfo);
   const { openDrawer } = useLoginDrawer();
   const [userData, setUserData] = useState<any>({});
-  const [agents, setAgents] = useState<any[]>([]);
 
   const getInfo = async () => {
     try {
       const res: any = await getUserInfo();
       if (res && res.code === 200) {
         setUserData(res.data);
-      } 
+      }
     } catch (error: any) {
       console.log(error);
     } finally {
     }
   };
-  const getAgents = async () => {
-    const res = await getAgentList();
-    if (res && res.code === 200) {
-      console.log(res.data);
-      setAgents(res.data);
-    }
-  };
-
 
   useEffect(() => {
     if (isLoggedIn) {
       getInfo();
-      getAgents();
     }
   }, [isLoggedIn]);
 
   const onLink = (path: string) => {
     if (isLoggedIn) {
-      if (path === '/home/create/kol' && userData.agent.created >= userData.agent.total) {
+      if (
+        path === "/home/create/kol" &&
+        userData.agent.created >= userData.agent.total
+      ) {
         toast.warning("Create agent has reached the limit");
       } else {
         router.push(path);

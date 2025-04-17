@@ -19,7 +19,7 @@ import {
 } from "@/app/request/api";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { updateTwitterFullProfile } from "@/app/store/reducers/userSlice";
+import { updateConfig, updateTwitterFullProfile } from "@/app/store/reducers/userSlice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { Loader2 } from "lucide-react";
 import { CreateAgentRequest } from "@/app/types/types";
@@ -28,9 +28,11 @@ import { useCreateXauthDialog } from "@/app/hooks/useCreateXauthDialog";
 export default function CreateTwitterAuth({
   setTwitterAuth,
   showName = "Connect",
+  create,
 }: {
   setTwitterAuth: (isTwitterAuth: boolean) => void;
   showName?: string;
+  create: () => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
@@ -208,9 +210,15 @@ export default function CreateTwitterAuth({
       if (res && res.code === 200) {
         toast.success("Twitter authorization successful");
         await dispatch(updateTwitterFullProfile(full_profile));
+        setTwitterAuth(true);
       } else {
         toast.error(res.msg);
         clearUrlParams();
+        dispatch(updateConfig({
+          key: "currentStep",
+          value: 1,
+        }));
+        dispatch(updateTwitterFullProfile(null));
         closeCreateXauthDialog();
       }
     } catch (error) {
@@ -272,6 +280,7 @@ export default function CreateTwitterAuth({
                 onClick={() => {
                   clearUrlParams();
                   setTwitterAuth(true);
+                  create();
                   closeCreateXauthDialog();
                 }}
                 disabled={isLoading}

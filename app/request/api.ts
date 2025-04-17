@@ -310,7 +310,7 @@ export async function updateOrderOption(params: any) {
 }
 
 // 上传自己发的推文链接
-export async function uploadSelfPost(params: any) {
+export async function uploadSelfPostLink(params: any) {
   try {
     const res = await request.post('/kol/api/v1/submit/tweets/', {...params})
     return res
@@ -320,3 +320,80 @@ export async function uploadSelfPost(params: any) {
   }
 }
 
+// 订单选项关联agent_id 接口
+export async function bindOrderOptionAgentId(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/kol/order/item/agent/bind', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 修改订单选项审核状态
+export async function updateOrderOptionStatus(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/kol/order/item/edit', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 生成推文内容
+export async function generatePostContent(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/tweets/content/gen', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 手动发推
+export async function sendPost(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/tweets/post', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 推文相关性检查
+export async function checkPostRelevance(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/verify/tweets/', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 更新agent的运行状态
+export async function updateAgentStatus(agent_id: string, params: any) {
+  try {
+    const res = await request.post(`/kol/api/v1/agent/status/${agent_id}/`, {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+
+// 通过推文ID获取推文
+export async function getPostDetail(params: any) {
+  try {
+    const res = await request.get('/kol/api/v1/get/tweets/', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}

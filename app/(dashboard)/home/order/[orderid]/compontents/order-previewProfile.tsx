@@ -12,7 +12,7 @@ export default function OrderPreviewProfile({ info }: { info: OrderKol }) {
     <div className="text-md">
       <div className="h-30 relative bg-primary/10">
         <Image src={banner} alt="banner" fill className="object-cover" />
-        <div className="absolute bottom-0 left-4 w-28 h-28 rounded-full bg-muted-foreground border-4 translate-y-1/2 border-background overflow-hidden">
+        <div className="absolute bottom-0 left-4 w-20 h-20 rounded-full bg-muted-foreground border-4 translate-y-1/2 border-background overflow-hidden">
           {info.profile_image_url ? (
             <img
               src={info.profile_image_url}
@@ -25,7 +25,7 @@ export default function OrderPreviewProfile({ info }: { info: OrderKol }) {
         </div>
       </div>
       <div className="p-4 space-y-2">
-        <div className="h-10"></div>
+        <div className="h-4"></div>
         <dl className="flex flex-col gap-1">
           <dt className="h-7">
             <h1 className="text-xl font-bold">{info.name}</h1>
@@ -34,11 +34,13 @@ export default function OrderPreviewProfile({ info }: { info: OrderKol }) {
             <span className="text-md">@{info.username}</span>
           </dd>
         </dl>
-        <div className="text-muted-foreground min-h-4">
-          <p className="text-sm line-clamp-3 overflow-hidden text-ellipsis">
-            {info.description}
-          </p>
-        </div>
+        {info.description && (
+          <div className="text-muted-foreground min-h-4">
+            <p className="text-sm line-clamp-3 overflow-hidden text-ellipsis">
+              {info.description}
+            </p>
+          </div>
+        )}
         <ul className="flex space-x-4 items-center">
           <li className="flex items-center space-x-1">
             <CalendarDays className="w-4 h-4 text-muted-foreground" />

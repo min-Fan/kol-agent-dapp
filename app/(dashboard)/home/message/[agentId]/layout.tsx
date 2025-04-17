@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 
 import TurnOffConfirmation from "../compontents/turn-off-confirmation";
 import { useAppSelector } from "@/app/store/hooks";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
-
+import { AgentStatus } from "@/app/store/reducers/typs";
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const [isTurnOff, setIsTurnOff] = useState(true);
+  const agents = useAppSelector((state) => state.userReducer.agents);
+  const { agentId } = useParams();
   const isLoggedIn = useAppSelector(
     (state: any) => state.userReducer.isLoggedIn
   );
@@ -32,12 +33,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h1 className="text-base font-bold">Message</h1>
             </div>
           </Link>
-          <TurnOffConfirmation setIsTurnOff={setIsTurnOff}>
+          <TurnOffConfirmation
+            isTurnOff={
+              agents.find((agent) => agent.id == Number(agentId))?.status ===
+              AgentStatus.RUNING
+            }
+          >
             <Button
               variant="outline"
               className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
             >
-              {isTurnOff ? (
+              {agents.find((agent) => agent.id == Number(agentId))?.status ===
+              AgentStatus.RUNING ? (
                 <Power className="size-4 min-w-4 text-destructive" />
               ) : (
                 <Play className="size-4 min-w-4 text-secondary" />
@@ -45,10 +52,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <span
                 className={cn(
                   "text-md font-bold",
-                  isTurnOff ? "text-destructive" : "text-secondary"
+                  agents.find((agent) => agent.id == Number(agentId))
+                    ?.status === AgentStatus.RUNING
+                    ? "text-destructive"
+                    : "text-secondary"
                 )}
               >
-                {isTurnOff ? "Turn Off" : "Turn On"}
+                {agents.find((agent) => agent.id == Number(agentId))?.status ===
+                AgentStatus.RUNING
+                  ? "Turn Off"
+                  : "Turn On"}
               </span>
             </Button>
           </TurnOffConfirmation>

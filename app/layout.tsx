@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/sonner";
 import ReduxProvider from "./context/ReduxProvider";
 import { LoginProvider } from "./hooks/useLoginDrawer";
 import { CreateXauthProvider } from "./hooks/useCreateXauthDialog";
+import WagmiProviderContext from "./context/WagmiProviderContext";
+import "@rainbow-me/rainbowkit/styles.css";
 export const metadata: Metadata = {
   title: "KOL AGENT",
   description: "KOL AGENT",
@@ -35,8 +37,10 @@ export default function RootLayout({
         <ReduxProvider>
           <LoginProvider>
             <CreateXauthProvider>
-              <ScrollArea className="h-full w-full">{children}</ScrollArea>
-              <Toaster />
+              <WagmiProviderContext>
+                <ScrollArea className="h-full w-full">{children}</ScrollArea>
+                <Toaster />
+              </WagmiProviderContext>
             </CreateXauthProvider>
           </LoginProvider>
         </ReduxProvider>
