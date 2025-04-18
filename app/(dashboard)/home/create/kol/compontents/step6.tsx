@@ -19,12 +19,17 @@ import { Button } from "@/components/ui/button";
 
 import { useStepperContext } from "@/app/context/stepper-context";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
-import { updateFrom, clearFrom, updateTwitterFullProfile } from "@/app/store/reducers/userSlice";
+import {
+  updateFrom,
+  clearFrom,
+  updateTwitterFullProfile,
+} from "@/app/store/reducers/userSlice";
 import { useRef, useEffect } from "react";
 import CreateTwitterAuth from "./create-twitter-auth";
 import { toast } from "sonner";
 import { useGetConst } from "@/app/hooks/useGetConst";
 import { useGetAgents } from "@/app/hooks/useGetAgents";
+import { useGetInfo } from "@/app/hooks/useGetInfo";
 const formSchema = z.object({
   price: z.string(),
   address: z
@@ -95,11 +100,13 @@ export default function StepSix() {
   }
 
   const { getConst } = useGetConst();
+  const { getInfo } = useGetInfo();
   const { getAgents } = useGetAgents();
   const create = () => {
     console.log("create");
     getConst();
     getAgents();
+    getInfo();
     setIsTwitterAuth(true);
     dispatch(clearFrom());
     dispatch(updateTwitterFullProfile({}));
@@ -221,7 +228,12 @@ export default function StepSix() {
                 </dd>
               </dl>
               <div className="border rounded-md shadow-sm flex justify-center items-center p-4">
-                <CreateTwitterAuth setTwitterAuth={(isTwitterAuth: boolean) => setIsTwitterAuth(isTwitterAuth)} create={create}/>
+                <CreateTwitterAuth
+                  setTwitterAuth={(isTwitterAuth: boolean) =>
+                    setIsTwitterAuth(isTwitterAuth)
+                  }
+                  create={create}
+                />
               </div>
             </div>
             <div className="flex justify-between">

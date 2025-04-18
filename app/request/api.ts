@@ -3,31 +3,21 @@ import request from "./request";
 // 聊天
 export async function chat(params: any) {
   try {
-    const controller = new AbortController();
-    // const timeout = setTimeout(() => controller.abort(), 120000); // 120秒超时
-
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kol/api/v1/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // "Wallet-Address": localStorage.getItem("walletAddress") || ""
+        'Accept': 'text/event-stream',
       },
       body: JSON.stringify(params),
-      signal: controller.signal
     });
-    
-    // clearTimeout(timeout); // 清除超时计时器
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     return response;
-  } catch (error: any) {
-    if (error.name === 'AbortError') {
-      console.error('请求超时');
-      throw new Error('请求超时');
-    }
+  } catch (error) {
     console.error('聊天失败:', error);
     throw error;
   }

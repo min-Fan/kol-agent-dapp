@@ -102,7 +102,11 @@ export default function PreviewProfile() {
       const response: any = await chat({
         messages: [
           {
-            content: `Hi, please generate a short description for kol, his character is ${Step1.character}, length is limited to 160 characters, don't need to output how many characters it is, just plain content, nothing else.`,
+            content: `length is limited to 100 characters, don't need to output how many characters it is, just plain content, nothing else.`,
+            role: "system",
+          },
+          {
+            content: `Hi, please generate a short description for kol, his character is ${Step1.character}`,
             role: "user",
           },
         ],
@@ -180,7 +184,8 @@ export default function PreviewProfile() {
                 {Step1.name}
               </h1>
             ) : (
-              <Skeleton className="w-20 h-7" />
+              <h1 className="text-xl font-bold">Agent</h1>
+              // <Skeleton className="w-20 h-7" />
             )}
           </dt>
           <dd className="text-muted-foreground h-4">
@@ -193,7 +198,10 @@ export default function PreviewProfile() {
                 {Step1.name}
               </span>
             ) : (
-              <Skeleton className="w-24 h-4" />
+              <span className="text-md">
+                @Agent
+              </span>
+              // <Skeleton className="w-24 h-4" />
             )}
           </dd>
         </dl>
@@ -228,9 +236,10 @@ export default function PreviewProfile() {
                 </p>
               ) : (
                 <div className="space-y-1">
-                  <Skeleton className="w-full h-3" />
+                  <span className="text-md">Hello!</span>
+                  {/* <Skeleton className="w-full h-3" />
                   <Skeleton className="w-[80%] h-3" />
-                  <Skeleton className="w-[60%] h-3" />
+                  <Skeleton className="w-[60%] h-3" /> */}
                 </div>
               )}
             </>
