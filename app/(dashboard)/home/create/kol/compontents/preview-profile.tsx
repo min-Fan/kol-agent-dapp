@@ -159,15 +159,15 @@ export default function PreviewProfile() {
       <div className="h-30 relative bg-primary/10">
         <Image src={banner} alt="banner" fill className="object-cover" />
         <div className="absolute bottom-0 left-4 w-20 h-20 rounded-full bg-muted-foreground border-4 translate-y-1/2 border-background overflow-hidden">
-          {fullUserInfo.profile_image_url ? (
+          {/* {fullUserInfo.profile_image_url ? (
             <img
               src={fullUserInfo.profile_image_url}
               alt=""
               className="w-full h-full object-cover"
             />
-          ) : (
+          ) : ( */}
             <Image src={avatar} alt="avatar" fill />
-          )}
+          {/* )} */}
         </div>
       </div>
       <div className="p-4 space-y-2">
