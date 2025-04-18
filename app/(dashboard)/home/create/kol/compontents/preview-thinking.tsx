@@ -12,7 +12,7 @@ interface PreviewThinkingProps {
 
 export default function PreviewThinking(props: PreviewThinkingProps) {
   const { texts, isLoading = false, currentText = "" } = props;
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // 监听 isLoading 变化
   useEffect(() => {
@@ -21,16 +21,16 @@ export default function PreviewThinking(props: PreviewThinkingProps) {
     } else {
       // 当loading结束时，延迟一小段时间后收起
       const timer = setTimeout(() => {
-        setIsExpanded(false);
+        // setIsExpanded(false);
       }, 500); // 等待500ms后收起
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
       <div
-        className="flex items-center gap-1 cursor-pointer hover:text-secondary"
+        className="w-full flex items-center gap-1 cursor-pointer hover:text-secondary sticky top-0"
         onClick={() => !isLoading && setIsExpanded(!isExpanded)} // 只有在非loading状态下才允许手动切换
       >
         {isExpanded ? (

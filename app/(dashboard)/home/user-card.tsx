@@ -13,11 +13,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { updateIsLoggedIn, updateDetails } from "@/app/store/reducers/userSlice";
+import {
+  updateIsLoggedIn,
+  updateDetails,
+} from "@/app/store/reducers/userSlice";
 import { getUserInfo } from "@/app/request/api";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserInfoData } from "@/app/types/types";
+import { useGetInfo } from "@/app/hooks/useGetInfo";
 
 const UserInfoSkeleton = () => {
   return (
@@ -40,44 +44,36 @@ const UserInfoSkeleton = () => {
   );
 };
 export default function UserCard() {
-  const [progress, setProgress] = useState(50);
+  const { getInfo, isLoading } = useGetInfo();
+
+  // const [userInfo, setUserInfo] = useState<UserInfoData | null>(null);
+  const userInfo = useAppSelector(
+    (state: any) => state.userReducer.userInfo.details
+  );
+  const [progress, setProgress] = useState(0);
   const dispatch = useAppDispatch();
-  const [userInfo, setUserInfo] = useState<any>({});
   const storeUserInfo = useAppSelector(
     (state: any) => state.userReducer.userInfo
   );
-  const [isLoading, setIsLoading] = useState(false);
   const isLoggedIn = useAppSelector(
     (state: any) => state.userReducer.isLoggedIn
   );
-  const getInfo = async () => {
-    try {
-      setIsLoading(true);
-      const res: any = await getUserInfo();
-      setIsLoading(false);
-      if (res && res.code === 200) {
-        const data: UserInfoData = res.data;
-        setUserInfo(res.data);
-        dispatch(updateDetails(res.data));
-        const progress =
-          (data.agent.created / data.agent.total) * 100;
-        console.log(data.agent.created, data.agent.total, progress);
-        setProgress(progress);
-      } else {
-        toast.error(res.msg);
-      }
-    } catch (error: any) {
-      console.log(error);
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
+
+  const handleGetInfo = async () => {
+    const result = await getInfo();
+    if (result) {
+      dispatch(updateDetails(result.data));
+      // setUserInfo(result.data);
+      setProgress(result.progress);
     }
   };
+
   useEffect(() => {
     if (isLoggedIn) {
-      getInfo();
+      handleGetInfo();
     }
   }, [isLoggedIn]);
+
   return (
     <div className="w-full flex flex-col gap-2">
       <Link href="/home/pricing">
@@ -120,8 +116,8 @@ export default function UserCard() {
             </div>
           </div>
           <div className="w-full h-full rounded-lg bg-slate-50 p-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <div className="w-full flex items-center justify-between gap-2">
+              <div className="flex-1 flex items-center gap-2">
                 {storeUserInfo.profile_image_url && (
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                     <img
@@ -131,14 +127,18 @@ export default function UserCard() {
                     />
                   </div>
                 )}
-                <div className="flex flex-col gap-0">
-                  <span className="text-sm">{storeUserInfo?.username}</span>
+                <div className="flex flex-col gap-0 w-full">
+                  <span className="text-sm truncate max-w-[140px]">
+                    {storeUserInfo?.username}
+                    {storeUserInfo?.username}
+                  </span>
                   <span className="text-xs text-gray-500">
-                    {storeUserInfo?.description || `@${storeUserInfo?.screen_name}`}
+                    {storeUserInfo?.description ||
+                      `@${storeUserInfo?.screen_name}`}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="w-3 min-w-3 flex items-center gap-2">
                 <LogOut
                   className="h-3 w-3 text-gray-400 cursor-pointer"
                   onClick={() => dispatch(updateIsLoggedIn(false))}

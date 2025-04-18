@@ -241,8 +241,23 @@ export default function CreateTwitterAuth({
     (state: any) => state.userReducer.twitter_full_profile
   );
 
+  // 添加地址检查函数
+  const checkAddress = () => {
+    if (!from.step6?.address || !/^0x[a-fA-F0-9]{40}$/.test(from.step6?.address)) {
+      toast.error("Please enter a valid wallet address");
+      return false;
+    }
+    return true;
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={toggleCreateXauthDialog}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // 打开弹窗前检查地址
+      if (open && !checkAddress()) {
+        return;
+      }
+      toggleCreateXauthDialog();
+    }}>
       <DialogTrigger asChild>
         <Button className="duration-350 flex items-center justify-center font-bold">
           {showName}

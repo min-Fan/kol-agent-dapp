@@ -60,33 +60,34 @@ export default function PreviewStepOne() {
   const isAllEmpty = () => {
     // 如果Step1不存在，返回true（认为是空的）
     if (!Step1) return true;
-    
+
     // 要检查的字段，排除性别(gender)
-    const fieldsToCheck = ['name', 'character', 'region', 'language'];
-    
+    const fieldsToCheck = ["name", "character", "region", "language"];
+
     // 检查每个字段是否都是空的
     // 只要有一个字段有值，就返回false（不是都空）
-    return fieldsToCheck.every(field => 
-      Step1[field] === undefined || 
-      Step1[field] === null || 
-      Step1[field] === ''
+    return fieldsToCheck.every(
+      (field) =>
+        Step1[field] === undefined ||
+        Step1[field] === null ||
+        Step1[field] === ""
     );
   };
 
   // 构建提示信息，只包含已填写的字段
   const buildPrompt = () => {
-    let prompt = '';
-    
+    let prompt = "";
+
     // 添加名称
-    if (Step1.name && Step1.name.trim() !== '') {
+    if (Step1.name && Step1.name.trim() !== "") {
       prompt += `Hi, my name is ${Step1.name}. `;
     }
-    
+
     // 添加性别
     if (Step1.gender) {
       prompt += `I am a ${Step1.gender}. `;
     }
-    
+
     // 添加地区
     const regionName = region.find(
       (item: any) => item.id === Step1.region
@@ -94,12 +95,12 @@ export default function PreviewStepOne() {
     if (regionName) {
       prompt += `I am from ${regionName}. `;
     }
-    
+
     // 添加性格/角色
-    if (Step1.character && Step1.character.trim() !== '') {
+    if (Step1.character && Step1.character.trim() !== "") {
       prompt += `I am a ${Step1.character}. `;
     }
-    
+
     // 添加语言
     const languageName = language.find(
       (item: any) => item.id === Step1.language
@@ -107,14 +108,14 @@ export default function PreviewStepOne() {
     if (languageName) {
       prompt += `I speak ${languageName}. `;
     }
-    
+
     // 只有当所有必要字段都填写完时，添加语言生成请求
     if (isStep1Complete()) {
-      prompt += `Please introduce myself in ${languageName || 'English'}.`;
+      prompt += `Please introduce myself in ${languageName || "English"}.`;
     } else {
-      prompt += `Please introduce myself in ${languageName || 'English'}.`;
+      prompt += `Please introduce myself in ${languageName || "English"}.`;
     }
-    
+
     return prompt;
   };
 
@@ -122,11 +123,11 @@ export default function PreviewStepOne() {
   const hasEnoughInfo = () => {
     // 如果是全空的，返回false
     if (isAllEmpty()) return false;
-    
+
     // 至少需要名字或性格特征之一
     return (
-      (Step1.name && Step1.name.trim() !== '') || 
-      (Step1.character && Step1.character.trim() !== '')
+      (Step1.name && Step1.name.trim() !== "") ||
+      (Step1.character && Step1.character.trim() !== "")
     );
   };
 
@@ -134,16 +135,16 @@ export default function PreviewStepOne() {
     try {
       // 检查是否至少有一些内容可以生成
       if (!hasEnoughInfo()) {
-        console.log('没有足够的信息可以生成描述');
+        console.log("没有足够的信息可以生成描述");
         return;
       }
-      
+
       setLoading(true);
       setPartialOutput("");
       setPartialReasoning("");
 
       const prompt = buildPrompt();
-      console.log('生成提示:', prompt);
+      console.log("生成提示:", prompt);
 
       const response: any = await chat({
         messages: [
@@ -210,13 +211,13 @@ export default function PreviewStepOne() {
   useEffect(() => {
     // 如果已经初始化过，或者没有Step1数据，则返回
     if (initializedRef.current || !Step1) return;
-    
+
     // 标记为已初始化
     initializedRef.current = true;
-    
+
     // 检查是否有足够的信息可以生成描述
     if (hasEnoughInfo()) {
-      console.log('组件初始化时检测到已有数据，开始生成描述');
+      console.log("组件初始化时检测到已有数据，开始生成描述");
       generateDescription();
     }
   }, []); // 依赖数组为空，表示只在组件挂载时执行一次
@@ -246,14 +247,6 @@ export default function PreviewStepOne() {
       {/* 显示正在加载的内容 */}
       {loading && (
         <div className="space-y-2">
-          {partialOutput && (
-            <div className="bg-background/80 rounded-md px-2 py-2 relative">
-              {partialOutput}
-              <span className="animate-pulse inline-block ml-0.5">▌</span>
-            </div>
-          )}
-
-          {/* 显示正在加载的思考过程 */}
           {partialReasoning && (
             <>
               <PreviewLoader text="Thinking..." isThinking={loading} />
@@ -264,10 +257,33 @@ export default function PreviewStepOne() {
           {!partialOutput && !partialReasoning && (
             <PreviewLoader text="Thinking..." isThinking={loading} />
           )}
+
+          {/* 显示正在加载的思考过程 */}
+          {partialOutput && (
+            <div className="bg-background/80 rounded-md px-2 py-2 relative">
+              {partialOutput}
+              <span className="animate-pulse inline-block ml-0.5">▌</span>
+            </div>
+          )}
         </div>
       )}
 
-      {!loading && messages.length === 0 && <Skeleton className="w-full h-8" />}
+      {!loading && messages.length === 0 && (
+        <>
+          <p className="bg-background rounded-md px-2 py-2">
+            Hello! I'm your KOL Agent assistant. It's a pity that you haven't
+            set some of my attributes yet. By default, I will serve you with a
+            friendly and enthusiastic attitude. Although I haven't been assigned
+            a specific region of origin for now, I'm always ready to go beyond
+            geographical boundaries to help you solve problems. In terms of
+            communication, I will communicate with you in Chinese by default. If
+            you have other needs in the future, you can adjust it at any time.
+            I'm looking forward to starting a pleasant and efficient interactive
+            journey with you.
+          </p>
+          {/* <Skeleton className="w-full h-8" /> */}
+        </>
+      )}
     </div>
   );
 }

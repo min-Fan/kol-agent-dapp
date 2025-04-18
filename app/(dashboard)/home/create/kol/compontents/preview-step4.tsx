@@ -17,6 +17,7 @@ export default function PreviewStepFour() {
   const Step1 = useAppSelector((state: any) => state.userReducer.from.step1);
   const Step2 = useAppSelector((state: any) => state.userReducer.from.step2);
   const Step3 = useAppSelector((state: any) => state.userReducer.from.step3);
+  const Step4 = useAppSelector((state: any) => state.userReducer.from.step4);
   const [message, setMessage] = useState<Message | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialTweet, setPartialTweet] = useState<string>("");
@@ -27,16 +28,17 @@ export default function PreviewStepFour() {
 
   // 构建提示信息
   const buildPrompt = () => {
-    let prompt = 'Please generate a Twitter post for a KOL. ';
+    let prompt = 'Please act as a Twitter content generator for a KOL. ';
     
     // 添加KOL基本信息 (Step1)
-    if (Step1.name) prompt += `The KOL's name is ${Step1.name}. `;
-    if (Step1.gender) prompt += `They are a ${Step1.gender}. `;
-    if (Step1.character) prompt += `They have a ${Step1.character} personality. `;
+    prompt += `The KOL's name is ${Step1.name}`;
+    if (Step1.gender) prompt += `, who is a ${Step1.gender}`;
+    if (Step1.character) prompt += ` with a ${Step1.character} personality`;
+    prompt += '. ';
     
     // 添加KOL能力和特征 (Step2)
     if (Step2.ability) {
-      prompt += `They have the following abilities: ${Step2.ability}. `;
+      prompt += `This KOL has the following abilities: ${Step2.ability}. `;
     }
 
     const languageName = language.find((item: any) => item.id === Step1.language)?.name;
@@ -46,13 +48,44 @@ export default function PreviewStepFour() {
     
     // 添加互动要求 (Step3)
     if (Step3.interactive) {
-      prompt += `They should interact with users interested in: ${Step3.interactive}. `;
+      prompt += `The KOL should interact with users interested in: ${Step3.interactive}. `;
     }
     
     // 明确生成内容的要求
-    prompt += `Generate a tweet that reflects their personality and interests.`;
+    prompt += `Based on this information, please:
+    1. Generate FIVE different Twitter posts (tweets) that showcase the KOL's personality and relate to their area of interest. Each tweet should be unique and under 280 characters.
+    
+    Format your response with "TWEETS:" followed by numbered tweets (1).`;
     
     return prompt;
+  };
+
+  // 解析API返回的内容
+  const parseContent = (content: string): { tweet: string } => {
+    let tweets: string[] = [];
+    
+    // 尝试提取推文
+    const tweetsMatch = content.match(/TWEETS:([\s\S]+)/);
+    if (tweetsMatch && tweetsMatch[1]) {
+      // 分割推文
+      tweets = tweetsMatch[1]
+        .split(/\d+\./)
+        .filter(line => line.trim())
+        .map(tweet => tweet.trim());
+    }
+    
+    // 如果未找到格式化的内容，尝试进行基本拆分
+    if (!tweets.length) {
+      tweets = content
+        .split('\n')
+        .filter(line => line.trim())
+        .slice(0, 5);
+    }
+    
+    // 随机选择一条推文
+    const randomTweet = tweets[Math.floor(Math.random() * tweets.length)] || '';
+    
+    return { tweet: randomTweet };
   };
 
   const generateTweet = async () => {
@@ -62,6 +95,8 @@ export default function PreviewStepFour() {
       setPartialReasoning("");
 
       const prompt = buildPrompt();
+      console.log('Generation prompt:', prompt);
+
       const response: any = await chat({
         messages: [
           {
@@ -74,15 +109,22 @@ export default function PreviewStepFour() {
       const { content, reasoningContent } = await handleSSEResponse(
         response,
         (text: string, reasoningText: string) => {
-          setPartialTweet(text);
+          const { tweet } = parseContent(text);
+          setPartialTweet(tweet);
           setPartialReasoning(reasoningText);
         }
       );
 
-      setMessage({
-        tweet: content,
-        reasoningContent: reasoningContent,
-      });
+      const { tweet } = parseContent(content);
+      console.log("Generated tweet:", tweet);
+      console.log("Reasoning process:", reasoningContent);
+
+      if (tweet.trim() !== "") {
+        setMessage({
+          tweet,
+          reasoningContent
+        });
+      }
     } catch (error) {
       console.error("Failed to generate tweet:", error);
     } finally {
@@ -94,7 +136,7 @@ export default function PreviewStepFour() {
     if (initializedRef.current) return;
     initializedRef.current = true;
     generateTweet();
-  }, [Step1, Step2, Step3]);
+  }, [Step1, Step2, Step3, Step4]);
 
   return (
     <div className="px-4 space-y-4 text-md">
