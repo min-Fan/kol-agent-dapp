@@ -46,7 +46,7 @@ export default function StepFive() {
       )
       .refine(
         (val) => Number(val) >= 0 && Number(val) <= limit.post,
-        `Must be between 1 and ${limit.post}`
+        `Must be between 0 and ${limit.post}`
       ),
     repost: z
       .string()
@@ -56,7 +56,7 @@ export default function StepFive() {
       )
       .refine(
         (val) => Number(val) >= 0 && Number(val) <= limit.repost,
-        `Must be between 1 and ${limit.repost}`
+        `Must be between 0 and ${limit.repost}`
       ),
     quote: z
       .string()
@@ -66,7 +66,7 @@ export default function StepFive() {
       )
       .refine(
         (val) => Number(val) >= 0 && Number(val) <= limit.quote,
-        `Must be between 1 and ${limit.quote}`
+        `Must be between 0 and ${limit.quote}`
       ),
     likes: z
       .string()
@@ -76,7 +76,7 @@ export default function StepFive() {
       )
       .refine(
         (val) => Number(val) >= 0 && Number(val) <= limit.likes,
-        `Must be between 1 and ${limit.likes}`
+        `Must be between 0 and ${limit.likes}`
       ),
     reply: z
       .string()
@@ -86,7 +86,7 @@ export default function StepFive() {
       )
       .refine(
         (val) => Number(val) >= 0 && Number(val) <= limit.reply,
-        `Must be between 1 and ${limit.reply}`
+        `Must be between 0 and ${limit.reply}`
       ),
     comment: z
       .string()
@@ -96,7 +96,7 @@ export default function StepFive() {
       )
       .refine(
         (val) => Number(val) >= 0 && Number(val) <= limit.comment,
-        `Must be between 1 and ${limit.comment}`
+        `Must be between 0 and ${limit.comment}`
       ),
   });
 
@@ -105,12 +105,12 @@ export default function StepFive() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      post: limit.post || step5Init?.post || "",
-      repost: limit.repost || step5Init?.repost || "",
-      quote: limit.quote || step5Init?.quote || "",
-      likes: limit.likes || step5Init?.likes || "",
-      reply: limit.reply || step5Init?.reply || "",
-      comment: limit.comment || step5Init?.comment || "",
+      post: step5Init?.post || String(limit.post) || "",
+      repost: step5Init?.repost || String(limit.repost) || "",
+      quote: step5Init?.quote || String(limit.quote) || "",
+      likes: step5Init?.likes || String(limit.likes) || "",
+      reply: step5Init?.reply || String(limit.reply) || "",
+      comment: step5Init?.comment || String(limit.comment) || "",
     },
   });
 
@@ -132,18 +132,18 @@ export default function StepFive() {
   }, [form, dispatch]);
 
   useEffect(() => {
-    if (initialRenderRef.current && step5Init) {
+    if (initialRenderRef.current && limit) {
       form.reset({
-        post: step5Init.post || "",
-        repost: step5Init.repost || "",
-        quote: step5Init.quote || "",
-        likes: step5Init.likes || "",
-        reply: step5Init.reply || "",
-        comment: step5Init.comment || "",
+        post: step5Init?.post || String(limit.post) || "",
+        repost: step5Init?.repost || String(limit.repost) || "",
+        quote: step5Init?.quote || String(limit.quote) || "",
+        likes: step5Init?.likes || String(limit.likes) || "",
+        reply: step5Init?.reply || String(limit.reply) || "",
+        comment: step5Init?.comment || String(limit.comment) || "",
       });
       initialRenderRef.current = false;
     }
-  }, [step5Init, form]);
+  }, [limit, step5Init, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -196,6 +196,7 @@ export default function StepFive() {
                       <div className="border rounded-md px-2 shadow-sm group flex items-center justify-between space-x-2 py-2">
                         <Input
                           {...field}
+                          value={field.value}
                           placeholder="Enter post frequency"
                           className="text-md w-full border-none shadow-none p-2"
                         />

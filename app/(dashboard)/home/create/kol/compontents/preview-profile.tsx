@@ -102,7 +102,11 @@ export default function PreviewProfile() {
       const response: any = await chat({
         messages: [
           {
-            content: `Hi, please generate a short description for kol, his character is ${Step1.character}, length is limited to 160 characters, don't need to output how many characters it is, just plain content, nothing else.`,
+            content: `length is limited to 100 characters, don't need to output how many characters it is, just plain content, nothing else.`,
+            role: "system",
+          },
+          {
+            content: `Hi, please generate a short description for kol, his character is ${Step1.character}`,
             role: "user",
           },
         ],
@@ -159,15 +163,15 @@ export default function PreviewProfile() {
       <div className="h-30 relative bg-primary/10">
         <Image src={banner} alt="banner" fill className="object-cover" />
         <div className="absolute bottom-0 left-4 w-20 h-20 rounded-full bg-muted-foreground border-4 translate-y-1/2 border-background overflow-hidden">
-          {fullUserInfo.profile_image_url ? (
+          {/* {fullUserInfo.profile_image_url ? (
             <img
               src={fullUserInfo.profile_image_url}
               alt=""
               className="w-full h-full object-cover"
             />
-          ) : (
+          ) : ( */}
             <Image src={avatar} alt="avatar" fill />
-          )}
+          {/* )} */}
         </div>
       </div>
       <div className="p-4 space-y-2">
@@ -176,31 +180,37 @@ export default function PreviewProfile() {
           <dt className="h-7">
             {Step1.name ? (
               <h1 className="text-xl font-bold">
-                {fullUserInfo.username ? fullUserInfo.username : Step1.name}
+                {/* {fullUserInfo.username ? fullUserInfo.username : Step1.name} */}
+                {Step1.name}
               </h1>
             ) : (
-              <Skeleton className="w-20 h-7" />
+              <h1 className="text-xl font-bold">Agent</h1>
+              // <Skeleton className="w-20 h-7" />
             )}
           </dt>
           <dd className="text-muted-foreground h-4">
             {Step1.name ? (
               <span className="text-md">
                 @
-                {fullUserInfo.screen_name
+                {/* {fullUserInfo.screen_name
                   ? fullUserInfo.screen_name
-                  : Step1.name}
+                  : Step1.name} */}
+                {Step1.name}
               </span>
             ) : (
-              <Skeleton className="w-24 h-4" />
+              <span className="text-md">
+                @Agent
+              </span>
+              // <Skeleton className="w-24 h-4" />
             )}
           </dd>
         </dl>
         <div className="text-muted-foreground min-h-4">
-          {fullUserInfo.description ? (
+          {/* {fullUserInfo.description ? (
             <p className="text-sm line-clamp-3 overflow-hidden text-ellipsis">
               {fullUserInfo.description}
             </p>
-          ) : (
+          ) : ( */}
             <>
               {loading ? (
                 // 在加载时显示部分输出
@@ -226,13 +236,14 @@ export default function PreviewProfile() {
                 </p>
               ) : (
                 <div className="space-y-1">
-                  <Skeleton className="w-full h-3" />
+                  <span className="text-md">Hello!</span>
+                  {/* <Skeleton className="w-full h-3" />
                   <Skeleton className="w-[80%] h-3" />
-                  <Skeleton className="w-[60%] h-3" />
+                  <Skeleton className="w-[60%] h-3" /> */}
                 </div>
               )}
             </>
-          )}
+          {/* )} */}
         </div>
         <ul className="flex space-x-4 items-center">
           <li className="flex items-center space-x-1">

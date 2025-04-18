@@ -201,7 +201,7 @@ export default function CreateTwitterAuth({
         app_id: params.get("app_id"),
         agent_id: params.get("agent_id"),
         oauth_token: data.oauth_token,
-        user_id: full_profile.id,
+        user_id: full_profile.id_str,
         screen_name: full_profile.screen_name,
         oauth_token_secret: data.oauth_token_secret,
         profile_image_url_https: full_profile.profile_image_url_https,
@@ -241,8 +241,23 @@ export default function CreateTwitterAuth({
     (state: any) => state.userReducer.twitter_full_profile
   );
 
+  // 添加地址检查函数
+  const checkAddress = () => {
+    if (!from.step6?.address || !/^0x[a-fA-F0-9]{40}$/.test(from.step6?.address)) {
+      toast.error("Please enter a valid wallet address");
+      return false;
+    }
+    return true;
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={toggleCreateXauthDialog}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // 打开弹窗前检查地址
+      if (open && !checkAddress()) {
+        return;
+      }
+      toggleCreateXauthDialog();
+    }}>
       <DialogTrigger asChild>
         <Button className="duration-350 flex items-center justify-center font-bold">
           {showName}

@@ -11,50 +11,52 @@ export async function handleSSEResponse(
   let buffer = "";
   let fullContent = "";
   let fullReasoningContent = "";
+  let currentChunk = "";
+
+  // 添加打字机效果的函数
+  const typewriterEffect = async (text: string, isContent: boolean) => {
+    let displayText = isContent ? fullContent : fullReasoningContent;
+    for (let i = 0; i < text.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 0)); // 10ms 延迟
+      if (isContent) {
+        fullContent = displayText + text.slice(0, i + 1);
+        onChunk(fullContent, fullReasoningContent);
+      } else {
+        fullReasoningContent = displayText + text.slice(0, i + 1);
+        onChunk(fullContent, fullReasoningContent);
+      }
+    }
+  };
 
   try {
-    // 初始化空字符串
     onChunk("", "");
-
-    // 创建一个TextDecoder对象来解码数据
     const decoder = new TextDecoder();
     
-    // 处理事件行
-    const processEventLine = (line: string) => {
-      // 跳过空行
+    const processEventLine = async (line: string) => {
       if (!line.trim()) return;
       
-      // 检查是否是SSE格式的数据行
       if (line.startsWith('data:')) {
-        const data = line.slice(5).trim(); // 移除"data:"前缀并修剪空白
+        const data = line.slice(5).trim();
         
-        // 处理特殊的完成标记
         if (data === '[DONE]') {
           console.log('流传输完成');
           return;
         }
         
         try {
-          // 解析JSON数据
           const jsonData = JSON.parse(data);
           
-          // 1. 处理单个消息 - 如果提供了onNewMessage回调
-          if (onNewMessage && jsonData.content !== undefined && jsonData.content !== null) {
-            // 将每个消息作为独立的字符串传递，只有当内容不为null时
-            onNewMessage(jsonData.content);
-          }
-          
-          // 2. 同时维护累积的内容 - 用于兼容现有代码
           if (jsonData.content !== undefined && jsonData.content !== null) {
-            fullContent += jsonData.content;
-            // 只有在内容有变化时才触发回调
-            onChunk(fullContent, fullReasoningContent);
+            currentChunk = jsonData.content;
+            // 使用打字机效果显示内容
+            await typewriterEffect(currentChunk, true);
+            if (onNewMessage) onNewMessage(currentChunk);
           }
           
           if (jsonData.reasoning_content !== undefined && jsonData.reasoning_content !== null) {
-            fullReasoningContent += jsonData.reasoning_content;
-            // 只有在推理内容有变化时才触发回调
-            onChunk(fullContent, fullReasoningContent);
+            const reasoningChunk = jsonData.reasoning_content;
+            // 使用打字机效果显示推理内容
+            await typewriterEffect(reasoningChunk, false);
           }
         } catch (e) {
           console.error('解析SSE数据失败:', e);
@@ -74,29 +76,23 @@ export async function handleSSEResponse(
       }
     };
 
-    // 使用stream reader处理响应流
     while (true) {
       const { done, value } = await reader.read();
+      if (done) break;
       
-      if (done) {
-        break;
-      }
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
       
-      // 将新数据添加到缓冲区
-      buffer += decoder.decode(value, { stream: true });
-      
-      // 处理完整的SSE行
-      let newlineIndex;
-      while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-        const line = buffer.slice(0, newlineIndex);
-        buffer = buffer.slice(newlineIndex + 1);
-        processEventLine(line);
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        await processEventLine(line);
       }
     }
     
-    // 处理最后一行（如果没有换行符结尾）
     if (buffer.trim()) {
-      processEventLine(buffer);
+      await processEventLine(buffer);
     }
 
     return { content: fullContent, reasoningContent: fullReasoningContent };
