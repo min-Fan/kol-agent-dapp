@@ -11,6 +11,7 @@ export async function handleSSEResponse(
   let buffer = "";
   let fullContent = "";
   let fullReasoningContent = "";
+  let currentChunk = ""; // 当前正在处理的数据块
 
   try {
     // 初始化空字符串
@@ -38,23 +39,24 @@ export async function handleSSEResponse(
           // 解析JSON数据
           const jsonData = JSON.parse(data);
           
-          // 1. 处理单个消息 - 如果提供了onNewMessage回调
-          if (onNewMessage && jsonData.content !== undefined && jsonData.content !== null) {
-            // 将每个消息作为独立的字符串传递，只有当内容不为null时
-            onNewMessage(jsonData.content);
-          }
-          
-          // 2. 同时维护累积的内容 - 用于兼容现有代码
+          // 立即处理每个新的数据块
           if (jsonData.content !== undefined && jsonData.content !== null) {
-            fullContent += jsonData.content;
-            // 只有在内容有变化时才触发回调
+            currentChunk = jsonData.content;
+            fullContent += currentChunk;
+            // 每收到一个数据块就立即触发回调
             onChunk(fullContent, fullReasoningContent);
           }
           
           if (jsonData.reasoning_content !== undefined && jsonData.reasoning_content !== null) {
-            fullReasoningContent += jsonData.reasoning_content;
-            // 只有在推理内容有变化时才触发回调
+            const reasoningChunk = jsonData.reasoning_content;
+            fullReasoningContent += reasoningChunk;
+            // 每收到一个推理数据块就立即触发回调
             onChunk(fullContent, fullReasoningContent);
+          }
+
+          // 如果提供了单条消息的回调，也触发它
+          if (onNewMessage && currentChunk) {
+            onNewMessage(currentChunk);
           }
         } catch (e) {
           console.error('解析SSE数据失败:', e);
@@ -82,14 +84,15 @@ export async function handleSSEResponse(
         break;
       }
       
-      // 将新数据添加到缓冲区
-      buffer += decoder.decode(value, { stream: true });
+      // 实时解码并处理新数据
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
       
-      // 处理完整的SSE行
-      let newlineIndex;
-      while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-        const line = buffer.slice(0, newlineIndex);
-        buffer = buffer.slice(newlineIndex + 1);
+      // 立即处理每一行
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || ''; // 保留最后一个不完整的行
+
+      for (const line of lines) {
         processEventLine(line);
       }
     }

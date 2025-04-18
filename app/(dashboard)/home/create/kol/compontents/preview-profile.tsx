@@ -176,7 +176,8 @@ export default function PreviewProfile() {
           <dt className="h-7">
             {Step1.name ? (
               <h1 className="text-xl font-bold">
-                {fullUserInfo.username ? fullUserInfo.username : Step1.name}
+                {/* {fullUserInfo.username ? fullUserInfo.username : Step1.name} */}
+                {Step1.name}
               </h1>
             ) : (
               <Skeleton className="w-20 h-7" />
@@ -186,9 +187,10 @@ export default function PreviewProfile() {
             {Step1.name ? (
               <span className="text-md">
                 @
-                {fullUserInfo.screen_name
+                {/* {fullUserInfo.screen_name
                   ? fullUserInfo.screen_name
-                  : Step1.name}
+                  : Step1.name} */}
+                {Step1.name}
               </span>
             ) : (
               <Skeleton className="w-24 h-4" />
@@ -196,11 +198,11 @@ export default function PreviewProfile() {
           </dd>
         </dl>
         <div className="text-muted-foreground min-h-4">
-          {fullUserInfo.description ? (
+          {/* {fullUserInfo.description ? (
             <p className="text-sm line-clamp-3 overflow-hidden text-ellipsis">
               {fullUserInfo.description}
             </p>
-          ) : (
+          ) : ( */}
             <>
               {loading ? (
                 // 在加载时显示部分输出
@@ -232,7 +234,7 @@ export default function PreviewProfile() {
                 </div>
               )}
             </>
-          )}
+          {/* )} */}
         </div>
         <ul className="flex space-x-4 items-center">
           <li className="flex items-center space-x-1">
