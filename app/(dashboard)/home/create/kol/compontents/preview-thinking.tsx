@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Markdown from "react-markdown";
 import { ChevronDown, ChevronUp } from "lucide-react"; // 引入展开/收起图标
 import { AnimatePresence, motion } from "framer-motion"; // 引入动画库
@@ -13,6 +13,9 @@ interface PreviewThinkingProps {
 export default function PreviewThinking(props: PreviewThinkingProps) {
   const { texts, isLoading = false, currentText = "" } = props;
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 监听 isLoading 变化
   useEffect(() => {
@@ -22,13 +25,51 @@ export default function PreviewThinking(props: PreviewThinkingProps) {
       // 当loading结束时，延迟一小段时间后收起
       const timer = setTimeout(() => {
         // setIsExpanded(false);
-      }, 500); // 等待500ms后收起
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
 
+  // 滚动到底部的函数
+  const scrollToBottom = () => {
+    if (containerRef.current && !isHovering) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  };
+
+  // 文本内容变化时滚动到底部
+  useEffect(() => {
+    scrollToBottom();
+  }, [texts, currentText]);
+
+  // 处理鼠标移入移出事件
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+    }
+    
+    hoverTimerRef.current = setTimeout(() => {
+      setIsHovering(false);
+      scrollToBottom(); // 移出后立即滚动到底部
+      hoverTimerRef.current = null;
+    }, 500);
+  };
+
   return (
-    <div className="space-y-2 relative">
+    <div 
+      className="space-y-2 relative overflow-y-scroll max-h-[100px]"
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div
         className="w-full flex items-center gap-1 cursor-pointer hover:text-secondary sticky top-0"
         onClick={() => !isLoading && setIsExpanded(!isExpanded)} // 只有在非loading状态下才允许手动切换

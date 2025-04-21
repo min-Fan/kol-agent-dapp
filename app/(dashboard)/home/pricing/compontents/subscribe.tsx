@@ -1,15 +1,23 @@
 import clsx from "clsx";
 
 import { Button } from "@/components/ui/button";
-
+import SubscribeDialog from "./subscribe-dialog";
 export default function Subscribe(props: {
   title: string;
   price: string;
-  yearPrice: string;
+  yearPrice?: string;
   discount: string;
   isHighlight?: boolean;
+  isActive?: boolean;
 }) {
-  const { title, price, yearPrice, discount, isHighlight = false } = props;
+  const {
+    title,
+    price,
+    yearPrice,
+    discount,
+    isHighlight = false,
+    isActive = false,
+  } = props;
 
   return (
     <div
@@ -30,9 +38,9 @@ export default function Subscribe(props: {
       </h3>
       <dl className="">
         <dt className="text-md font-bold">
-          <span className="text-4xl font-bold">{price}</span>/月
+          <span className="text-4xl font-bold">{price}</span>/month
         </dt>
-        <dd className="text-md">
+        {/* <dd className="text-md">
           <span
             className={clsx(
               isHighlight ? "text-foreground" : "text-muted-foreground"
@@ -41,21 +49,42 @@ export default function Subscribe(props: {
             {yearPrice}
           </span>
           /年
-        </dd>
+        </dd> */}
       </dl>
       {isHighlight ? (
-        <Button
-          variant="outline"
-          className="hover:bg-foreground text-[#0bbdb6]/90 hover:text-[#0bbdb6]/90"
-        >
-          <span className="text-base">立即订阅</span>
+        isActive ? (
+          <Button
+            variant="outline"
+            className="hover:bg-foreground text-[#0bbdb6]/90 hover:text-[#0bbdb6]/90"
+          >
+            <span className="text-base font-bold">Active</span>
+          </Button>
+        ) : (
+          <SubscribeDialog
+            TriggerButton={
+              <Button
+                variant="outline"
+                className="hover:bg-foreground text-[#0bbdb6]/90 hover:text-[#0bbdb6]/90"
+              >
+                <span className="text-base font-bold">Subscribe</span>
+              </Button>
+            }
+          />
+        )
+      ) : isActive ? (
+        <Button variant="primary">
+          <span className="text-base font-bold">Active</span>
         </Button>
       ) : (
-        <Button variant="primary">
-          <span className="text-base">立即订阅</span>
-        </Button>
+        <SubscribeDialog
+          TriggerButton={
+            <Button variant="primary">
+              <span className="text-base font-bold">Subscribe</span>
+            </Button>
+          }
+        />
       )}
-      <div
+      {/* <div
         className={clsx(
           "absolute top-0 right-0 font-semibold text-md rounded-bl-md px-4 py-1",
           isHighlight
@@ -64,7 +93,7 @@ export default function Subscribe(props: {
         )}
       >
         {discount} 折扣
-      </div>
+      </div> */}
     </div>
   );
 }

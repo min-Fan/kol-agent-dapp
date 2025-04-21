@@ -119,7 +119,7 @@ export default function UserCard() {
             <div className="w-full flex items-center justify-between gap-2">
               <div className="flex-1 flex items-center gap-2">
                 {storeUserInfo.profile_image_url && (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  <div className="w-8 min-w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                     <img
                       src={storeUserInfo.profile_image_url}
                       alt=""
@@ -130,9 +130,8 @@ export default function UserCard() {
                 <div className="flex flex-col gap-0 w-full">
                   <span className="text-sm truncate max-w-[140px]">
                     {storeUserInfo?.username}
-                    {storeUserInfo?.username}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 truncate max-w-[130px]">
                     {storeUserInfo?.description ||
                       `@${storeUserInfo?.screen_name}`}
                   </span>

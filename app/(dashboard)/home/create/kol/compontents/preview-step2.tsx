@@ -215,12 +215,12 @@ export default function PreviewStepTwo() {
         messages.map((message, index) => (
           <div key={index} className="space-y-2">
             {/* 显示思考过程 */}
-            {message.reasoningContent && (
+            {/* {message.reasoningContent && (
               <>
                 <PreviewLoader text="Thought process:" isThinking={false} />
                 <PreviewThinking texts={message.reasoningContent} />
               </>
-            )}
+            )} */}
             {/* 显示主要内容 */}
             <div className="bg-background rounded-md px-2 py-2">
               <Markdown>{message.content}</Markdown>

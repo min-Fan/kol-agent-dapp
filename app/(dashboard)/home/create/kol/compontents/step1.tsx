@@ -37,7 +37,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { updateConfig, updateFrom } from "@/app/store/reducers/userSlice";
+import { clearFrom, updateConfig, updateFrom } from "@/app/store/reducers/userSlice";
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -128,8 +128,8 @@ export default function StepOne() {
         name: step1Init.name || "",
         gender: step1Init.gender || "male",
         character: step1Init.character || "",
-        region: step1Init.region || 0,
-        language: step1Init.language || 0,
+        region: step1Init.region || region[0].id || 0,
+        language: step1Init.language || language[0].name || "",
       });
       initialRenderRef.current = false;
     }
@@ -140,10 +140,6 @@ export default function StepOne() {
     console.log(values);
     handleNext();
   }
-
-  // useEffect(() => {
-  //   dispatch(updateConfig({ key: "currentStep", value: 1 }));
-  // }, []);
 
   return (
     <div className="w-full h-full flex flex-col gap-4 px-2">
