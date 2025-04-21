@@ -1,11 +1,32 @@
+"use client";
 import Image from "next/image";
 import star from "@/app/assets/image/star.png";
 
 import Tab from "./compontents/tab";
 import Subscribe from "./compontents/subscribe";
 import Features from "./compontents/features";
-
+import { useState, useEffect } from "react";
+import { getUserCanBuyMember } from "@/app/request/api";
+import { useAppSelector } from "@/app/store/hooks";
+import { cn } from "@/lib/utils";
 export default function page() {
+  const [subscribes, setSubscribes] = useState<any[]>([]);
+  const info = useAppSelector((state) => state.userReducer.userInfo);
+
+  const getSubscribe = async () => {
+    try {
+      const res = await getUserCanBuyMember();
+      if (res.code === 200) {
+        setSubscribes(res.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getSubscribe();
+  }, []);
+
   return (
     <div className="w-full h-auto p-12">
       <div className="flex flex-col items-center max-w-6xl mx-auto space-y-12">
@@ -30,16 +51,45 @@ export default function page() {
           </dl>
           <dl>
             <dt className="text-xl font-bold">100K+</dt>
-            <dd>5星好评</dd>
+            <dd>5 Star Reviews</dd>
           </dl>
           <dl>
             <dt className="text-xl font-bold">10M+</dt>
-            <dd>活跃用户</dd>
+            <dd>Active Users</dd>
           </dl>
         </div>
-        <Tab />
+        {/* <Tab /> */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
-          <div className="shadow-sm rounded-md bg-foreground overflow-hidden border border-border hover:border-secondary transition-colors">
+          {subscribes.map((item) => (
+            <div
+              className={cn(
+                "shadow-sm rounded-md bg-foreground overflow-hidden border border-border hover:border-secondary transition-colors",
+                item.id === 3 && "border-secondary"
+              )}
+              key={item.id}
+            >
+              <Subscribe
+                title={item.name}
+                price={`$${item.price}`}
+                isActive={item.id === info.member_id}
+                discount={"0"}
+                isHighlight={item.id === 3}
+              />
+              <Features
+                data={[
+                  item.agent_limit,
+                  item.order_post,
+                  item.repost,
+                  item.quote,
+                  item.comment,
+                  item.reply,
+                  item.likes,
+                  item.order_post,
+                ]}
+              />
+            </div>
+          ))}
+          {/* <div className="shadow-sm rounded-md bg-foreground overflow-hidden border border-border hover:border-secondary transition-colors">
             <Subscribe
               title="Basic"
               price="$9.3"
@@ -66,7 +116,7 @@ export default function page() {
               discount="41%"
             />
             <Features data={[2, 8, 3, 3, 6, 4, 40, 8]} />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

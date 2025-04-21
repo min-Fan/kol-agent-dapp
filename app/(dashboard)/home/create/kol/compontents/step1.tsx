@@ -128,8 +128,8 @@ export default function StepOne() {
         name: step1Init.name || "",
         gender: step1Init.gender || "male",
         character: step1Init.character || "",
-        region: step1Init.region || 0,
-        language: step1Init.language || 0,
+        region: step1Init.region || region[0].id || 0,
+        language: step1Init.language || language[0].name || "",
       });
       initialRenderRef.current = false;
     }
