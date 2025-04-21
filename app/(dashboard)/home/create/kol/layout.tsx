@@ -17,10 +17,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h1 className="text-base font-bold">Create Your Agent</h1>
             </div>
           </Link>
-          <Button variant="outline" className="flex gap-2">
+          {/* <Button variant="outline" className="flex gap-2">
             <Zap className="w-4 h-4" />
             <span className="text-md">Create Quickly</span>
-          </Button>
+          </Button> */}
         </div>
         <div className="w-full flex-1 overflow-auto">{children}</div>
       </div>

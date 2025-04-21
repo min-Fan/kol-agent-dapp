@@ -23,126 +23,129 @@ export default function PreviewStepOne() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialOutput, setPartialOutput] = useState<string>("");
-  const [partialReasoning, setPartialReasoning] = useState<string>("");
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const fullMessageRef = useRef<string>("");
+  const typingIndexRef = useRef<number>(0);
   const prevStep1Ref = useRef<string | null>(null);
 
-  const generateDescription = async () => {
-    try {
-      setPartialOutput("");
-      setPartialReasoning("");
+  // 生成基于模板的消息
+  const generateTemplateMessage = () => {
+    const lines = [];
+    
+    // 根据提供的模板生成消息
+    if (Step1?.name && Step1.name.trim() !== "") {
+      lines.push(`Hello! I'm your assistant, ${Step1.name.trim()}. It's my great honor to serve you.`);
+    }
+    
+    if (Step1?.gender) {
+      lines.push(`Let me introduce myself. I'm of ${Step1.gender} gender.`);
+    }
+    
+    if (Step1?.character && Step1.character.trim() !== "") {
+      lines.push(`I have a distinct personality, possessing traits such as ${Step1.character.trim()}, and I look forward to providing you with an intimate and unique interactive experience.`);
+    }
+    
+    const regionName = region?.find((item: any) => item.id === Step1?.region)?.name;
+    if (regionName) {
+      lines.push(`I come from the charming ${regionName}.`);
+    }
+    
+    const languageName = language?.find((item: any) => item.id === Step1?.language)?.name;
+    if (languageName) {
+      lines.push(`In our future communication, I will communicate with you entirely in ${languageName} to ensure smooth interaction.`);
+    }
+    
+    // 如果没有任何内容，使用默认消息
+    if (lines.length === 0) {
+      return "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
+    }
+    
+    return lines.join("\n");
+  };
 
-      // --- 构建 API 请求的 messages 数组 ---
-      const apiMessages = [];
+  // 开始逐字打印
+  const startTyping = (message: string) => {
+    // 清理之前可能的计时器
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+    }
+    
+    fullMessageRef.current = message;
+    typingIndexRef.current = 0;
+    setLoading(true);
+    setPartialOutput("");
+    
+    // 开始打字效果
+    typeMessage();
+  };
 
-      // 1. 系统提示词 (System Prompt)
-      const systemPrompt = `You are an assistant generating a self-introduction based on provided details. Follow these instructions strictly:
-- Use the following template sentences.
-- Only include a sentence if a value for its placeholder is provided in the user message.
-- Substitute the placeholder (e.g., $[Name]) with the provided value.
-- Output each included sentence on a new line.
-- If the user message indicates 'No values provided', output the default message exactly.
-
-Template Sentences:
-1. Hello! I'm your assistant, $[Name]. It's my great honor to serve you.
-2. Let me introduce myself. I'm of $[Gender] gender.
-3. I have a distinct personality, possessing traits such as $[Character], and I look forward to providing you with an intimate and unique interactive experience.
-4. I come from the charming $[Region].
-5. In our future communication, I will communicate with you entirely in $[Language] to ensure smooth interaction.
-
-Default Message (use only if no values provided):
-"Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you."
-`;
-      apiMessages.push({ role: "system", content: systemPrompt });
-
-      // 2. 用户消息 (User Prompt) - 包含实际值
-      let userPromptContent = "";
-      const providedValues: string[] = [];
-      let hasValues = false;
-
-      // Name
-      if (Step1?.name && Step1.name.trim() !== "") {
-        providedValues.push(`- Name: ${Step1.name.trim()}`);
-        hasValues = true;
-      }
-      // Gender
-      if (Step1?.gender) {
-        providedValues.push(`- Gender: ${Step1.gender}`);
-        hasValues = true;
-      }
-      // Character
-      if (Step1?.character && Step1.character.trim() !== "") {
-        providedValues.push(`- Character: ${Step1.character.trim()}`);
-        hasValues = true;
-      }
-      // Region
-      const regionName = region?.find(
-        (item: any) => item.id === Step1?.region
-      )?.name;
-      if (regionName) {
-        providedValues.push(`- Region: ${regionName}`);
-        hasValues = true;
-      }
-      // Language
-      const languageName = language?.find(
-        (item: any) => item.id === Step1?.language
-      )?.name;
-      if (languageName) {
-        providedValues.push(`- Language: ${languageName}`);
-        hasValues = true;
-      }
-
-      if (hasValues) {
-        userPromptContent =
-          "Generate the introduction based on the following provided values:\n" +
-          providedValues.join("\n");
-      } else {
-        userPromptContent =
-          "No values provided. Please generate the default message.";
-      }
-      apiMessages.push({ role: "user", content: userPromptContent });
-      // --- 结束构建 messages 数组 ---
-
-      console.log("API Messages:", apiMessages);
-
-      const response: any = await chat({ messages: apiMessages });
-
-      // 处理流式响应
-      const { content, reasoningContent } = await handleSSEResponse(
-        response,
-        (text: string, reasoningText: string) => {
-          setPartialOutput(text);
-          setPartialReasoning(reasoningText);
-        }
-      );
-
-      console.log("生成的对话:", content);
-      console.log("思考过程:", reasoningContent);
-
-      // 保存最终消息
-      setMessages([
-        {
-          content: content,
-          reasoningContent: reasoningContent,
-        },
-      ]);
-    } catch (error) {
-      console.error("生成对话失败:", error);
-      setMessages([
-        { content: "抱歉，生成描述时遇到错误。", reasoningContent: "" },
-      ]);
-    } finally {
+  // 逐字打印效果
+  const typeMessage = () => {
+    if (typingIndexRef.current < fullMessageRef.current.length) {
+      setPartialOutput(fullMessageRef.current.substring(0, typingIndexRef.current + 1));
+      typingIndexRef.current++;
+      
+      // 随机打字速度，更自然，但速度调快一点
+      const randomDelay = Math.floor(Math.random() * 5) + 5; // 5-10ms之间的随机延迟
+      
+      typingTimerRef.current = setTimeout(typeMessage, randomDelay);
+    } else {
+      // 打字结束，添加到现有消息列表而不是替换
+      setMessages(prev => [...prev, {
+        content: fullMessageRef.current,
+        reasoningContent: ""
+      }]);
       setLoading(false);
+      setPartialOutput("");
     }
   };
 
+  // 在组件挂载时执行一次，负责初始消息的设置
+  useEffect(() => {
+    const hasInitialContent = Step1 && Object.keys(Step1).some(key => {
+      if (key === 'name' || key === 'character') {
+        return Step1[key] && Step1[key].trim() !== '';
+      }
+      return !!Step1[key];
+    });
+    
+    const defaultMessage = "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
+    
+    if (hasInitialContent) {
+      // 如果已有内容，生成模板消息并显示
+      const templateMessage = generateTemplateMessage();
+      // 直接设置消息，避免打字效果
+      setMessages([{
+        content: templateMessage,
+        reasoningContent: ""
+      }]);
+    } else {
+      // 如果没有内容，使用默认消息
+      setMessages([{
+        content: defaultMessage,
+        reasoningContent: ""
+      }]);
+    }
+    
+    // 初始化引用变量，防止后续比较出错
+    prevStep1Ref.current = Step1 ? JSON.stringify(Step1) : null;
+    
+  }, []); // 仅在组件挂载时执行一次
+
   // 处理Step1变化的useEffect
   useEffect(() => {
+    // 避免初始渲染时重复处理
+    if (prevStep1Ref.current === null) {
+      return;
+    }
+    
     const currentStepJSON = Step1 ? JSON.stringify(Step1) : null;
     if (prevStep1Ref.current === currentStepJSON) {
       return;
     }
+    
     prevStep1Ref.current = currentStepJSON;
     
     // 检查Step1是否有实际内容
@@ -153,95 +156,59 @@ Default Message (use only if no values provided):
       return !!Step1[key];
     });
     
+    // 如果没有内容，重置为默认消息
     if (!hasContent) {
-      // 没有内容，设置默认消息
+      const defaultMessage = "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
+      
       setMessages([{
-        content: "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you."
+        content: defaultMessage,
+        reasoningContent: ""
       }]);
-      setLoading(false);
       return;
     }
-
+    
+    // 取消之前的定时器
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
-
-    setMessages([]);
-    setPartialOutput("");
-    setPartialReasoning("");
-    setLoading(true);
-
-    timerRef.current = setTimeout(() => {
-      console.log("触发生成描述 (useEffect)");
-      generateDescription();
-      timerRef.current = null;
-    }, 500);
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+    }
+    
+    // 生成模板消息
+    const templateMessage = generateTemplateMessage();
+    
+    // 立即开始打字
+    startTyping(templateMessage);
 
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+      }
     };
   }, [Step1, region, language]);
-
-  // 组件初始化时设置默认消息
-  useEffect(() => {
-    // 检查是否有任何输入
-    const hasInitialContent = Step1 && Object.keys(Step1).some(key => {
-      if (key === 'name' || key === 'character') {
-        return Step1[key] && Step1[key].trim() !== '';
-      }
-      return !!Step1[key];
-    });
-    
-    if (!hasInitialContent) {
-      setMessages([{
-        content: "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you."
-      }]);
-      setLoading(false);
-    }
-  }, []);
 
   return (
     <div className="px-4 space-y-4 text-md">
       {messages.length > 0 &&
         messages.map((message, index) => (
           <div key={index} className="space-y-2">
-            {/* 显示思考过程 */}
-            {message.reasoningContent && !loading && (
-              <>
-                <PreviewLoader text={"Thought process:"} isThinking={false} />
-                <PreviewThinking texts={message.reasoningContent} />
-              </>
-            )}
-            {/* 显示主要内容 */}
             <div className="bg-background rounded-md px-2 py-2">
               <Markdown>{message.content}</Markdown>
             </div>
           </div>
         ))}
 
-      {/* 显示正在加载的内容 */}
+      {/* 显示正在加载/打字的内容 */}
       {loading && (
         <div className="space-y-2">
-          {/* 实时思考过程 */}
-          {partialReasoning && (
-            <>
-              <PreviewLoader text="Thinking..." isThinking={true} />
-              <PreviewThinking texts={partialReasoning} />
-            </>
-          )}
-          {/* 如果只有 thinking 图标 */}
-          {!partialReasoning && !partialOutput && (
-            <PreviewLoader text="Thinking..." isThinking={true} />
-          )}
           {/* 实时输出内容 */}
-          {partialOutput && (
-            <div className="bg-background/80 rounded-md px-2 py-2 relative">
-              <Markdown>{partialOutput}</Markdown>
-              <span className="animate-pulse inline-block ml-0.5">▌</span>
-            </div>
-          )}
+          <div className="bg-background/80 rounded-md px-2 py-2 relative">
+            <Markdown>{partialOutput}</Markdown>
+          </div>
         </div>
       )}
     </div>

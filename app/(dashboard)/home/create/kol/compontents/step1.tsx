@@ -37,7 +37,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { updateConfig, updateFrom } from "@/app/store/reducers/userSlice";
+import { clearFrom, updateConfig, updateFrom } from "@/app/store/reducers/userSlice";
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -140,10 +140,6 @@ export default function StepOne() {
     console.log(values);
     handleNext();
   }
-
-  // useEffect(() => {
-  //   dispatch(updateConfig({ key: "currentStep", value: 1 }));
-  // }, []);
 
   return (
     <div className="w-full h-full flex flex-col gap-4 px-2">

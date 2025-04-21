@@ -404,6 +404,9 @@
   strong {
     font-family: "Arial-Bold";
   }
+  p {
+    word-break: break-all !important;
+  }
   div[data-radix-scroll-area-viewport] {
     > div {
       display: block !important;
