@@ -15,7 +15,7 @@ import { formatDate } from "@/app/utils/date-utils";
 import { LoaderCircle, MessageSquareDashed } from "lucide-react";
 export default function page() {
   const { agentId } = useParams();
-  const [messageList, setMessageList] = useState([]);
+  const [messageList, setMessageList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);
 
@@ -28,7 +28,17 @@ export default function page() {
       const res = await getKolMessage({ agent_id: agentId });
       setLoading(false);
       if (res && res.code === 200) {
-        setMessageList(res.data);
+        if (res.data.length > 0) {
+          setMessageList(res.data);
+        } else {
+          setMessageList([
+            `Hi～ I’m the smart assistant you just created! \n
+            I’m currently “booting up the task system” 🔧 and will help you with: \n
+            ✅ Monitor Twitter updates \n
+            ✅ Schedule tweets to engage with your followers and KOLs \n
+            Tasks are in progress—go grab a coffee ☕️ and I’ll take it from here!`,
+          ]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -54,6 +64,37 @@ export default function page() {
         ) : (
           messageList.map((item: any, index: number) => (
             <div className="space-y-8 pb-1" key={index}>
+              {typeof item === "string" && (
+                <div className="flex space-x-4">
+                  <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                    {agents.find((agent) => agent.id == Number(agentId))
+                      ?.icon ? (
+                      <img
+                        src={
+                          agents.find((agent) => agent.id == Number(agentId))
+                            ?.icon
+                        }
+                        alt="avatar"
+                        className="w-10 h-10 object-cover"
+                      />
+                    ) : (
+                      <Image src={avatar} alt="avatar" className="w-10 h-10" />
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <dl className="flex items-baseline space-x-2">
+                      <dt className="text-base font-bold leading-8">
+                        {agents.find((agent) => agent.id == Number(agentId))
+                          ?.name || "Agent"}
+                      </dt>
+                      <dd className="text-md text-muted-foreground">Now</dd>
+                    </dl>
+                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                      {item}
+                    </div>
+                  </div>
+                </div>
+              )}
               {item.detail && (
                 <div className="flex space-x-4">
                   <div className="min-w-8 size-8 rounded-full overflow-hidden">

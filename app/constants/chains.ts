@@ -25,8 +25,8 @@ export const chain: { [key: string]: ExtendedChain } = {
     },
     contracts: {},
   } as const satisfies ExtendedChain,
-  "32382": {
-    id: 32382,
+  "32383": {
+    id: 32383,
     name: "Agent Chain",
     iconUrl:
       "https://scan.agtchain.net/static-img/5.png",
@@ -66,10 +66,10 @@ export const getExplorerLink = (
 };
 
 // 支持的链配置
-export const SUPPORTED_CHAINS = [chain["32382"]] as const;
+export const SUPPORTED_CHAINS = [chain["32383"]] as const;
 
 // 获取支持的链ID数组
 export const SUPPORTED_CHAIN_IDS = SUPPORTED_CHAINS.map((chain) => chain.id);
 
 // 默认链
-export const DEFAULT_CHAIN = chain["32382"];
+export const DEFAULT_CHAIN = chain["32383"];

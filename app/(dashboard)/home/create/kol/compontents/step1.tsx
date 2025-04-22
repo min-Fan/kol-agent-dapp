@@ -186,11 +186,11 @@ export default function StepOne() {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="male" id="r1" />
-                        <Label htmlFor="r1">Man</Label>
+                        <Label htmlFor="r1">Male</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="female" id="r2" />
-                        <Label htmlFor="r2">Woman</Label>
+                        <Label htmlFor="r2">Female</Label>
                       </div>
                     </RadioGroup>
                   </div>

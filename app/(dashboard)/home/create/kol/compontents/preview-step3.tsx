@@ -195,50 +195,85 @@ export default function PreviewStepThree() {
       const prompt = buildPrompt();
       console.log('Generation prompt:', prompt);
 
-      const response: any = await chat({
-        messages: [
-          {
-            content: prompt,
-            role: "user",
-          },
-        ],
-      });
+      // 设置超时控制
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1000); // 1秒超时
 
-      const { content, reasoningContent } = await handleSSEResponse(
-        response,
-        (text: string, reasoningText: string) => {
-          // 解析部分内容
-          const { tweet, comments } = parseContent(text);
-          setPartialTweet(tweet);
-          setPartialComments(comments);
-          setPartialReasoning(reasoningText);
+      try {
+        const response: any = await chat({
+          messages: [
+            {
+              content: prompt,
+              role: "user",
+            },
+          ],
+          signal: controller.signal // 添加AbortController信号
+        });
+
+        // 请求成功，清除超时
+        clearTimeout(timeoutId);
+
+        const { content, reasoningContent } = await handleSSEResponse(
+          response,
+          (text: string, reasoningText: string) => {
+            // 解析部分内容
+            const { tweet, comments } = parseContent(text);
+            setPartialTweet(tweet);
+            setPartialComments(comments);
+            setPartialReasoning(reasoningText);
+          }
+        );
+
+        // 解析最终内容
+        const { tweet, comments } = parseContent(content);
+        
+        console.log("Generated tweet:", tweet);
+        console.log("Generated comments:", comments);
+        console.log("Reasoning process:", reasoningContent);
+
+        // 检查内容是否为空
+        if ((!tweet || tweet.trim() === "") && (!comments || comments.length === 0)) {
+          console.log("Generated content is empty, not adding message");
+        } else {
+          // 保存生成的内容
+          setMessage({
+            tweet,
+            comments,
+            reasoningContent
+          });
+          
+          // 开始渐进式显示评论，在加载完成后
+          startRevealingComments(comments);
         }
-      );
-
-      // 解析最终内容
-      const { tweet, comments } = parseContent(content);
-      
-      console.log("Generated tweet:", tweet);
-      console.log("Generated comments:", comments);
-      console.log("Reasoning process:", reasoningContent);
-
-      // 检查内容是否为空
-      if ((!tweet || tweet.trim() === "") && (!comments || comments.length === 0)) {
-        console.log("Generated content is empty, not adding message");
-      } else {
-        // 保存生成的内容
+      } catch (error) {
+        // 如果是超时错误或其他错误
+        console.log("API request timed out or failed, using default template");
+        
+        // 创建包含KOL列表的默认模板
+        const kolList = Step1?.name || "relevant KOLs";
+        const defaultTweet = `Next, I will place my primary emphasis on the updates of the KOLs in ${kolList}. I'll study the content of their relevant tweets and continuously engage in interactions with them.`;
+        
+        // 创建默认评论数组
+        const defaultComments = [
+          "Thank you for your support!",
+          "I'll keep you updated on the latest trends.",
+          "Looking forward to more interactions!",
+          "Feel free to share your thoughts!",
+          "Let's grow together in this space."
+        ];
+        
+        // 使用默认内容
         setMessage({
-          tweet,
-          comments,
-          reasoningContent
+          tweet: defaultTweet,
+          comments: defaultComments,
+          reasoningContent: "Using default template due to API timeout."
         });
         
-        // 开始渐进式显示评论，在加载完成后
-        startRevealingComments(comments);
+        // 开始渐进式显示评论
+        startRevealingComments(defaultComments);
       }
     } catch (error) {
       console.error("Failed to generate content:", error);
-      setLoading(false);
     } finally {
       setLoading(false);
     }

@@ -20,6 +20,7 @@ export default function PreviewProfile() {
   const [loading, setLoading] = useState<boolean>(false);
   const [partialOutput, setPartialOutput] = useState<string>("");
   const [partialReasoning, setPartialReasoning] = useState<string>("");
+  const [descriptionGenerated, setDescriptionGenerated] = useState<boolean>(false);
 
   // 修改状态管理
   const [currentCount, setCurrentCount] = useState<number>(0); // 当前计数值
@@ -90,11 +91,9 @@ export default function PreviewProfile() {
 
   const generateDescription = async () => {
     try {
-      if (!Step1.character) return;
-      // 检查是否所有字段都已填写
-      // if (!isStep1Complete()) {
-      //   return;
-      // }
+      // 如果已经生成过描述，直接返回
+      if (descriptionGenerated || !Step1.character) return;
+      
       setLoading(true);
       setPartialOutput(""); // 清空之前的部分输出
       setPartialReasoning(""); // 清空之前的推理过程输出
@@ -126,6 +125,9 @@ export default function PreviewProfile() {
       console.log("推理过程:", reasoningContent);
       setDescription(content);
       setReasoning(reasoningContent);
+      
+      // 标记为已生成
+      setDescriptionGenerated(true);
     } catch (error) {
       console.error("生成描述失败:", error);
     } finally {
@@ -134,8 +136,8 @@ export default function PreviewProfile() {
   };
 
   useEffect(() => {
-    // if (!Step1.character || Step1.character === prevCharacterRef.current)
-    //   return;
+    // 如果已经生成过描述或没有character，则直接返回
+    if (descriptionGenerated || !Step1.character) return;
 
     prevCharacterRef.current = Step1.character;
 
@@ -153,7 +155,7 @@ export default function PreviewProfile() {
         clearTimeout(timerRef.current);
       }
     };
-  }, [Step1.character, Step1]);
+  }, [Step1.character, descriptionGenerated]);
 
   const fullUserInfo = useAppSelector(
     (state: any) => state.userReducer.twitter_full_profile
@@ -218,9 +220,6 @@ export default function PreviewProfile() {
                   <div className="relative">
                     <p className="text-sm line-clamp-3 overflow-hidden text-ellipsis">
                       {partialOutput}
-                      <span className="animate-pulse inline-block ml-0.5">
-                        ▌
-                      </span>
                     </p>
                   </div>
                 ) : (

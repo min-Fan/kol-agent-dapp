@@ -106,7 +106,6 @@ export default function PreviewThinking(props: PreviewThinkingProps) {
               {isLoading && currentText && (
                 <div className="relative">
                   <Markdown>{currentText}</Markdown>
-                  <span className="animate-pulse inline-block ml-0.5">▌</span>
                 </div>
               )}
             </div>

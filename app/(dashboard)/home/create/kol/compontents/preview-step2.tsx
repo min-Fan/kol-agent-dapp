@@ -25,9 +25,82 @@ export default function PreviewStepTwo() {
   const dispatch = useAppDispatch();
   const language = useAppSelector((state: any) => state.userReducer.config.language);
 
+  // 添加逐字输出相关的状态和引用
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const fullMessageRef = useRef<string>("");
+  const typingIndexRef = useRef<number>(0);
   const prevDataRef = useRef<any>(null);
   const initializedRef = useRef<boolean>(false);
+  const apiResponseReceivedRef = useRef<boolean>(false);
+
+  // 添加一个引用来追踪默认消息是否正在输出
+  const isDefaultMessageTypingRef = useRef<boolean>(false);
+  // 添加一个引用来存储API返回的消息，等待默认消息输出完毕后使用
+  const pendingApiResponseRef = useRef<{content: string, reasoningContent: string} | null>(null);
+
+  // 添加标记，跟踪组件是否处于激活状态
+  const componentActiveRef = useRef<boolean>(true);
+
+  // 逐字打印效果函数
+  const typeMessage = (message: string, isDefault: boolean = false) => {
+    // 清理之前可能的计时器
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+    }
+    
+    // 设置是否为默认消息标志
+    isDefaultMessageTypingRef.current = isDefault;
+    
+    fullMessageRef.current = message;
+    typingIndexRef.current = 0;
+    setLoading(true);
+    setPartialOutput("");
+    
+    // 开始打字效果
+    typeNextChar();
+  };
+
+  // 逐字打印的递归函数
+  const typeNextChar = () => {
+    if (typingIndexRef.current < fullMessageRef.current.length) {
+      setPartialOutput(fullMessageRef.current.substring(0, typingIndexRef.current + 1));
+      typingIndexRef.current++;
+      
+      // 随机打字速度，更自然
+      const randomDelay = Math.floor(Math.random() * 30) + 20; // 20-50ms之间的随机延迟
+      
+      typingTimerRef.current = setTimeout(typeNextChar, randomDelay);
+    } else {
+      // 打字结束，保存完整消息
+      setMessages(prev => [...prev, {
+        content: fullMessageRef.current,
+        reasoningContent: ""
+      }]);
+      setLoading(false);
+      setPartialOutput("");
+      
+      // 检查打字完成后是否为默认消息，且是否有待处理的API响应
+      if (isDefaultMessageTypingRef.current && pendingApiResponseRef.current) {
+        // 设置一个短暂延迟，让用户有时间查看默认消息
+        setTimeout(() => {
+          // 显示API返回的消息
+          setMessages(prev => [...prev, {
+            content: pendingApiResponseRef.current!.content,
+            reasoningContent: pendingApiResponseRef.current!.reasoningContent
+          }]);
+          // 清空待处理响应
+          pendingApiResponseRef.current = null;
+          // 重置默认消息标志
+          isDefaultMessageTypingRef.current = false;
+        }, 500); // 500ms延迟，可根据需要调整
+      } else {
+        // 重置默认消息标志
+        isDefaultMessageTypingRef.current = false;
+      }
+    }
+  };
 
   // 检查是否有足够的信息可以生成描述
   const hasEnoughInfo = () => {
@@ -38,6 +111,21 @@ export default function PreviewStepTwo() {
     return Object.values(Step2).some(
       (value) => value !== undefined && value !== null && value !== ""
     );
+  };
+
+  // 构建默认消息，替换变量
+  const buildDefaultMessage = () => {
+    // 从Step2中获取能力相关信息
+    const ability = Step2?.ability || "advanced abilities";
+    const abilityDescription = Step2?.abilityDescription || "help you achieve your goals effectively";
+    
+    // 替换消息模板中的变量
+    let message = "You have chosen $[Ability] and I will acquire $[Ability.description]. Moreover, I will use these abilities to post tweets and interact with KOLs and followers.";
+    
+    message = message.replace("$[Ability]", ability);
+    message = message.replace("$[Ability.description]", abilityDescription);
+    
+    return message;
   };
 
   // 构建提示信息，结合Step1和Step2的值
@@ -113,51 +201,120 @@ export default function PreviewStepTwo() {
         return;
       }
 
+      // 重置状态，确保清除之前的可能影响
       setLoading(true);
       setPartialOutput("");
       setPartialReasoning("");
+      apiResponseReceivedRef.current = false;
+      pendingApiResponseRef.current = null;
+      
+      // 标记组件为激活状态
+      componentActiveRef.current = true;
+      
+      // 强制清除并重置所有已有的计时器
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+      
+      // 仅在组件初始化的useEffect外调用generateDescription时设置超时计时器
+      if (!timeoutRef.current) {
+        console.log("设置1秒超时计时器");
+        timeoutRef.current = setTimeout(() => {
+          // 如果组件仍然激活且1秒内API没有响应，使用默认消息
+          if (componentActiveRef.current && !apiResponseReceivedRef.current) {
+            console.log("API响应超时，使用默认消息");
+            const defaultMessage = buildDefaultMessage();
+            typeMessage(defaultMessage, true); // 标记为默认消息
+          }
+          timeoutRef.current = null;
+        }, 1000);
+      }
 
       const prompt = buildPrompt();
       console.log("生成提示:", prompt);
 
-      const response: any = await chat({
-        messages: [
-          {
-            content: prompt,
-            role: "user",
-          },
-        ],
-      });
+      try {
+        const response: any = await chat({
+          messages: [
+            {
+              content: prompt,
+              role: "user",
+            },
+          ],
+        });
+        
+        // 只有在组件仍然激活时才处理API响应
+        if (componentActiveRef.current) {
+          // 标记API已响应
+          apiResponseReceivedRef.current = true;
+          
+          // 清除超时计时器
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
 
-      const { content, reasoningContent } = await handleSSEResponse(
-        response,
-        (text: string, reasoningText: string) => {
-          setPartialOutput(text);
-          setPartialReasoning(reasoningText);
+          const { content, reasoningContent } = await handleSSEResponse(
+            response,
+            (text: string, reasoningText: string) => {
+              // 只有在不是默认消息输出时才更新部分输出
+              if (!isDefaultMessageTypingRef.current) {
+                setPartialOutput(text);
+                setPartialReasoning(reasoningText);
+              }
+            }
+          );
+
+          console.log("生成的对话:", content);
+          console.log("思考过程:", reasoningContent);
+
+          // 检查内容是否为空字符串
+          if (!content || content.trim() === "") {
+            console.log("生成的内容为空，不添加消息");
+          } else if (isDefaultMessageTypingRef.current) {
+            // 如果默认消息正在输出，将API响应存储为待处理
+            console.log("默认消息正在输出，存储API响应");
+            pendingApiResponseRef.current = {
+              content,
+              reasoningContent
+            };
+          } else {
+            // 直接添加API响应消息
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              {
+                content: content,
+                reasoningContent: reasoningContent,
+              },
+            ]);
+            setLoading(false);
+          }
         }
-      );
-
-      console.log("生成的对话:", content);
-      console.log("思考过程:", reasoningContent);
-
-      // 检查内容是否为空字符串
-      if (!content || content.trim() === "") {
-        console.log("生成的内容为空，不添加消息");
-      } else {
-        // 只有在内容非空时，才保存包含内容和思考过程的完整消息
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            content: content,
-            reasoningContent: reasoningContent,
-          },
-        ]);
+      } catch (error) {
+        // 如果组件仍然激活且API请求失败，且超时计时器还未触发，使用默认消息
+        if (componentActiveRef.current && !apiResponseReceivedRef.current && !timeoutRef.current && !isDefaultMessageTypingRef.current) {
+          console.log("API请求失败，使用默认消息");
+          const defaultMessage = buildDefaultMessage();
+          typeMessage(defaultMessage, true); // 标记为默认消息
+        }
+        throw error;
       }
     } catch (error) {
       console.error("生成对话失败:", error);
-      setLoading(false);
+      if (componentActiveRef.current && !isDefaultMessageTypingRef.current) {
+        setLoading(false);
+      }
     } finally {
-      setLoading(false);
+      // 只有在组件激活且没有输出默认消息时才重置加载状态
+      if (componentActiveRef.current && apiResponseReceivedRef.current && !isDefaultMessageTypingRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -175,6 +332,9 @@ export default function PreviewStepTwo() {
 
     // 如果没有足够的信息，直接返回
     if (!hasEnoughInfo()) return;
+    
+    // 组件标记为激活状态
+    componentActiveRef.current = true;
 
     // 清除任何现有的定时器
     if (timerRef.current) {
@@ -183,7 +343,9 @@ export default function PreviewStepTwo() {
 
     // 设置新的定时器，延迟生成描述
     timerRef.current = setTimeout(() => {
-      generateDescription();
+      if (componentActiveRef.current) {
+        generateDescription();
+      }
       timerRef.current = null;
     }, 500);
 
@@ -191,38 +353,79 @@ export default function PreviewStepTwo() {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+      }
     };
   }, [Step1, Step2]);
 
-  // 添加一个新的useEffect，专门处理组件初始加载时的情况
+  // 添加一个新的useEffect，专门处理组件挂载和卸载
   useEffect(() => {
-    // 如果已经初始化过，则返回
-    if (initializedRef.current) return;
-
-    // 标记为已初始化
-    initializedRef.current = true;
-
-    // 检查是否有足够的信息可以生成描述
-    if (hasEnoughInfo()) {
-      console.log("组件初始化时检测到已有数据，开始生成描述");
-      generateDescription();
+    // 组件挂载时，设置为激活状态
+    componentActiveRef.current = true;
+    
+    // 如果未初始化过，启动初始化流程
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      
+      // 检查是否有足够的信息可以生成描述
+      if (hasEnoughInfo()) {
+        console.log("组件初始化时检测到已有数据，开始生成描述");
+        
+        // 重置状态，确保清除之前的可能影响
+        setLoading(true);
+        setPartialOutput("");
+        setPartialReasoning("");
+        apiResponseReceivedRef.current = false;
+        pendingApiResponseRef.current = null;
+        
+        // 设置1秒超时计时器
+        timeoutRef.current = setTimeout(() => {
+          // 如果组件仍然激活且1秒内API没有响应，使用默认消息
+          if (componentActiveRef.current && !apiResponseReceivedRef.current) {
+            console.log("初始化API响应超时，使用默认消息");
+            const defaultMessage = buildDefaultMessage();
+            typeMessage(defaultMessage, true); // 标记为默认消息
+          }
+          timeoutRef.current = null;
+        }, 1000);
+        
+        // 然后再调用generateDescription
+        generateDescription();
+      }
     }
-  }, []); // 依赖数组为空，表示只在组件挂载时执行一次
+    
+    // 组件卸载时的清理
+    return () => {
+      // 标记组件为非激活状态
+      componentActiveRef.current = false;
+      
+      // 清理所有计时器
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+    };
+  }, []); // 依赖数组为空，表示只在组件挂载和卸载时执行
 
   return (
     <div className="px-4 space-y-4 text-md">
       {messages.length > 0 &&
         messages.map((message, index) => (
           <div key={index} className="space-y-2">
-            {/* 显示思考过程 */}
-            {/* {message.reasoningContent && (
-              <>
-                <PreviewLoader text="Thought process:" isThinking={false} />
-                <PreviewThinking texts={message.reasoningContent} />
-              </>
-            )} */}
             {/* 显示主要内容 */}
-            <div className="bg-background rounded-md px-2 py-2">
+            <div className="bg-background rounded-md px-2 py-2 break-words">
               <Markdown>{message.content}</Markdown>
             </div>
           </div>
@@ -240,9 +443,8 @@ export default function PreviewStepTwo() {
           )}
 
           {partialOutput && (
-            <div className="bg-background rounded-md px-4 py-2 relative">
+            <div className="bg-background rounded-md px-2 py-2 relative break-words">
               <Markdown>{partialOutput}</Markdown>
-              <span className="animate-pulse inline-block ml-0.5">▌</span>
             </div>
           )}
 
