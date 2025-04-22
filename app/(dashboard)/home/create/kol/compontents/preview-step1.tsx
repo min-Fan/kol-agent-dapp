@@ -44,7 +44,7 @@ export default function PreviewStepOne() {
     }
     
     if (Step1?.character && Step1.character.trim() !== "") {
-      lines.push(`I have a distinct personality, possessing traits such as ${Step1.character.trim()}, and I look forward to providing you with an intimate and unique interactive experience.`);
+      lines.push(`I have a distinct personality, possessing traits such as ${Step1.character.trim()} and I look forward to providing you with an intimate and unique interactive experience.`);
     }
     
     const regionName = region?.find((item: any) => item.id === Step1?.region)?.name;

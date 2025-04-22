@@ -20,7 +20,15 @@ class HttpRequest {
     // 请求拦截器
     this.instance.interceptors.request.use(
       (config) => {
+
         // 在发送请求之前做些什么
+        const UUID = localStorage.getItem('UUID');
+        if (!UUID) {
+          localStorage.setItem('UUID', crypto.randomUUID());
+        } else {
+          config.headers['uuid'] = UUID;
+        }
+
         const token = localStorage.getItem('token');
         if (token) {
           config.headers['Authorization'] = `Bearer ${token}`;

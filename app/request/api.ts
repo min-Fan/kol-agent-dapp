@@ -387,3 +387,25 @@ export async function getPostDetail(params: any) {
     return error
   }
 }
+
+// 购买会员下单接口
+export async function createBuyMemberOrder(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/member/order', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+// 购买会员支付接口
+export async function payBuyMemberOrder(params: any) {
+  try {
+    const res = await request.post('/kol/api/v1/member/pay', {...params})
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}

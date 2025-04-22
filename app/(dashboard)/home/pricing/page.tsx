@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 import { getUserCanBuyMember } from "@/app/request/api";
 import { useAppSelector } from "@/app/store/hooks";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
 export default function page() {
   const [subscribes, setSubscribes] = useState<any[]>([]);
   const info = useAppSelector((state) => state.userReducer.userInfo);
@@ -26,6 +28,16 @@ export default function page() {
   useEffect(() => {
     getSubscribe();
   }, []);
+
+  const isLoggedIn = useAppSelector(
+    (state: any) => state.userReducer.isLoggedIn
+  );
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/home");
+    }
+  }, [isLoggedIn]);
 
   return (
     <div className="w-full h-auto p-12">
@@ -71,9 +83,10 @@ export default function page() {
               <Subscribe
                 title={item.name}
                 price={`$${item.price}`}
-                isActive={item.id === info.member_id}
+                isActive={item.id === info.details.current_member.id}
                 discount={"0"}
                 isHighlight={item.id === 3}
+                item={item}
               />
               <Features
                 data={[

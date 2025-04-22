@@ -92,6 +92,7 @@ export default function CreateTwitterAuth({
         return res.data.id;
       } else {
         closeCreateXauthDialog();
+        toast.error(res.msg);
         return "";
       }
     } catch (error) {
@@ -105,6 +106,7 @@ export default function CreateTwitterAuth({
     try {
       const agentId = await createAgentGetId();
       if (!agentId) {
+        toast.error("Get agent id failed");
         return;
       }
       // 获取当前的url

@@ -239,7 +239,6 @@ Default Message (use only if no values provided):
           {partialOutput && (
             <div className="bg-background/80 rounded-md px-2 py-2 relative">
               <Markdown>{partialOutput}</Markdown>
-              <span className="animate-pulse inline-block ml-0.5">▌</span>
             </div>
           )}
         </div>

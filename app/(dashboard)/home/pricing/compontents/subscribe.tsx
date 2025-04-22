@@ -9,6 +9,7 @@ export default function Subscribe(props: {
   discount: string;
   isHighlight?: boolean;
   isActive?: boolean;
+  item: any;
 }) {
   const {
     title,
@@ -17,6 +18,7 @@ export default function Subscribe(props: {
     discount,
     isHighlight = false,
     isActive = false,
+    item,
   } = props;
 
   return (
@@ -61,6 +63,7 @@ export default function Subscribe(props: {
           </Button>
         ) : (
           <SubscribeDialog
+            item={item}
             TriggerButton={
               <Button
                 variant="outline"
@@ -75,8 +78,13 @@ export default function Subscribe(props: {
         <Button variant="primary">
           <span className="text-base font-bold">Active</span>
         </Button>
+      ) : item.id === 4 ? (
+        <Button variant="primary">
+          <span className="text-base font-bold">Free</span>
+        </Button>
       ) : (
         <SubscribeDialog
+          item={item}
           TriggerButton={
             <Button variant="primary">
               <span className="text-base font-bold">Subscribe</span>
