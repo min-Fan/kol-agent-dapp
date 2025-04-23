@@ -71,7 +71,7 @@ export default function SidebarNav() {
   const userInfo = useAppSelector((state) => state.userReducer.userInfo);
   const { openDrawer } = useLoginDrawer();
   const [userData, setUserData] = useState<any>({});
-
+  const agents = useAppSelector((state) => state.userReducer.agents);
   const getInfo = async () => {
     try {
       const res: any = await getUserInfo();
@@ -88,7 +88,7 @@ export default function SidebarNav() {
     if (isLoggedIn) {
       getInfo();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, agents]);
 
   const onLink = (path: string) => {
     if (isLoggedIn) {

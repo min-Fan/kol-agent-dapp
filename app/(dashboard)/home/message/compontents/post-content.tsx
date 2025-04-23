@@ -8,7 +8,7 @@ export default function PostContent({ content }: { content: string }) {
       <div className="space-y-2 text-base">
         <p>{content}</p>
       </div>
-      <div className="w-full aspect-video max-w-lg overflow-hidden rounded-md">
+      {/* <div className="w-full aspect-video max-w-lg overflow-hidden rounded-md">
         <Image
           className="w-full h-full object-cover"
           src={post}
@@ -16,7 +16,7 @@ export default function PostContent({ content }: { content: string }) {
           width={post.width}
           height={post.height}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

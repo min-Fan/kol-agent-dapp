@@ -6,12 +6,12 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import React from "react";
-import { Datum } from "@/app/types/types";
+import { DatumOrder } from "@/app/types/types";
 import { formatDate } from "@/app/utils/date-utils";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import avatar from "@/app/assets/image/avatar.png";
-export default function OrderItem({ order }: { order: Datum }) {
+export default function OrderItem({ order }: { order: DatumOrder }) {
   const router = useRouter();
   return (
     <div

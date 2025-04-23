@@ -126,7 +126,7 @@ export interface SelfData {
 }
 
 /** ======================================== 订单列表 request types ========================================= */
-export interface Datum {
+export interface DatumOrder {
   /**
    * 订单信息
    */

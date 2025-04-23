@@ -32,7 +32,7 @@ export function formatDate(date: Date | string | number): string {
 
 // 时间戳转换成 8:00 AM · Apr 6, 2025
 export function formatTimestamp(timestamp: number | string): string {
-  const date = new Date(Number(timestamp) * 1000);
+  const date = new Date(Number(timestamp));
   
   // 获取小时和分钟
   const hours = date.getHours();

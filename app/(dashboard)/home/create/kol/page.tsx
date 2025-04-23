@@ -19,11 +19,16 @@ import {
   getKOLInterface,
 } from "@/app/request/api";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { updateConfig, clearFrom } from "@/app/store/reducers/userSlice";
+import { updateConfig, clearFrom, updateTwitterFullProfile } from "@/app/store/reducers/userSlice";
 import { useRouter } from "next/navigation";
 import { useCreateXauthDialog } from "@/app/hooks/useCreateXauthDialog";
 import { useSearchParams } from "next/navigation";
+import { useGetAgents } from "@/app/hooks/useGetAgents";
+
 const CreateSuccess = () => {
+  const { getAgents } = useGetAgents();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   return (
     <>
       <DotLottieReact
@@ -39,11 +44,17 @@ const CreateSuccess = () => {
             autoplay
           />
         </div>
-        <Link href="/home">
-          <Button variant="primary" className="w-full font-bold relative z-10">
-            Go to Home
-          </Button>
-        </Link>
+        <Button
+          variant="primary"
+          className="w-auto font-bold relative z-10"
+          onClick={() => {
+            getAgents();
+            dispatch(updateTwitterFullProfile(null));
+            router.push("/home");
+          }}
+        >
+          Go to Home
+        </Button>
       </div>
     </>
   );
@@ -70,6 +81,7 @@ export default function Page() {
   const params = useSearchParams();
   useEffect(() => {
     dispatch(clearFrom());
+    dispatch(updateTwitterFullProfile(null));
     dispatch(
       updateConfig({
         key: "currentStep",
@@ -79,10 +91,12 @@ export default function Page() {
     const oauth_token = params.get("oauth_token");
     if (oauth_token) {
       // 打开twitter授权弹窗
-      dispatch(updateConfig({
-        key: "currentStep",
-        value: 6,
-      }));
+      dispatch(
+        updateConfig({
+          key: "currentStep",
+          value: 6,
+        })
+      );
       setTimeout(() => {
         openCreateXauthDialog();
       }, 500);

@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import OrderItem from "./compontents/order-item";
-import { Datum } from "@/app/types/types";
+import { DatumOrder } from "@/app/types/types";
 import { getOrderList } from "@/app/request/api";
 import { NotepadTextDashed } from "lucide-react";
 import OrderSkeleton from "./compontents/order-skeleton";
 import { useAppSelector } from "@/app/store/hooks";
 
 export default function Page() {
-  const [orderList, setOrderList] = useState<Datum[]>([]);
+  const [orderList, setOrderList] = useState<DatumOrder[]>([]);
   const [activeTab, setActiveTab] = useState<string>("pending");
   const [loading, setLoading] = useState<boolean>(false);
   const isLoggedIn = useAppSelector((state) => state.userReducer.isLoggedIn);

@@ -67,12 +67,12 @@ export default function UserCard() {
       setProgress(result.progress);
     }
   };
-
+  const agents = useAppSelector((state: any) => state.userReducer.agents);
   useEffect(() => {
     if (isLoggedIn) {
       handleGetInfo();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, agents]);
 
   return (
     <div className="w-full flex flex-col gap-2">
@@ -104,7 +104,7 @@ export default function UserCard() {
                         <CircleHelp className="h-3 w-3 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Add to library</p>
+                        <p>Credits: Points for AI Agent resource usage.</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
