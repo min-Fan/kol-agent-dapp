@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, Zap } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 import Preview from "./compontents/preview";
 import { useDispatch, useSelector } from "react-redux";
 import { updateConfig, updateFrom } from "@/app/store/reducers/userSlice";
+import { useAppSelector } from "@/app/store/hooks";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -57,9 +60,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     dispatch(updateFrom({ key: "step5", value: step5Default }));
 
     // 设置当前步骤为第6步
-    dispatch(updateConfig({ key: "currentStep", value: 6 }));
+    dispatch(updateConfig({ key: "currentStep", value: 5 }));
   };
 
+  const isLoggedIn = useAppSelector(
+    (state: any) => state.userReducer.isLoggedIn
+  );
+  const limit = useAppSelector((state) => state.userReducer.config.limit);
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/home");
+    }
+    if (!limit.agent) {
+      toast.error("You have reached the maximum number of agents");
+      router.push("/home");
+    }
+  }, [isLoggedIn, limit]);
   return (
     <div className="w-full h-full overflow-hidden grid grid-cols-24">
       <div className="col-span-16 h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">

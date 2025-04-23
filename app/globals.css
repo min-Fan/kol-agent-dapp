@@ -405,7 +405,7 @@
     font-family: "Arial-Bold";
   }
   p {
-    word-break: break-all !important;
+    word-break: break-word !important;
   }
   div[data-radix-scroll-area-viewport] {
     > div {

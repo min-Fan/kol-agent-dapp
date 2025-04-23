@@ -32,10 +32,10 @@ export default function page() {
           setMessageList(res.data);
         } else {
           setMessageList([
-            `Hi～ I’m the smart assistant you just created! \n
-            I’m currently “booting up the task system” 🔧 and will help you with: \n
-            ✅ Monitor Twitter updates \n
-            ✅ Schedule tweets to engage with your followers and KOLs \n
+            `Hi～ I’m the smart assistant you just created!
+            I’m currently “booting up the task system” 🔧 and will help you with:
+            ✅ Monitor Twitter updates
+            ✅ Schedule tweets to engage with your followers and KOLs
             Tasks are in progress—go grab a coffee ☕️ and I’ll take it from here!`,
           ]);
         }
@@ -89,7 +89,7 @@ export default function page() {
                       </dt>
                       <dd className="text-md text-muted-foreground">Now</dd>
                     </dl>
-                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 whitespace-pre-line">
                       {item}
                     </div>
                   </div>

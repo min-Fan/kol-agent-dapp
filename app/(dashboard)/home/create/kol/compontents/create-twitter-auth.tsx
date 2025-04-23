@@ -24,6 +24,7 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { Loader2 } from "lucide-react";
 import { CreateAgentRequest } from "@/app/types/types";
 import { useCreateXauthDialog } from "@/app/hooks/useCreateXauthDialog";
+import { useGetAgents } from "@/app/hooks/useGetAgents";
 
 export default function CreateTwitterAuth({
   setTwitterAuth,
@@ -193,6 +194,7 @@ export default function CreateTwitterAuth({
     }
   };
 
+  const { getAgents } = useGetAgents();
   const handleTwitterAuthCompleteCallback = async (
     full_profile: any,
     data: any
@@ -211,8 +213,8 @@ export default function CreateTwitterAuth({
       setIsLoading(false);
       if (res && res.code === 200) {
         toast.success("Twitter authorization successful");
+        getAgents();
         await dispatch(updateTwitterFullProfile(full_profile));
-        setTwitterAuth(true);
       } else {
         toast.error(res.msg);
         clearUrlParams();
@@ -252,20 +254,48 @@ export default function CreateTwitterAuth({
     return true;
   };
 
+  // 处理弹窗的打开和关闭逻辑
+  const handleDialogChange = (open: boolean) => {
+    // 如果是尝试打开弹窗，先检查地址
+    if (open && !checkAddress()) {
+      return;
+    }
+    
+    // 如果是尝试关闭弹窗，且已有Twitter个人资料，阻止关闭
+    if (!open && twitterFullProfile && Object.keys(twitterFullProfile).length > 0) {
+      return;
+    }
+    
+    // 其他情况，切换弹窗状态
+    toggleCreateXauthDialog();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      // 打开弹窗前检查地址
-      if (open && !checkAddress()) {
-        return;
-      }
-      toggleCreateXauthDialog();
-    }}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={handleDialogChange}
+    >
       <DialogTrigger asChild>
         <Button className="duration-350 flex items-center justify-center font-bold">
           {showName}
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-xs min-w-[200px] text-primary">
+      <DialogContent 
+        className="w-xs min-w-[300px] text-primary" 
+        showClose={!(twitterFullProfile && Object.keys(twitterFullProfile).length > 0)}
+        onEscapeKeyDown={(e) => {
+          // 如果有Twitter个人资料，阻止Esc键关闭
+          if (twitterFullProfile && Object.keys(twitterFullProfile).length > 0) {
+            e.preventDefault();
+          }
+        }}
+        onPointerDownOutside={(e) => {
+          // 如果有Twitter个人资料，阻止点击外部关闭
+          if (twitterFullProfile && Object.keys(twitterFullProfile).length > 0) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>
             <h1 className="text-xl font-bold text-center">
@@ -289,15 +319,15 @@ export default function CreateTwitterAuth({
                   {twitterFullProfile.name}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {twitterFullProfile.screen_name}
+                  @{twitterFullProfile.screen_name}
                 </span>
               </div>
               <Button
                 className="w-20 h-8"
                 onClick={() => {
                   clearUrlParams();
-                  setTwitterAuth(true);
                   create();
+                  setTwitterAuth(true);
                   closeCreateXauthDialog();
                 }}
                 disabled={isLoading}

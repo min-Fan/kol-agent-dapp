@@ -67,12 +67,12 @@ export default function UserCard() {
       setProgress(result.progress);
     }
   };
-
+  const agents = useAppSelector((state: any) => state.userReducer.agents);
   useEffect(() => {
     if (isLoggedIn) {
       handleGetInfo();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, agents]);
 
   return (
     <div className="w-full flex flex-col gap-2">

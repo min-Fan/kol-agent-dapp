@@ -1,2 +1,2 @@
-export const pay_member_token_address = "0xa4F7BBb56Fb02F40B2CfeDd9942e52b69ac41a27";
+export const pay_member_token_address = "0x7C35AeCb2Cac7bF06d0f71Aa334B1755B4f1cBa5";
 export const pay_member_receiver_address = "0x24722A029A084A8eeB98A9C2Ed9f8D34c4Bf0aFC";

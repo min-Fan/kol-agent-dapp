@@ -409,3 +409,15 @@ export async function payBuyMemberOrder(params: any) {
     return error
   }
 }
+
+// 删除Agent
+export async function deleteAgent(agent_id: string) {
+  try {
+    const res = await request.delete(`/kol/api/v1/agents/${agent_id}/`)
+    return res
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+

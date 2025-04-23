@@ -11,6 +11,10 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AgentStatus } from "@/app/store/reducers/typs";
+import DeleteConfirmation from "../compontents/delete-confirmation";
+import { Trash, Loader2 } from "lucide-react";
+import { getOrderList } from "@/app/request/api";
+import { DatumOrder } from "@/app/types/types";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const agents = useAppSelector((state) => state.userReducer.agents);
   const { agentId } = useParams();
@@ -23,6 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       router.push("/home");
     }
   }, [isLoggedIn]);
+
   return (
     <div className="w-full h-full overflow-hidden flex">
       <div className="w-full h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">
@@ -33,38 +38,51 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h1 className="text-base font-bold">Message</h1>
             </div>
           </Link>
-          <TurnOffConfirmation
-            isTurnOff={
-              agents.find((agent) => agent.id == Number(agentId))?.status ===
-              AgentStatus.RUNING
-            }
-          >
-            <Button
-              variant="outline"
-              className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
+          <div className="flex items-center gap-2">
+            <TurnOffConfirmation
+              isTurnOff={
+                agents.find((agent) => agent.id == Number(agentId))?.status ===
+                AgentStatus.RUNING
+              }
             >
-              {agents.find((agent) => agent.id == Number(agentId))?.status ===
-              AgentStatus.RUNING ? (
-                <Power className="size-4 min-w-4 text-destructive" />
-              ) : (
-                <Play className="size-4 min-w-4 text-secondary" />
-              )}
-              <span
-                className={cn(
-                  "text-md font-bold",
-                  agents.find((agent) => agent.id == Number(agentId))
-                    ?.status === AgentStatus.RUNING
-                    ? "text-destructive"
-                    : "text-secondary"
-                )}
+              <Button
+                variant="outline"
+                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
               >
                 {agents.find((agent) => agent.id == Number(agentId))?.status ===
-                AgentStatus.RUNING
-                  ? "Turn Off"
-                  : "Turn On"}
-              </span>
-            </Button>
-          </TurnOffConfirmation>
+                AgentStatus.RUNING ? (
+                  <Power className="size-4 min-w-4 text-destructive" />
+                ) : (
+                  <Play className="size-4 min-w-4 text-secondary" />
+                )}
+                <span
+                  className={cn(
+                    "text-md font-bold",
+                    agents.find((agent) => agent.id == Number(agentId))
+                      ?.status === AgentStatus.RUNING
+                      ? "text-destructive"
+                      : "text-secondary"
+                  )}
+                >
+                  {agents.find((agent) => agent.id == Number(agentId))
+                    ?.status === AgentStatus.RUNING
+                    ? "Turn Off"
+                    : "Turn On"}
+                </span>
+              </Button>
+            </TurnOffConfirmation>
+            <DeleteConfirmation>
+              <Button
+                variant="outline"
+                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
+              >
+                <Trash className="size-4 min-w-4 text-destructive" />
+                <span className="text-md font-bold text-destructive">
+                  Delete
+                </span>
+              </Button>
+            </DeleteConfirmation>
+          </div>
         </div>
         <div className="w-full flex-1 overflow-auto">{children}</div>
       </div>

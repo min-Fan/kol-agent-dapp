@@ -34,7 +34,7 @@ const formSchema = z.object({
   price: z.string(),
   address: z
     .string()
-    .min(1, "钱包地址不能为空")
+    .min(1, "Wallet address cannot be empty")
     .regex(
       /^0x[a-fA-F0-9]{40}$/,
       "Must be a valid EVM wallet address, starting with 0x and followed by 40 hexadecimal characters"
@@ -103,8 +103,6 @@ export default function StepSix() {
   const { getInfo } = useGetInfo();
   const { getAgents } = useGetAgents();
   const create = () => {
-    console.log("create");
-    getConst();
     getAgents();
     getInfo();
     setIsTwitterAuth(true);
