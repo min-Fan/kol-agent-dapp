@@ -95,7 +95,7 @@ export default function page() {
                   </div>
                 </div>
               )}
-              {item.detail && (
+              {item.msg_type === 'string' && (
                 <div className="flex space-x-4">
                   <div className="min-w-8 size-8 rounded-full overflow-hidden">
                     {agents.find((agent) => agent.id == Number(agentId))
@@ -135,7 +135,7 @@ export default function page() {
                 </div>
               )}
 
-              {item.d && (
+              {item.msg_type === 'task' && (
                 <div className="flex space-x-4">
                   <div className="min-w-8 size-8 rounded-full overflow-hidden">
                     {agents.find((agent) => agent.id == Number(agentId))
@@ -159,7 +159,7 @@ export default function page() {
                           ?.name || "Agent"}
                       </dt>
                       <dd className="text-md text-muted-foreground">
-                        {formatDate(item.created_at * 1000)}
+                        {formatDate(item.created_at)}
                       </dd>
                     </dl>
                     <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
@@ -167,9 +167,10 @@ export default function page() {
                         agent={agents.find(
                           (agent) => agent.id == Number(agentId)
                         )}
-                        content={item.d.content}
-                        time={formatDate(item.created_at * 1000)}
-                        views={item.d.view}
+                        content={item.detail.content}
+                        time={item.created_at}
+                        views={item.detail.view}
+                        type={item.detail.task_type}
                       />
                     </div>
                   </div>
