@@ -104,7 +104,7 @@ export default function UserCard() {
                         <CircleHelp className="h-3 w-3 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Add to library</p>
+                        <p>Credits: Points for AI Agent resource usage.</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
