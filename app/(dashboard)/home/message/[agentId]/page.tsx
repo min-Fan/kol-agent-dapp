@@ -32,11 +32,27 @@ export default function page() {
           setMessageList(res.data);
         } else {
           setMessageList([
-            `Hi～ I’m the smart assistant you just created!
-            I’m currently “booting up the task system” 🔧 and will help you with:
-            ✅ Monitor Twitter updates
-            ✅ Schedule tweets to engage with your followers and KOLs
-            Tasks are in progress—go grab a coffee ☕️ and I’ll take it from here!`,
+            `<strong>Dear ${agents.find((agent) => agent.id == Number(agentId))?.name}</strong>:
+
+            <strong>🎉 Congratulations on creating a new Agent!</strong>
+            KOL Agent is a one-stop platform focused on efficient Agent operation management and project-side KOL resource docking, dedicated to building a value bridge between creators and brands.
+            Core Platform Advantages
+
+            <strong>🔗 Precision Resource Matching</strong>
+            Covering massive high-quality project resources in cutting-edge Web3 fields such as public chains, DeFi, Meme, and NFT, with millions of cooperation orders updated in real time. Through intelligent algorithms, we precisely match your content style, fan demographics, and business needs to maximize traffic value.
+
+            <strong>🧩 End-to-End Operational Efficiency: Agents handle the entire "order acceptance - execution - review" process</strong>
+            ▫️ Smart Filtering: Automatically filters out low-matching orders (e.g., budget mismatches, irrelevant fields), leaving only high-value cooperation demands.
+            ▫️ One-click Synchronization: After receiving an order, promotion requirements (copy style, posting time, image specifications) are automatically synced to the Agent workspace, eliminating repetitive communication.
+            ▫️ Progress Tracking: Real-time visibility into all nodes of the process: "order confirmation - tweet posting - data report."
+
+            <strong>🤖 AI Tool-Driven Productivity</strong>
+
+            ✅ Create Agent roles on demand (click to select templates or customize), such as content creation Agents, fan growth Agents, and interaction Agents.
+            ✅ Freely configure Agent operation strategies, including tweeting frequency, interaction frequency, and retweet frequency.
+            ✅ Enable different Agents to collaborate: content Agents publish high-quality content, traffic Agents capture hot topics for reach, and project evaluation Agents conduct project reviews.
+            
+            With the KOL Agent platform, you can efficiently manage your Twitter account, accelerate the conversion of traffic value, and wait for project parties to proactively send you collaboration offers!`,
           ]);
         }
       }
@@ -89,13 +105,14 @@ export default function page() {
                       </dt>
                       <dd className="text-md text-muted-foreground">Now</dd>
                     </dl>
-                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 whitespace-pre-line">
-                      {item}
-                    </div>
+                    <div 
+                      className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 whitespace-pre-line"
+                      dangerouslySetInnerHTML={{ __html: item }}
+                    />
                   </div>
                 </div>
               )}
-              {item.msg_type === 'string' && (
+              {item.msg_type === "string" && (
                 <div className="flex space-x-4">
                   <div className="min-w-8 size-8 rounded-full overflow-hidden">
                     {agents.find((agent) => agent.id == Number(agentId))
@@ -128,14 +145,14 @@ export default function page() {
                       {formatDate(item.detail.pay_at * 1000)}, platform gets{" "}
                       {item.detail.platform_percent}% commission,{" "}
                       {item.detail.platform_amount}USDT, you can get{" "}
-                      {item.detail.agent_amount}USDT, item name “
-                      {item.detail.user}. ”
+                      {item.detail.agent_amount}USDT, item name "
+                      {item.detail.user}. "
                     </div>
                   </div>
                 </div>
               )}
 
-              {item.msg_type === 'task' && (
+              {item.msg_type === "task" && (
                 <div className="flex space-x-4">
                   <div className="min-w-8 size-8 rounded-full overflow-hidden">
                     {agents.find((agent) => agent.id == Number(agentId))
@@ -189,7 +206,7 @@ export default function page() {
                     </dd>
                   </dl>
                   <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                    来自于XXX的广告上合作需求，已付款100USDT，付款时间2025年3月28日，平台获取20%佣金，20USDT，您可以获取80USDT，项目名称“xxx”,项目介绍“xxxx”
+                    来自于XXX的广告上合作需求，已付款100USDT，付款时间2025年3月28日，平台获取20%佣金，20USDT，您可以获取80USDT，项目名称"xxx",项目介绍"xxxx"
                   </div>
                   <div className="space-x-2 pt-2">
                     <Button variant="primary">

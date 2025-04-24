@@ -42,6 +42,7 @@ export default function DashboardLayout({
   useEffect(() => {
     if (isLoggedIn) {
       getAgents();
+      getConst();
     }
   }, [isLoggedIn]);
 

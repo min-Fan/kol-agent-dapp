@@ -72,10 +72,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!isLoggedIn) {
       router.push("/home");
     }
-    if (!limit.agent) {
-      toast.error("You have reached the maximum number of agents");
-      router.push("/home");
-    }
+    // if (!limit.agent) {
+    //   toast.error("You have reached the maximum number of agents");
+    //   router.push("/home");
+    // }
   }, [isLoggedIn, limit]);
   return (
     <div className="w-full h-full overflow-hidden grid grid-cols-24">
