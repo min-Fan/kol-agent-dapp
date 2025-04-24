@@ -329,15 +329,15 @@ export default function PreviewStepThree() {
 
   return (
     <div className="px-4 space-y-4 text-md">
-      {/* 显示思考过程 */}
-      {(loading || message?.reasoningContent) && (
+      {/* 显示思考过程 - 仅在加载中时显示 */}
+      {loading && (
         <>
           <PreviewLoader 
-            text={loading ? "Thinking..." : "Thought process:"}
+            text="Thinking..." 
             isThinking={loading && !partialTweet && !partialComments.length} 
           />
           <PreviewThinking 
-            texts={loading ? partialReasoning : (message?.reasoningContent || "")} 
+            texts={partialReasoning} 
           />
         </>
       )}
@@ -345,10 +345,10 @@ export default function PreviewStepThree() {
       {/* 显示推文 - 只在加载完成或显示标志为true时显示 */}
       {showRepost && message?.tweet ? (
         <>
-          <PreviewLoader 
+          {/* <PreviewLoader 
             text="Generated Tweet:" 
             isThinking={false} 
-          />
+          /> */}
           <PreviewRepost 
             content={message.tweet} 
             // 使用前两条评论作为repost和reply
