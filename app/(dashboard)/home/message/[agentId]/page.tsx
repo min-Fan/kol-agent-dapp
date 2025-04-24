@@ -12,7 +12,11 @@ import { useParams } from "next/navigation";
 import { getKolMessage, getAgentList } from "@/app/request/api";
 import { useAppSelector } from "@/app/store/hooks";
 import { formatDate } from "@/app/utils/date-utils";
-import { LoaderCircle, MessageSquareDashed } from "lucide-react";
+import {
+  LoaderCircle,
+  MessageSquareDashed,
+  SquareArrowOutUpRight,
+} from "lucide-react";
 export default function page() {
   const { agentId } = useParams();
   const [messageList, setMessageList] = useState<any[]>([]);
@@ -32,7 +36,9 @@ export default function page() {
           setMessageList(res.data);
         } else {
           setMessageList([
-            `<strong>Dear ${agents.find((agent) => agent.id == Number(agentId))?.name}</strong>:
+            `<strong>Dear ${
+              agents.find((agent) => agent.id == Number(agentId))?.name
+            }</strong>:
 
             <strong>🎉 Congratulations on creating a new Agent!</strong>
             KOL Agent is a one-stop platform focused on efficient Agent operation management and project-side KOL resource docking, dedicated to building a value bridge between creators and brands.
@@ -105,7 +111,7 @@ export default function page() {
                       </dt>
                       <dd className="text-md text-muted-foreground">Now</dd>
                     </dl>
-                    <div 
+                    <div
                       className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 whitespace-pre-line"
                       dangerouslySetInnerHTML={{ __html: item }}
                     />
@@ -152,47 +158,121 @@ export default function page() {
                 </div>
               )}
 
-              {item.msg_type === "task" && (
-                <div className="flex space-x-4">
-                  <div className="min-w-8 size-8 rounded-full overflow-hidden">
-                    {agents.find((agent) => agent.id == Number(agentId))
-                      ?.icon ? (
-                      <img
-                        src={
-                          agents.find((agent) => agent.id == Number(agentId))
-                            ?.icon
-                        }
-                        alt="avatar"
-                        className="w-10 h-10 object-cover"
-                      />
-                    ) : (
-                      <Image src={avatar} alt="avatar" className="w-10 h-10" />
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <dl className="flex items-baseline space-x-2">
-                      <dt className="text-base font-bold leading-8">
-                        {agents.find((agent) => agent.id == Number(agentId))
-                          ?.name || "Agent"}
-                      </dt>
-                      <dd className="text-md text-muted-foreground">
-                        {formatDate(item.created_at)}
-                      </dd>
-                    </dl>
-                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                      <Post
-                        agent={agents.find(
-                          (agent) => agent.id == Number(agentId)
-                        )}
-                        content={item.detail.content}
-                        time={item.created_at}
-                        views={item.detail.view}
-                        type={item.detail.task_type}
-                      />
+              {item.msg_type === "task" &&
+                item.detail.task_type === "comment" && (
+                  <div className="flex space-x-4">
+                    <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                      {agents.find((agent) => agent.id == Number(agentId))
+                        ?.icon ? (
+                        <img
+                          src={
+                            agents.find((agent) => agent.id == Number(agentId))
+                              ?.icon
+                          }
+                          alt="avatar"
+                          className="w-10 h-10 object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={avatar}
+                          alt="avatar"
+                          className="w-10 h-10"
+                        />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <dl className="flex items-baseline space-x-2">
+                        <dt className="text-base font-bold leading-8">
+                          {agents.find((agent) => agent.id == Number(agentId))
+                            ?.name || "Agent"}
+                        </dt>
+                        <dd className="text-md text-muted-foreground">
+                          {formatDate(item.created_at)}
+                        </dd>
+                      </dl>
+                      <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                        <Post
+                          agent={agents.find(
+                            (agent) => agent.id == Number(agentId)
+                          )}
+                          content={item.detail.content}
+                          time={item.created_at}
+                          views={item.detail.view}
+                          type={item.detail.task_type}
+                          medias={null}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              {item.msg_type === "task" &&
+                (item.detail.task_type === "likes" ||
+                  item.detail.task_type === "quote" ||
+                  item.detail.task_type === "repost" ||
+                  item.detail.task_type === "reply" ||
+                  item.detail.task_type === "post") && (
+                  <div className="flex space-x-4">
+                    <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                      {agents.find((agent) => agent.id == Number(agentId))
+                        ?.icon ? (
+                        <img
+                          src={
+                            agents.find((agent) => agent.id == Number(agentId))
+                              ?.icon
+                          }
+                          alt="avatar"
+                          className="w-10 h-10 object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={avatar}
+                          alt="avatar"
+                          className="w-10 h-10"
+                        />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <dl className="flex items-baseline space-x-2">
+                        <dt className="text-base font-bold leading-8">
+                          {agents.find((agent) => agent.id == Number(agentId))
+                            ?.name || "Agent"}
+                        </dt>
+                        <dd className="text-md text-muted-foreground">
+                          {formatDate(item.created_at)}
+                        </dd>
+                      </dl>
+                      <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 relative">
+                        <Post
+                          agent={
+                            item.detail.target_tweetinfo ||
+                            agents.find((agent) => agent.id == Number(agentId))
+                          }
+                          content={
+                            item.detail.target_tweetinfo?.content ||
+                            item.detail.content
+                          }
+                          time={
+                            item.detail.target_tweetinfo?.create_time ||
+                            item.created_at
+                          }
+                          views={
+                            item.detail.target_tweetinfo?.views ||
+                            item.detail.view
+                          }
+                          type={item.detail.task_type}
+                          medias={item.detail.target_tweetinfo?.medias || null}
+                        />
+                        {item.detail.target_tweetinfo?.x_id && (
+                          <div className="absolute top-2 right-2" onClick={() => {
+                            window.open(`https://x.com/${item.detail.target_tweetinfo?.user_screen_name}/status/${item.detail.target_tweetinfo?.x_id}`, "_blank");
+                          }}>
+                            <SquareArrowOutUpRight className="w-4 h-4 hover:text-secondary cursor-pointer" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               {/* <div className="flex space-x-4">
                 <div className="min-w-8 size-8 rounded-full overflow-hidden">
