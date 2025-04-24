@@ -8,18 +8,20 @@ export default function Post({
   time,
   views,
   type,
+  medias,
 }: {
   agent: any;
   content: string;
   time: string;
   views: number;
   type: string;
+  medias: any;
 }) {
   return (
     <div className="space-y-4">
       <PostUser agent={agent} time={time} />
-      <PostContent content={content} />
-      {type !== "likes" && <PostTime time={time} views={views} />}
+      <PostContent content={content} medias={medias} />
+      <PostTime time={time} views={views} />
     </div>
   );
 }
