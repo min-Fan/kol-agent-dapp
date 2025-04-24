@@ -71,7 +71,7 @@ export default function PreviewThinking(props: PreviewThinkingProps) {
       onMouseLeave={handleMouseLeave}
     >
       <div
-        className="w-full flex items-center gap-1 cursor-pointer hover:text-secondary sticky top-0"
+        className="w-full flex items-center gap-1 cursor-pointer hover:text-secondary"
         onClick={() => !isLoading && setIsExpanded(!isExpanded)} // 只有在非loading状态下才允许手动切换
       >
         {isExpanded ? (

@@ -92,8 +92,8 @@ export default function PreviewStepOne() {
       
       typingTimerRef.current = setTimeout(typeMessage, randomDelay);
     } else {
-      // 打字结束，添加到现有消息列表而不是替换
-      setMessages(prev => [...prev, {
+      // 打字结束后，仅设置一条消息
+      setMessages([{
         content: fullMessageRef.current,
         reasoningContent: ""
       }]);
@@ -155,6 +155,9 @@ export default function PreviewStepOne() {
       }
       return !!Step1[key];
     });
+    
+    // 清除之前的消息
+    setMessages([]);
     
     // 如果没有内容，重置为默认消息
     if (!hasContent) {

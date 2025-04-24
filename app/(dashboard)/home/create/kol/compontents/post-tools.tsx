@@ -12,8 +12,10 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function PostTools() {
   // 生成1-10之间的随机数
-  const commentCount = Math.floor(Math.random() * 10) + 1;
-  const retweetCount = Math.floor(Math.random() * 10) + 1;
+  // const commentCount = Math.floor(Math.random() * 10) + 1;
+  const commentCount = 1;
+  // const retweetCount = Math.floor(Math.random() * 10) + 1;
+  const retweetCount = 1;
 
   // CountUp 累加效果状态
   const [heartCurrentCount, setHeartCurrentCount] = useState<number>(0);

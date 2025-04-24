@@ -8,6 +8,8 @@ import { clearFrom } from "@/app/store/reducers/userSlice";
 import PreviewThinking from "./preview-thinking";
 import PreviewLoader from "./preview-loader";
 import Markdown from "react-markdown";
+import PreviewRepost from "./preview-repost";
+import PreviewPost from "./preview-post";
 
 // 定义消息结构，包含内容和思考过程
 interface Message {
@@ -23,7 +25,9 @@ export default function PreviewStepTwo() {
   const [partialOutput, setPartialOutput] = useState<string>("");
   const [partialReasoning, setPartialReasoning] = useState<string>("");
   const dispatch = useAppDispatch();
-  const language = useAppSelector((state: any) => state.userReducer.config.language);
+  const language = useAppSelector(
+    (state: any) => state.userReducer.config.language
+  );
 
   // 添加逐字输出相关的状态和引用
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -38,7 +42,10 @@ export default function PreviewStepTwo() {
   // 添加一个引用来追踪默认消息是否正在输出
   const isDefaultMessageTypingRef = useRef<boolean>(false);
   // 添加一个引用来存储API返回的消息，等待默认消息输出完毕后使用
-  const pendingApiResponseRef = useRef<{content: string, reasoningContent: string} | null>(null);
+  const pendingApiResponseRef = useRef<{
+    content: string;
+    reasoningContent: string;
+  } | null>(null);
 
   // 添加标记，跟踪组件是否处于激活状态
   const componentActiveRef = useRef<boolean>(true);
@@ -49,15 +56,15 @@ export default function PreviewStepTwo() {
     if (typingTimerRef.current) {
       clearTimeout(typingTimerRef.current);
     }
-    
+
     // 设置是否为默认消息标志
     isDefaultMessageTypingRef.current = isDefault;
-    
+
     fullMessageRef.current = message;
     typingIndexRef.current = 0;
     setLoading(true);
     setPartialOutput("");
-    
+
     // 开始打字效果
     typeNextChar();
   };
@@ -65,31 +72,39 @@ export default function PreviewStepTwo() {
   // 逐字打印的递归函数
   const typeNextChar = () => {
     if (typingIndexRef.current < fullMessageRef.current.length) {
-      setPartialOutput(fullMessageRef.current.substring(0, typingIndexRef.current + 1));
+      setPartialOutput(
+        fullMessageRef.current.substring(0, typingIndexRef.current + 1)
+      );
       typingIndexRef.current++;
-      
+
       // 随机打字速度，更自然
-      const randomDelay = Math.floor(Math.random() * 30) + 20; // 20-50ms之间的随机延迟
-      
+      const randomDelay = Math.floor(Math.random() * 10) + 0; // 20-50ms之间的随机延迟
+
       typingTimerRef.current = setTimeout(typeNextChar, randomDelay);
     } else {
       // 打字结束，保存完整消息
-      setMessages(prev => [...prev, {
-        content: fullMessageRef.current,
-        reasoningContent: ""
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          content: fullMessageRef.current,
+          reasoningContent: "",
+        },
+      ]);
       setLoading(false);
       setPartialOutput("");
-      
+
       // 检查打字完成后是否为默认消息，且是否有待处理的API响应
       if (isDefaultMessageTypingRef.current && pendingApiResponseRef.current) {
         // 设置一个短暂延迟，让用户有时间查看默认消息
         setTimeout(() => {
           // 显示API返回的消息
-          setMessages(prev => [...prev, {
-            content: pendingApiResponseRef.current!.content,
-            reasoningContent: pendingApiResponseRef.current!.reasoningContent
-          }]);
+          setMessages((prev) => [
+            ...prev,
+            {
+              content: pendingApiResponseRef.current!.content,
+              reasoningContent: pendingApiResponseRef.current!.reasoningContent,
+            },
+          ]);
           // 清空待处理响应
           pendingApiResponseRef.current = null;
           // 重置默认消息标志
@@ -117,14 +132,16 @@ export default function PreviewStepTwo() {
   const buildDefaultMessage = () => {
     // 从Step2中获取能力相关信息
     const ability = Step2?.ability || "advanced abilities";
-    const abilityDescription = Step2?.abilityDescription || "help you achieve your goals effectively";
-    
+    const abilityDescription =
+      Step2?.abilityDescription || "help you achieve your goals effectively";
+
     // 替换消息模板中的变量
-    let message = "You have chosen $[Ability] and I will acquire $[Ability.description]. Moreover, I will use these abilities to post tweets and interact with KOLs and followers.";
-    
+    let message =
+      "You have chosen $[Ability] and I will acquire $[Ability.description]. Moreover, I will use these abilities to post tweets and interact with KOLs and followers.";
+
     message = message.replace("$[Ability]", ability);
     message = message.replace("$[Ability.description]", abilityDescription);
-    
+
     return message;
   };
 
@@ -160,7 +177,9 @@ export default function PreviewStepTwo() {
       basicInfo.push(`with ${Step1.character} character`);
     }
 
-    const languageName = language.find((item: any) => item.id === Step1.language)?.name;
+    const languageName = language.find(
+      (item: any) => item.id === Step1.language
+    )?.name;
     if (languageName) {
       basicInfo.push(`speaking ${languageName}`);
     }
@@ -207,21 +226,21 @@ export default function PreviewStepTwo() {
       setPartialReasoning("");
       apiResponseReceivedRef.current = false;
       pendingApiResponseRef.current = null;
-      
+
       // 标记组件为激活状态
       componentActiveRef.current = true;
-      
+
       // 强制清除并重置所有已有的计时器
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-      
+
       if (typingTimerRef.current) {
         clearTimeout(typingTimerRef.current);
         typingTimerRef.current = null;
       }
-      
+
       // 仅在组件初始化的useEffect外调用generateDescription时设置超时计时器
       if (!timeoutRef.current) {
         console.log("设置1秒超时计时器");
@@ -248,12 +267,12 @@ export default function PreviewStepTwo() {
             },
           ],
         });
-        
+
         // 只有在组件仍然激活时才处理API响应
         if (componentActiveRef.current) {
           // 标记API已响应
           apiResponseReceivedRef.current = true;
-          
+
           // 清除超时计时器
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -282,7 +301,7 @@ export default function PreviewStepTwo() {
             console.log("默认消息正在输出，存储API响应");
             pendingApiResponseRef.current = {
               content,
-              reasoningContent
+              reasoningContent,
             };
           } else {
             // 直接添加API响应消息
@@ -298,7 +317,12 @@ export default function PreviewStepTwo() {
         }
       } catch (error) {
         // 如果组件仍然激活且API请求失败，且超时计时器还未触发，使用默认消息
-        if (componentActiveRef.current && !apiResponseReceivedRef.current && !timeoutRef.current && !isDefaultMessageTypingRef.current) {
+        if (
+          componentActiveRef.current &&
+          !apiResponseReceivedRef.current &&
+          !timeoutRef.current &&
+          !isDefaultMessageTypingRef.current
+        ) {
           console.log("API请求失败，使用默认消息");
           const defaultMessage = buildDefaultMessage();
           typeMessage(defaultMessage, true); // 标记为默认消息
@@ -312,11 +336,19 @@ export default function PreviewStepTwo() {
       }
     } finally {
       // 只有在组件激活且没有输出默认消息时才重置加载状态
-      if (componentActiveRef.current && apiResponseReceivedRef.current && !isDefaultMessageTypingRef.current) {
+      if (
+        componentActiveRef.current &&
+        apiResponseReceivedRef.current &&
+        !isDefaultMessageTypingRef.current
+      ) {
         setLoading(false);
       }
     }
   };
+
+  const currentStep = useAppSelector(
+    (state: any) => state.userReducer.config.currentStep
+  );
 
   // 监听数据变化的useEffect
   useEffect(() => {
@@ -332,7 +364,7 @@ export default function PreviewStepTwo() {
 
     // 如果没有足够的信息，直接返回
     if (!hasEnoughInfo()) return;
-    
+
     // 组件标记为激活状态
     componentActiveRef.current = true;
 
@@ -360,28 +392,28 @@ export default function PreviewStepTwo() {
         clearTimeout(typingTimerRef.current);
       }
     };
-  }, [Step1, Step2]);
+  }, [Step1, Step2, currentStep]);
 
   // 添加一个新的useEffect，专门处理组件挂载和卸载
   useEffect(() => {
     // 组件挂载时，设置为激活状态
     componentActiveRef.current = true;
-    
+
     // 如果未初始化过，启动初始化流程
     if (!initializedRef.current) {
       initializedRef.current = true;
-      
+
       // 检查是否有足够的信息可以生成描述
       if (hasEnoughInfo()) {
         console.log("组件初始化时检测到已有数据，开始生成描述");
-        
+
         // 重置状态，确保清除之前的可能影响
         setLoading(true);
         setPartialOutput("");
         setPartialReasoning("");
         apiResponseReceivedRef.current = false;
         pendingApiResponseRef.current = null;
-        
+
         // 设置1秒超时计时器
         timeoutRef.current = setTimeout(() => {
           // 如果组件仍然激活且1秒内API没有响应，使用默认消息
@@ -392,17 +424,17 @@ export default function PreviewStepTwo() {
           }
           timeoutRef.current = null;
         }, 1000);
-        
+
         // 然后再调用generateDescription
         generateDescription();
       }
     }
-    
+
     // 组件卸载时的清理
     return () => {
       // 标记组件为非激活状态
       componentActiveRef.current = false;
-      
+
       // 清理所有计时器
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -428,6 +460,9 @@ export default function PreviewStepTwo() {
             <div className="bg-background rounded-md px-2 py-2 break-words">
               <Markdown>{message.content}</Markdown>
             </div>
+            <PreviewPost
+              content={`🤖 Hello! I'm your exclusive ${Step1.gender} AI assistant ${Step1.name}.🌟 Personality Traits | ${Step1.character}🗺 Cultural Background | An expert in [Language] from [Region]`}
+            />
           </div>
         ))}
 
