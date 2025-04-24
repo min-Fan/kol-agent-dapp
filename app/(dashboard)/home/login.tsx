@@ -352,6 +352,7 @@ export default function Login() {
         setStep(Step.Login);
         localStorage.setItem("email", form.getValues("email"));
         localStorage.setItem("token", res.data.token);
+        loginApi();
         toast.success("Register successfully, please login");
       } else {
         toast.error(res.msg);
