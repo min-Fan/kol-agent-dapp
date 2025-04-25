@@ -16,9 +16,9 @@ import { DEFAULT_CHAIN } from "@/app/constants/chains";
 const persistConfig = {
   key: "interface",
   storage: localForage.createInstance({
-    name: "redux",
+    name: "kol-link:redux",
   }),
-  version: 0.8,
+  version: 0.9,
   throttle: 1000, // ms
   serialize: false,
   deserialize: false,
@@ -107,10 +107,50 @@ const persistConfig = {
       return result;
     };
 
-    // 合并状态，保留已有值，补充缺失的键
+    // 过滤多余的键，只保留在 schema 中定义的键
+    const filterExtraKeys = (data: any, schema: any): any => {
+      if (!data || typeof data !== 'object' || typeof schema !== 'object') {
+        return data;
+      }
+      
+      // 对于数组，直接返回原始数据
+      if (Array.isArray(data)) {
+        return data;
+      }
+      
+      const result: any = {};
+      
+      // 遍历 schema 的键，只保留 schema 中存在的键
+      for (const key in schema) {
+        if (key in data) {
+          if (
+            typeof schema[key] === 'object' && 
+            schema[key] !== null && 
+            typeof data[key] === 'object' && 
+            data[key] !== null &&
+            !Array.isArray(schema[key])
+          ) {
+            // 递归处理嵌套对象
+            result[key] = filterExtraKeys(data[key], schema[key]);
+          } else {
+            result[key] = data[key];
+          }
+        } else {
+          // 如果 data 中不存在该键，使用 schema 中的默认值
+          result[key] = schema[key];
+        }
+      }
+      
+      return result;
+    };
+
+    // 合并状态，先补充缺失的键，然后过滤多余的键
+    const mergedUserReducer = deepMerge(state.userReducer || {}, initialState.userReducer);
+    const filteredUserReducer = filterExtraKeys(mergedUserReducer, initialState.userReducer);
+
     const newState = {
       ...state,
-      userReducer: deepMerge(state.userReducer || {}, initialState.userReducer),
+      userReducer: filteredUserReducer,
       _persist: {
         ...state._persist,
         version: persistConfig.version,
