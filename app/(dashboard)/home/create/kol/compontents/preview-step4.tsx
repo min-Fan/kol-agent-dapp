@@ -6,7 +6,7 @@ import PreviewLoader from "./preview-loader";
 import PreviewThinking from "./preview-thinking";
 import PreviewPost from "./preview-post";
 import Markdown from "react-markdown";
-
+import FloatingMessages from "./floating-messages";
 // 定义消息结构
 interface Message {
   tweet: string;
@@ -24,67 +24,71 @@ export default function PreviewStepFour() {
   const [partialReasoning, setPartialReasoning] = useState<string>("");
   const initializedRef = useRef<boolean>(false);
 
-  const language = useAppSelector((state: any) => state.userReducer.config.language);
+  const language = useAppSelector(
+    (state: any) => state.userReducer.config.language
+  );
 
   // 构建提示信息
   const buildPrompt = () => {
-    let prompt = 'Please act as a Twitter content generator for a KOL. ';
-    
+    let prompt = "Please act as a Twitter content generator for a KOL. ";
+
     // 添加KOL基本信息 (Step1)
     prompt += `The KOL's name is ${Step1.name}`;
     if (Step1.gender) prompt += `, who is a ${Step1.gender}`;
     if (Step1.character) prompt += ` with a ${Step1.character} personality`;
-    prompt += '. ';
-    
+    prompt += ". ";
+
     // 添加KOL能力和特征 (Step2)
     if (Step2.ability) {
       prompt += `This KOL has the following abilities: ${Step2.ability}. `;
     }
 
-    const languageName = language.find((item: any) => item.id === Step1.language)?.name;
+    const languageName = language.find(
+      (item: any) => item.id === Step1.language
+    )?.name;
     if (languageName) {
       prompt += `The KOL speaks ${languageName}. `;
     }
-    
+
     // 添加互动要求 (Step3)
     if (Step3.interactive) {
       prompt += `The KOL should interact with users interested in: ${Step3.interactive}. `;
     }
-    
+
     // 明确生成内容的要求
     prompt += `Based on this information, please:
     1. Generate FIVE different Twitter posts (tweets) that showcase the KOL's personality and relate to their area of interest. Each tweet should be unique and under 280 characters.
     
     Format your response with "TWEETS:" followed by numbered tweets (1).`;
-    
+
     return prompt;
   };
 
   // 解析API返回的内容
   const parseContent = (content: string): { tweet: string } => {
     let tweets: string[] = [];
-    
+
     // 尝试提取推文
     const tweetsMatch = content.match(/TWEETS:([\s\S]+)/);
     if (tweetsMatch && tweetsMatch[1]) {
       // 分割推文
       tweets = tweetsMatch[1]
         .split(/\d+\./)
-        .filter(line => line.trim())
-        .map(tweet => tweet.trim());
+        .filter((line) => line.trim())
+        .map((tweet) => tweet.trim());
     }
-    
+
     // 如果未找到格式化的内容，尝试进行基本拆分
     if (!tweets.length) {
       tweets = content
-        .split('\n')
-        .filter(line => line.trim())
+        .split("\n")
+        .filter((line) => line.trim())
         .slice(0, 5);
     }
-    
+
     // 随机选择一条推文
-    const randomTweet = tweets[Math.floor(Math.random() * tweets.length)] || '';
-    
+    const randomTweet = tweets[Math.floor(Math.random() * tweets.length)] || "";
+
     return { tweet: randomTweet };
   };
 
@@ -95,7 +99,7 @@ export default function PreviewStepFour() {
       setPartialReasoning("");
 
       const prompt = buildPrompt();
-      console.log('Generation prompt:', prompt);
+      console.log("Generation prompt:", prompt);
 
       const response: any = await chat({
         messages: [
@@ -122,7 +126,7 @@ export default function PreviewStepFour() {
       if (tweet.trim() !== "") {
         setMessage({
           tweet,
-          reasoningContent
+          reasoningContent,
         });
       }
     } catch (error) {
@@ -143,33 +147,37 @@ export default function PreviewStepFour() {
       {/* 显示思考过程 */}
       {(loading || message?.reasoningContent) && (
         <>
-          <PreviewLoader 
+          <PreviewLoader
             text={loading ? "Thinking..." : "Thought process:"}
-            isThinking={loading && !partialTweet} 
+            isThinking={loading && !partialTweet}
           />
-          <PreviewThinking 
-            texts={loading ? partialReasoning : (message?.reasoningContent || "")} 
+          <PreviewThinking
+            texts={loading ? partialReasoning : message?.reasoningContent || ""}
           />
         </>
       )}
-      
       {/* 显示推文 */}
       {message?.tweet && (
         <>
-          <PreviewLoader 
-            text="Generated Tweet:" 
-            isThinking={false} 
-          />
+          <PreviewLoader text="Generated Tweet:" isThinking={false} />
           <PreviewPost content={message.tweet} />
         </>
       )}
-      
       {/* 显示加载状态或空状态 */}
       {!loading && !message && (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
           <p>Waiting for data from previous steps</p>
-          <p className="text-sm">Please complete Steps 1-3 to generate content</p>
+          <p className="text-sm">
+            Please complete Steps 1-3 to generate content
+          </p>
         </div>
+      )}
+      
+      {/* 显示浮动消息 */}
+      {message?.tweet && (
+        <FloatingMessages
+          messages={["test1关注了你", "test2关注了你", "test3关注了你"]}
+        ></FloatingMessages>
       )}
     </div>
   );
