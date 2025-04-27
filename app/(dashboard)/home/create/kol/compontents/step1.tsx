@@ -221,7 +221,7 @@ export default function StepOne() {
                         placeholder="Enter your character"
                         maxLength={200}
                         minLength={1}
-                        className="text-md border-none shadow-none pl-0 pr-10 "
+                        className="text-md border-none shadow-none pl-0 pr-10 min-h-30"
                       />
                       <div className="absolute bottom-1 right-2 text-xs text-gray-400">
                         {field.value?.length || 0}/200
