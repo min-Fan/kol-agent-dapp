@@ -119,6 +119,7 @@ export default function StepFour() {
                           <div className="flex flex-wrap gap-1 pb-2">
                             {topics.map((item: any) => (
                               <Badge
+                          
                                 key={item.id}
                                 onClick={() => {
                                   field.onChange(field.value + item.name + ",");

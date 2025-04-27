@@ -33,113 +33,122 @@ export default function StepFive() {
   const { handleNext, handleBack, currentStep } = useStepperContext();
   const limit = useAppSelector((state: any) => state.userReducer.config.limit);
 
-  const step5Init = useAppSelector((state: any) => state.userReducer.from.step5);
+  const step5Init = useAppSelector(
+    (state: any) => state.userReducer.from.step5
+  );
   const dispatch = useAppDispatch();
 
   // 动态创建formSchema
-  const createFormSchema = (limit: any) => z.object({
-    post: z
-      .string()
-      .refine(
-        (val) => Number.isInteger(Number(val)),
-        "Must be an integer"
-      )
-      .refine(
-        (val) => Number(val) >= 0 && Number(val) <= limit.post,
-        `Must be between 0 and ${limit.post}`
-      ),
-    repost: z
-      .string()
-      .refine(
-        (val) => Number.isInteger(Number(val)) && Number(val) > 0,
-        "Must be a positive integer"
-      )
-      .refine(
-        (val) => Number(val) >= 0 && Number(val) <= limit.repost,
-        `Must be between 0 and ${limit.repost}`
-      ),
-    quote: z
-      .string()
-      .refine(
-        (val) => Number.isInteger(Number(val)) && Number(val) > 0,
-        "Must be a positive integer"
-      )
-      .refine(
-        (val) => Number(val) >= 0 && Number(val) <= limit.quote,
-        `Must be between 0 and ${limit.quote}`
-      ),
-    likes: z
-      .string()
-      .refine(
-        (val) => Number.isInteger(Number(val)) && Number(val) > 0,
-        "Must be a positive integer"
-      )
-      .refine(
-        (val) => Number(val) >= 0 && Number(val) <= limit.likes,
-        `Must be between 0 and ${limit.likes}`
-      ),
-    reply: z
-      .string()
-      .refine(
-        (val) => Number.isInteger(Number(val)) && Number(val) > 0,
-        "Must be a positive integer"
-      )
-      .refine(
-        (val) => Number(val) >= 0 && Number(val) <= limit.reply,
-        `Must be between 0 and ${limit.reply}`
-      ),
-    comment: z
-      .string()
-      .refine(
-        (val) => Number.isInteger(Number(val)) && Number(val) > 0,
-        "Must be a positive integer"
-      )
-      .refine(
-        (val) => Number(val) >= 0 && Number(val) <= limit.comment,
-        `Must be between 0 and ${limit.comment}`
-      ),
-  });
+  const createFormSchema = (limit: any) =>
+    z.object({
+      post: z
+        .string()
+        .refine((val) => Number.isInteger(Number(val)), "Must be an integer")
+        .refine(
+          (val) => Number(val) >= 0 && Number(val) <= limit.post,
+          `Must be between 0 and ${limit.post}`
+        ),
+      repost: z
+        .string()
+        .refine(
+          (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+          "Must be a positive integer"
+        )
+        .refine(
+          (val) => Number(val) >= 0 && Number(val) <= limit.repost,
+          `Must be between 0 and ${limit.repost}`
+        ),
+      quote: z
+        .string()
+        .refine(
+          (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+          "Must be a positive integer"
+        )
+        .refine(
+          (val) => Number(val) >= 0 && Number(val) <= limit.quote,
+          `Must be between 0 and ${limit.quote}`
+        ),
+      likes: z
+        .string()
+        .refine(
+          (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+          "Must be a positive integer"
+        )
+        .refine(
+          (val) => Number(val) >= 0 && Number(val) <= limit.likes,
+          `Must be between 0 and ${limit.likes}`
+        ),
+      reply: z
+        .string()
+        .refine(
+          (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+          "Must be a positive integer"
+        )
+        .refine(
+          (val) => Number(val) >= 0 && Number(val) <= limit.reply,
+          `Must be between 0 and ${limit.reply}`
+        ),
+      comment: z
+        .string()
+        .refine(
+          (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+          "Must be a positive integer"
+        )
+        .refine(
+          (val) => Number(val) >= 0 && Number(val) <= limit.comment,
+          `Must be between 0 and ${limit.comment}`
+        ),
+    });
 
   const formSchema = createFormSchema(limit);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      post: step5Init?.post || String(limit.post) || "",
-      repost: step5Init?.repost || String(limit.repost) || "",
-      quote: step5Init?.quote || String(limit.quote) || "",
-      likes: step5Init?.likes || String(limit.likes) || "",
-      reply: step5Init?.reply || String(limit.reply) || "",
-      comment: step5Init?.comment || String(limit.comment) || "",
+      post: step5Init?.post || "",
+      repost: step5Init?.repost || "",
+      quote: step5Init?.quote || "",
+      likes: step5Init?.likes || "",
+      reply: step5Init?.reply || "",
+      comment: step5Init?.comment || "",
     },
   });
 
   const prevValuesRef = useRef(form.getValues());
-  
+
   const initialRenderRef = useRef(true);
 
   useEffect(() => {
     const subscription = form.watch((values) => {
       const currentValues = form.getValues();
-      
-      if (JSON.stringify(currentValues) !== JSON.stringify(prevValuesRef.current)) {
+      if (
+        JSON.stringify(currentValues) !== JSON.stringify(prevValuesRef.current)
+      ) {
         dispatch(updateFrom({ key: "step5", value: currentValues }));
         prevValuesRef.current = { ...currentValues };
       }
     });
-    
+
     return () => subscription.unsubscribe();
   }, [form, dispatch]);
 
   useEffect(() => {
     if (initialRenderRef.current && limit) {
-      form.reset({
-        post: step5Init?.post || String(limit.post) || "",
-        repost: step5Init?.repost || String(limit.repost) || "",
-        quote: step5Init?.quote || String(limit.quote) || "",
-        likes: step5Init?.likes || String(limit.likes) || "",
-        reply: step5Init?.reply || String(limit.reply) || "",
-        comment: step5Init?.comment || String(limit.comment) || "",
+      // form.reset({
+      //   post: step5Init?.post || String(limit.post) || "",
+      //   repost: step5Init?.repost || String(limit.repost) || "",
+      //   quote: step5Init?.quote || String(limit.quote) || "",
+      //   likes: step5Init?.likes || String(limit.likes) || "",
+      //   reply: step5Init?.reply || String(limit.reply) || "",
+      //   comment: step5Init?.comment || String(limit.comment) || "",
+      // });
+       form.reset({
+        post: step5Init?.post || String(1) || "",
+        repost: step5Init?.repost || String(1) || "",
+        quote: step5Init?.quote || String(1) || "",
+        likes: step5Init?.likes || String(1) || "",
+        reply: step5Init?.reply || String(1) || "",
+        comment: step5Init?.comment || String(1) || "",
       });
       initialRenderRef.current = false;
     }

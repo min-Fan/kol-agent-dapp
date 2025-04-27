@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CountUp from "@/app/components/comm/CountUp";
 import Image from "next/image";
 import avatar from "@/app/assets/image/avatar.png";
+import FloatingMessages from "./floating-messages";
 
 interface EarningMessage {
   id: number;
@@ -43,10 +44,12 @@ export default function PreviewStepSix() {
   const [previousTotal, setPreviousTotal] = useState(0);
   const [showTotalAnimation, setShowTotalAnimation] = useState(false);
   const earningsIncrease = 100;
-  
+
   // 计算总收益
-  const totalEarnings = messages.reduce((sum, msg) => 
-    msg.showYourMessage ? sum + msg.amount : sum, 0);
+  const totalEarnings = messages.reduce(
+    (sum, msg) => (msg.showYourMessage ? sum + msg.amount : sum),
+    0
+  );
 
   // 当总收益变化时触发动画
   useEffect(() => {
@@ -63,9 +66,9 @@ export default function PreviewStepSix() {
   // 处理动画序列
   useEffect(() => {
     // 清理之前的所有计时器
-    timersRef.current.forEach(timer => clearTimeout(timer));
+    timersRef.current.forEach((timer) => clearTimeout(timer));
     timersRef.current = [];
-    
+
     // 创建5条初始消息（全部隐藏）
     const initialMessages: EarningMessage[] = [];
     for (let i = 0; i < 5; i++) {
@@ -76,61 +79,71 @@ export default function PreviewStepSix() {
         startCounterAnimation: false,
         minutesAgo: Math.floor(Math.random() * 15) + 1,
         showProjectMessage: false,
-        showYourMessage: false
+        showYourMessage: false,
       });
     }
     setMessages(initialMessages);
-    
+
     // 为每条消息设置顺序显示的计时器
     for (let i = 0; i < 5; i++) {
       // 消息之间的间隔时间（秒）
-      const messageDelay = i * 4000; 
-      
+      const messageDelay = i * 4000;
+
       // 1. 显示项目方消息
       const timer1 = setTimeout(() => {
-        setMessages(prev => prev.map((msg, idx) => 
-          idx === i ? { ...msg, showProjectMessage: true } : msg
-        ));
+        setMessages((prev) =>
+          prev.map((msg, idx) =>
+            idx === i ? { ...msg, showProjectMessage: true } : msg
+          )
+        );
       }, messageDelay);
       timersRef.current.push(timer1);
-      
+
       // 2. 显示收益消息和+100动画
       const timer2 = setTimeout(() => {
-        setMessages(prev => prev.map((msg, idx) => 
-          idx === i ? { 
-            ...msg, 
-            showYourMessage: true,
-            showPlusAnimation: true 
-          } : msg
-        ));
+        setMessages((prev) =>
+          prev.map((msg, idx) =>
+            idx === i
+              ? {
+                  ...msg,
+                  showYourMessage: true,
+                  showPlusAnimation: true,
+                }
+              : msg
+          )
+        );
       }, messageDelay + 1000);
       timersRef.current.push(timer2);
-      
+
       // 3. 隐藏+100动画
       const timer3 = setTimeout(() => {
-        setMessages(prev => prev.map((msg, idx) => 
-          idx === i ? { ...msg, showPlusAnimation: false } : msg
-        ));
+        setMessages((prev) =>
+          prev.map((msg, idx) =>
+            idx === i ? { ...msg, showPlusAnimation: false } : msg
+          )
+        );
       }, messageDelay + 1500);
       timersRef.current.push(timer3);
-      
+
       // 4. 开始数字计数动画
       const timer4 = setTimeout(() => {
-        setMessages(prev => prev.map((msg, idx) => 
-          idx === i ? { ...msg, startCounterAnimation: true } : msg
-        ));
+        setMessages((prev) =>
+          prev.map((msg, idx) =>
+            idx === i ? { ...msg, startCounterAnimation: true } : msg
+          )
+        );
       }, messageDelay + 1800);
       timersRef.current.push(timer4);
     }
-    
+
     // 组件卸载时清理所有计时器
     return () => {
-      timersRef.current.forEach(timer => clearTimeout(timer));
+      timersRef.current.forEach((timer) => clearTimeout(timer));
     };
   }, []);
 
   return (
-    <div className="px-4 space-y-4">
+    <div className="px-4 space-y-4 relative">
       {/* 固定在顶部的总数统计 */}
       {/* <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-sm rounded-md p-3 shadow mb-4">
         <h3 className="text-base mb-1 text-primary">总收入</h3>
@@ -186,14 +199,14 @@ export default function PreviewStepSix() {
                   </div>
                   <div className="bg-background rounded-md px-2 py-2 w-full">
                     <p className="text-md text-gray-700">
-                      The project team placed an order {message.minutesAgo} minutes
-                      ago. Payment amount: 100 USDT
+                      The project team placed an order {message.minutesAgo}{" "}
+                      minutes ago. Payment amount: 100 USDT
                     </p>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
-            
+
             {/* 您的收益消息 */}
             <AnimatePresence>
               {message.showYourMessage && (
@@ -211,14 +224,16 @@ export default function PreviewStepSix() {
                         <div className="inline-block font-bold text-lg text-green-600">
                           <CountUp
                             from={0}
-                            to={message.startCounterAnimation ? message.amount : 0}
+                            to={
+                              message.startCounterAnimation ? message.amount : 0
+                            }
                             duration={1}
                             separator=","
                             className="count-up-text font-bold"
                           />
                           <span className="ml-1 text-sm font-normal">USDT</span>
                         </div>
-                        
+
                         <AnimatePresence>
                           {message.showPlusAnimation && (
                             <motion.strong
@@ -242,6 +257,11 @@ export default function PreviewStepSix() {
           </div>
         ))}
       </div>
+      {messages?.length && (
+        <FloatingMessages
+          messages={["+100 USDT", "+100 USDT", "+100 USDT"]}
+        ></FloatingMessages>
+      )}
     </div>
   );
 }

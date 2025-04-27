@@ -37,7 +37,11 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { clearFrom, updateConfig, updateFrom } from "@/app/store/reducers/userSlice";
+import {
+  clearFrom,
+  updateConfig,
+  updateFrom,
+} from "@/app/store/reducers/userSlice";
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -66,10 +70,12 @@ export default function StepOne() {
   const [open, setOpen] = useState(false);
   const [openLanguage, setOpenLanguage] = useState(false);
   const dispatch = useAppDispatch();
-  
+
   // 1. 从 Redux 获取已保存的表单数据
-  const step1Init = useAppSelector((state: any) => state.userReducer.from.step1);
-  
+  const step1Init = useAppSelector(
+    (state: any) => state.userReducer.from.step1
+  );
+
   const character = useAppSelector(
     (state: any) => state.userReducer.config.character
   );
@@ -96,7 +102,7 @@ export default function StepOne() {
   // 3. 处理表单更新，避免无限循环
   // 使用 useRef 存储上一次的值，这样可以在 useEffect 中做比较
   const prevValuesRef = useRef(form.getValues());
-  
+
   // 只在组件首次渲染后执行一次 dispatch
   const initialRenderRef = useRef(true);
 
@@ -106,16 +112,18 @@ export default function StepOne() {
     const subscription = form.watch((values) => {
       // 获取当前表单的完整值
       const currentValues = form.getValues();
-      
+
       // 使用 JSON.stringify 进行深度比较，避免引用比较的问题
-      if (JSON.stringify(currentValues) !== JSON.stringify(prevValuesRef.current)) {
+      if (
+        JSON.stringify(currentValues) !== JSON.stringify(prevValuesRef.current)
+      ) {
         // 更新 Redux 状态
         dispatch(updateFrom({ key: "step1", value: currentValues }));
         // 更新保存的上一次值
         prevValuesRef.current = { ...currentValues };
       }
     });
-    
+
     // 清理函数
     return () => subscription.unsubscribe();
   }, [form, dispatch]);
@@ -363,7 +371,9 @@ export default function StepOne() {
                                       (item: any) => item.name === currentValue
                                     );
                                     field.onChange(
-                                      value.name === field.value ? "" : value.name
+                                      value.name === field.value
+                                        ? ""
+                                        : value.name
                                     );
                                     setOpenLanguage(false);
                                   }}

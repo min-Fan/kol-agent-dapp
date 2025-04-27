@@ -172,11 +172,15 @@ export default function PreviewStepFour() {
           </p>
         </div>
       )}
-      
+
       {/* 显示浮动消息 */}
       {message?.tweet && (
         <FloatingMessages
-          messages={["test1关注了你", "test2关注了你", "test3关注了你"]}
+          messages={[
+            "+1 Elon Musk is following you",
+            "+1 Liam is following you",
+            "+1 CNN following you",
+          ]}
         ></FloatingMessages>
       )}
     </div>

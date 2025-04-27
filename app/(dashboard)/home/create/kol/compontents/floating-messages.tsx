@@ -65,7 +65,7 @@ function FloatingBubble({
 
   return (
     <div
-      className="absolute bottom-0 right-0 transform -translate-x-1/2
+      className="absolute bottom-[50px] right-0 transform -translate-x-1/2
         animate-float-up text-sm px-4 py-2 bg-white text-black rounded-full shadow-md
         opacity-0"
     >
