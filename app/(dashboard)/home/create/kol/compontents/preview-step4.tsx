@@ -18,6 +18,10 @@ export default function PreviewStepFour() {
   const Step2 = useAppSelector((state: any) => state.userReducer.from.step2);
   const Step3 = useAppSelector((state: any) => state.userReducer.from.step3);
   const Step4 = useAppSelector((state: any) => state.userReducer.from.step4);
+  const [setp1Message, setSetp1Message] = useState<string>("");
+  const region = useAppSelector(
+    (state: any) => state.userReducer.config.region
+  );
   const [message, setMessage] = useState<Message | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialTweet, setPartialTweet] = useState<string>("");
@@ -27,6 +31,49 @@ export default function PreviewStepFour() {
   const language = useAppSelector(
     (state: any) => state.userReducer.config.language
   );
+  const generateTemplateMessage = () => {
+    const lines = [];
+
+    // 根据提供的模板生成消息
+    if (Step1?.name && Step1.name.trim() !== "") {
+      lines.push(
+        `Hello! I'm your assistant, ${Step1.name.trim()}. It's my great honor to serve you.`
+      );
+    }
+
+    if (Step1?.gender) {
+      lines.push(`Let me introduce myself. I'm of ${Step1.gender} gender.`);
+    }
+
+    if (Step1?.character && Step1.character.trim() !== "") {
+      lines.push(
+        `I have a distinct personality, possessing traits such as ${Step1.character.trim()} and I look forward to providing you with an intimate and unique interactive experience.`
+      );
+    }
+
+    const regionName = region?.find(
+      (item: any) => item.id === Step1?.region
+    )?.name;
+    if (regionName) {
+      lines.push(`I come from the charming ${regionName}.`);
+    }
+
+    const languageName = language?.find(
+      (item: any) => item.id === Step1?.language
+    )?.name;
+    if (languageName) {
+      lines.push(
+        `In our future communication, I will communicate with you entirely in ${languageName} to ensure smooth interaction.`
+      );
+    }
+
+    // 如果没有任何内容，使用默认消息
+    if (lines.length === 0) {
+      return "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
+    }
+
+    return lines.join("\n");
+  };
 
   // 构建提示信息
   const buildPrompt = () => {
@@ -139,6 +186,7 @@ export default function PreviewStepFour() {
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
+    setSetp1Message(generateTemplateMessage());
     generateTweet();
   }, [Step1, Step2, Step3, Step4]);
 
@@ -146,15 +194,24 @@ export default function PreviewStepFour() {
     <div className="px-4 space-y-4 text-md">
       {/* 显示思考过程 */}
       {(loading || message?.reasoningContent) && (
-        <>
-          <PreviewLoader
-            text={loading ? "Thinking..." : "Thought process:"}
-            isThinking={loading && !partialTweet}
-          />
-          <PreviewThinking
-            texts={loading ? partialReasoning : message?.reasoningContent || ""}
-          />
-        </>
+        <div className="space-y-2">
+          {setp1Message.split("\n").map((line, index) => (
+            <div key={`${index}`} className="space-y-2">
+              <div className="bg-background rounded-md px-2 py-2 relative">
+                <Markdown>{line}</Markdown>
+              </div>
+            </div>
+          ))}
+        </div>
+        // <>
+        //   <PreviewLoader
+        //     text={loading ? "Thinking..." : "Thought process:"}
+        //     isThinking={loading && !partialTweet}
+        //   />
+        //   <PreviewThinking
+        //     texts={loading ? partialReasoning : message?.reasoningContent || ""}
+        //   />
+        // </>
       )}
       {/* 显示推文 */}
       {message?.tweet && (

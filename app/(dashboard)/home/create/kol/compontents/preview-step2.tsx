@@ -20,6 +20,9 @@ interface Message {
 export default function PreviewStepTwo() {
   const Step1 = useAppSelector((state: any) => state.userReducer.from.step1);
   const Step2 = useAppSelector((state: any) => state.userReducer.from.step2);
+  const region = useAppSelector(
+    (state: any) => state.userReducer.config.region
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialOutput, setPartialOutput] = useState<string>("");
@@ -28,7 +31,7 @@ export default function PreviewStepTwo() {
   const language = useAppSelector(
     (state: any) => state.userReducer.config.language
   );
-
+  const [setp1Message, setSetp1Message] = useState<string>("");
   // 添加逐字输出相关的状态和引用
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -219,7 +222,7 @@ export default function PreviewStepTwo() {
         console.log("没有足够的信息可以生成描述");
         return;
       }
-
+    
       // 重置状态，确保清除之前的可能影响
       setLoading(true);
       setPartialOutput("");
@@ -398,7 +401,7 @@ export default function PreviewStepTwo() {
   useEffect(() => {
     // 组件挂载时，设置为激活状态
     componentActiveRef.current = true;
-
+    setSetp1Message(generateTemplateMessage())
     // 如果未初始化过，启动初始化流程
     if (!initializedRef.current) {
       initializedRef.current = true;
@@ -451,15 +454,59 @@ export default function PreviewStepTwo() {
     };
   }, []); // 依赖数组为空，表示只在组件挂载和卸载时执行
 
+  const generateTemplateMessage = () => {
+    const lines = [];
+
+    // 根据提供的模板生成消息
+    if (Step1?.name && Step1.name.trim() !== "") {
+      lines.push(
+        `Hello! I'm your assistant, ${Step1.name.trim()}. It's my great honor to serve you.`
+      );
+    }
+
+    if (Step1?.gender) {
+      lines.push(`Let me introduce myself. I'm of ${Step1.gender} gender.`);
+    }
+
+    if (Step1?.character && Step1.character.trim() !== "") {
+      lines.push(
+        `I have a distinct personality, possessing traits such as ${Step1.character.trim()} and I look forward to providing you with an intimate and unique interactive experience.`
+      );
+    }
+
+    const regionName = region?.find(
+      (item: any) => item.id === Step1?.region
+    )?.name;
+    if (regionName) {
+      lines.push(`I come from the charming ${regionName}.`);
+    }
+
+    const languageName = language?.find(
+      (item: any) => item.id === Step1?.language
+    )?.name;
+    if (languageName) {
+      lines.push(
+        `In our future communication, I will communicate with you entirely in ${languageName} to ensure smooth interaction.`
+      );
+    }
+
+    // 如果没有任何内容，使用默认消息
+    if (lines.length === 0) {
+      return "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
+    }
+
+    return lines.join("\n");
+  };
+
   return (
     <div className="px-4 space-y-4 text-md">
       {messages.length > 0 &&
         messages.map((message, index) => (
           <div key={index} className="space-y-2">
             {/* 显示主要内容 */}
-            <div className="bg-background rounded-md px-2 py-2 break-words">
+            {/* <div className="bg-background rounded-md px-2 py-2 break-words">
               <Markdown>{message.content}</Markdown>
-            </div>
+            </div> */}
             <PreviewPost
               content={`🤖 Hello! I'm your exclusive ${Step1.gender} AI assistant ${Step1.name}.🌟 Personality Traits | ${Step1.character}🗺 Cultural Background | An expert in [Language] from [Region]`}
             />
@@ -467,9 +514,8 @@ export default function PreviewStepTwo() {
         ))}
 
       {/* 显示正在加载的内容 */}
-      {loading && (
+      {/* {loading && (
         <div className="space-y-2">
-          {/* 显示正在加载的思考过程 */}
           {partialReasoning && (
             <>
               <PreviewLoader text="Thinking..." isThinking={loading} />
@@ -487,9 +533,19 @@ export default function PreviewStepTwo() {
             <PreviewLoader text="Thinking..." isThinking={loading} />
           )}
         </div>
-      )}
+      )} */}
 
-      {!loading && messages.length === 0 && <Skeleton className="w-full h-8" />}
+      {(loading || messages.length === 0) && (
+        <div className="space-y-2">
+          {setp1Message.split("\n").map((line, index) => (
+            <div key={`${index}`} className="space-y-2">
+              <div className="bg-background rounded-md px-2 py-2 relative">
+                <Markdown>{line}</Markdown>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
