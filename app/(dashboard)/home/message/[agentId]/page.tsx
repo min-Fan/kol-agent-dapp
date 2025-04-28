@@ -3,8 +3,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-
 import avatar from "@/app/assets/image/avatar.png";
+import banner from "@/app/assets/image/Cover.png";
 import Post from "../compontents/post";
 import Repost from "../compontents/repost";
 import Reply from "../compontents/reply";
@@ -73,6 +73,12 @@ export default function page() {
   }, [agentId]);
   return (
     <div className="w-full h-full">
+      {/* <div className="w-[600px] relative bg-primary/10">
+        <Image src={banner} alt="avatar" className="w-full" />
+        <div className="w-20 h-20 size-8 rounded-full overflow-hidden  absolute bottom-0">
+          <Image src={avatar} alt="avatar" />
+        </div>
+      </div> */}
       <ScrollArea className="w-full h-full">
         {loading ? (
           <div className="w-full h-full flex items-center justify-center">
@@ -85,67 +91,24 @@ export default function page() {
           </div>
         ) : (
           messageList.map((item: any, index: number) => (
-            <div className="space-y-8 pb-1" key={index}>
+            <div
+              className="w-[500px]  mb-4  py-2  border-1 border-gray-200 rounded-md"
+              key={index}
+            >
               {typeof item === "string" && (
-                <div className="flex space-x-4">
-                  <div className="min-w-8 size-8 rounded-full overflow-hidden">
-                    {agents.find((agent) => agent.id == Number(agentId))
-                      ?.icon ? (
-                      <img
-                        src={
-                          agents.find((agent) => agent.id == Number(agentId))
-                            ?.icon
-                        }
-                        alt="avatar"
-                        className="w-10 h-10 object-cover"
-                      />
-                    ) : (
-                      <Image src={avatar} alt="avatar" className="w-10 h-10" />
-                    )}
-                  </div>
+                <div className="flex space-x-4 w-full">
                   <div className="space-y-1">
-                    <dl className="flex items-baseline space-x-2">
-                      <dt className="text-base font-bold leading-8">
-                        {agents.find((agent) => agent.id == Number(agentId))
-                          ?.name || "Agent"}
-                      </dt>
-                      <dd className="text-md text-muted-foreground">Now</dd>
-                    </dl>
                     <div
-                      className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 whitespace-pre-line"
+                      className="text-md text-muted-foreground bg-foreground  rounded-md p-4 whitespace-pre-line"
                       dangerouslySetInnerHTML={{ __html: item }}
                     />
                   </div>
                 </div>
               )}
               {item.msg_type === "string" && (
-                <div className="flex space-x-4">
-                  <div className="min-w-8 size-8 rounded-full overflow-hidden">
-                    {agents.find((agent) => agent.id == Number(agentId))
-                      ?.icon ? (
-                      <img
-                        src={
-                          agents.find((agent) => agent.id == Number(agentId))
-                            ?.icon
-                        }
-                        alt="avatar"
-                        className="w-10 h-10 object-cover"
-                      />
-                    ) : (
-                      <Image src={avatar} alt="avatar" className="w-10 h-10" />
-                    )}
-                  </div>
+                <div className="flex space-x-4 w-full">
                   <div className="space-y-1">
-                    <dl className="flex items-baseline space-x-2">
-                      <dt className="text-base font-bold leading-8">
-                        {agents.find((agent) => agent.id == Number(agentId))
-                          ?.name || "Agent"}
-                      </dt>
-                      <dd className="text-md text-muted-foreground">
-                        {formatDate(item.created_at)}
-                      </dd>
-                    </dl>
-                    <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                    <div className="text-md text-muted-foreground bg-foreground  rounded-md p-4">
                       Advertised co-op request from {item.detail.user}, paid{" "}
                       {item.detail.amount}USDT, paid on{" "}
                       {formatDate(item.detail.pay_at * 1000)}, platform gets{" "}
@@ -154,43 +117,20 @@ export default function page() {
                       {item.detail.agent_amount}USDT, item name "
                       {item.detail.user}. "
                     </div>
+                    <dl className="flex items-baseline space-x-2 justify-end  px-4">
+                      <dd className="text-md text-muted-foreground">
+                        {formatDate(item.created_at)}
+                      </dd>
+                    </dl>
                   </div>
                 </div>
               )}
 
               {item.msg_type === "task" &&
                 item.detail.task_type === "comment" && (
-                  <div className="flex space-x-4">
-                    <div className="min-w-8 size-8 rounded-full overflow-hidden">
-                      {agents.find((agent) => agent.id == Number(agentId))
-                        ?.icon ? (
-                        <img
-                          src={
-                            agents.find((agent) => agent.id == Number(agentId))
-                              ?.icon
-                          }
-                          alt="avatar"
-                          className="w-10 h-10 object-cover"
-                        />
-                      ) : (
-                        <Image
-                          src={avatar}
-                          alt="avatar"
-                          className="w-10 h-10"
-                        />
-                      )}
-                    </div>
+                  <div className="flex space-x-4 w-full">
                     <div className="space-y-1">
-                      <dl className="flex items-baseline space-x-2">
-                        <dt className="text-base font-bold leading-8">
-                          {agents.find((agent) => agent.id == Number(agentId))
-                            ?.name || "Agent"}
-                        </dt>
-                        <dd className="text-md text-muted-foreground">
-                          {formatDate(item.created_at)}
-                        </dd>
-                      </dl>
-                      <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
+                      <div className="text-md text-muted-foreground bg-foreground  rounded-md p-4">
                         <Post
                           agent={agents.find(
                             (agent) => agent.id == Number(agentId)
@@ -202,17 +142,27 @@ export default function page() {
                           medias={null}
                         />
                       </div>
+                      <dl className="flex items-baseline space-x-2 justify-end  px-4">
+                        {/* <dt className="text-base font-bold leading-8">
+                          {agents.find((agent) => agent.id == Number(agentId))
+                            ?.name || "Agent"}
+                        </dt> */}
+                        <dd className="text-md text-muted-foreground">
+                          {formatDate(item.created_at)}
+                        </dd>
+                      </dl>
                     </div>
                   </div>
                 )}
+
               {item.msg_type === "task" &&
                 (item.detail.task_type === "likes" ||
                   item.detail.task_type === "quote" ||
                   item.detail.task_type === "repost" ||
                   item.detail.task_type === "reply" ||
                   item.detail.task_type === "post") && (
-                  <div className="flex space-x-4">
-                    <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                  <div className="flex space-x-4 w-full">
+                    {/* <div className="min-w-8 size-8 rounded-full overflow-hidden">
                       {agents.find((agent) => agent.id == Number(agentId))
                         ?.icon ? (
                         <img
@@ -230,18 +180,9 @@ export default function page() {
                           className="w-10 h-10"
                         />
                       )}
-                    </div>
-                    <div className="space-y-1">
-                      <dl className="flex items-baseline space-x-2">
-                        <dt className="text-base font-bold leading-8">
-                          {agents.find((agent) => agent.id == Number(agentId))
-                            ?.name || "Agent"}
-                        </dt>
-                        <dd className="text-md text-muted-foreground">
-                          {formatDate(item.created_at)}
-                        </dd>
-                      </dl>
-                      <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4 relative">
+                    </div> */}
+                    <div className="space-y-1 w-full">
+                      <div className="text-md text-muted-foreground bg-foreground   rounded-md p-4 relative">
                         <Post
                           agent={
                             item.detail.target_tweetinfo ||
@@ -263,73 +204,31 @@ export default function page() {
                           medias={item.detail.target_tweetinfo?.medias || null}
                         />
                         {item.detail.target_tweetinfo?.x_id && (
-                          <div className="absolute top-2 right-2" onClick={() => {
-                            window.open(`https://x.com/${item.detail.target_tweetinfo?.user_screen_name}/status/${item.detail.target_tweetinfo?.x_id}`, "_blank");
-                          }}>
+                          <div
+                            className="absolute top-2 right-2"
+                            onClick={() => {
+                              window.open(
+                                `https://x.com/${item.detail.target_tweetinfo?.user_screen_name}/status/${item.detail.target_tweetinfo?.x_id}`,
+                                "_blank"
+                              );
+                            }}
+                          >
                             <SquareArrowOutUpRight className="w-4 h-4 hover:text-secondary cursor-pointer" />
                           </div>
                         )}
                       </div>
+                      <dl className="flex items-baseline space-x-2 justify-end  px-4">
+                        {/* <dt className="text-base font-bold leading-8">
+                          {agents.find((agent) => agent.id == Number(agentId))
+                            ?.name || "Agent"}
+                        </dt> */}
+                        <dd className="text-md text-muted-foreground">
+                          {formatDate(item.created_at)}
+                        </dd>
+                      </dl>
                     </div>
                   </div>
                 )}
-
-              {/* <div className="flex space-x-4">
-                <div className="min-w-8 size-8 rounded-full overflow-hidden">
-                  <Image src={avatar} alt="avatar" className="w-10 h-10" />
-                </div>
-                <div className="space-y-1">
-                  <dl className="flex items-baseline space-x-2">
-                    <dt className="text-base font-bold leading-8">John Doe</dt>
-                    <dd className="text-md text-muted-foreground">
-                      2025-03-28 10:00
-                    </dd>
-                  </dl>
-                  <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                    来自于XXX的广告上合作需求，已付款100USDT，付款时间2025年3月28日，平台获取20%佣金，20USDT，您可以获取80USDT，项目名称"xxx",项目介绍"xxxx"
-                  </div>
-                  <div className="space-x-2 pt-2">
-                    <Button variant="primary">
-                      <span>Accept</span>
-                    </Button>
-                    <Button variant="destructive">
-                      <span>Reject</span>
-                    </Button>
-                  </div>
-                </div>
-              </div> */}
-              {/* <div className="flex space-x-4">
-            <div className="min-w-8 size-8 rounded-full overflow-hidden">
-              <Image src={avatar} alt="avatar" className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <dl className="flex items-baseline space-x-2">
-                <dt className="text-base font-bold leading-8">John Doe</dt>
-                <dd className="text-md text-muted-foreground">
-                  2025-03-28 10:00
-                </dd>
-              </dl>
-              <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                <Repost />
-              </div>
-            </div>
-              </div> */}
-              {/* <div className="flex space-x-4">
-            <div className="min-w-8 size-8 rounded-full overflow-hidden">
-              <Image src={avatar} alt="avatar" className="w-10 h-10" />
-            </div>
-            <div className="space-y-1">
-              <dl className="flex items-baseline space-x-2">
-                <dt className="text-base font-bold leading-8">John Doe</dt>
-                <dd className="text-md text-muted-foreground">
-                  2025-03-28 10:00
-                </dd>
-              </dl>
-              <div className="text-md text-muted-foreground bg-foreground shadow-sm rounded-md p-4">
-                <Reply />
-              </div>
-            </div>
-              </div> */}
             </div>
           ))
         )}

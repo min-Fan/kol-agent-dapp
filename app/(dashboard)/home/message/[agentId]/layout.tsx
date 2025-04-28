@@ -29,9 +29,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [isLoggedIn]);
 
   return (
-    <div className="w-full h-full overflow-hidden flex">
+    <div className="w-full h-full overflow-hidden flex bg-white">
       <div className="w-full h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">
-        <div className="w-full flex items-center justify-between shadow-[0_10px_10px_20px_rgba(251,249,250,1)] pb-4">
+        <div className="w-full flex items-center justify-between  pb-4">
           <Link href="/home">
             <div className="flex items-center gap-2">
               <ChevronLeft className="w-6 h-6" />
