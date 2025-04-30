@@ -10,6 +10,7 @@ import PreviewRepost from "./preview-repost";
 import PreviewReply from "./preview-reply";
 import Markdown from "react-markdown";
 import PostReply from "./post-reply";
+import TypingParagraphs from "./typingParagraphs";
 
 // 定义消息结构
 interface Message {
@@ -25,7 +26,7 @@ export default function PreviewStepThree() {
   const region = useAppSelector(
     (state: any) => state.userReducer.config.region
   );
-  const [setp1Message, setSetp1Message] = useState<string>("");
+  // const [setp1Message, setSetp1Message] = useState<string>("");
   const [message, setMessage] = useState<Message | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialTweet, setPartialTweet] = useState<string>("");
@@ -41,50 +42,50 @@ export default function PreviewStepThree() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const prevDataRef = useRef<any>(null);
   const initializedRef = useRef<boolean>(false);
+  const [waitingMessage, setWaitingMessage] = useState<string[]>([]);
+  // const generateTemplateMessage = () => {
+  //   const lines = [];
 
-  const generateTemplateMessage = () => {
-    const lines = [];
+  //   // 根据提供的模板生成消息
+  //   if (Step1?.name && Step1.name.trim() !== "") {
+  //     lines.push(
+  //       `Hello! I'm your assistant, ${Step1.name.trim()}. It's my great honor to serve you.`
+  //     );
+  //   }
 
-    // 根据提供的模板生成消息
-    if (Step1?.name && Step1.name.trim() !== "") {
-      lines.push(
-        `Hello! I'm your assistant, ${Step1.name.trim()}. It's my great honor to serve you.`
-      );
-    }
+  //   if (Step1?.gender) {
+  //     lines.push(`Let me introduce myself. I'm of ${Step1.gender} gender.`);
+  //   }
 
-    if (Step1?.gender) {
-      lines.push(`Let me introduce myself. I'm of ${Step1.gender} gender.`);
-    }
+  //   if (Step1?.character && Step1.character.trim() !== "") {
+  //     lines.push(
+  //       `I have a distinct personality, possessing traits such as ${Step1.character.trim()} and I look forward to providing you with an intimate and unique interactive experience.`
+  //     );
+  //   }
 
-    if (Step1?.character && Step1.character.trim() !== "") {
-      lines.push(
-        `I have a distinct personality, possessing traits such as ${Step1.character.trim()} and I look forward to providing you with an intimate and unique interactive experience.`
-      );
-    }
+  //   const regionName = region?.find(
+  //     (item: any) => item.id === Step1?.region
+  //   )?.name;
+  //   if (regionName) {
+  //     lines.push(`I come from the charming ${regionName}.`);
+  //   }
 
-    const regionName = region?.find(
-      (item: any) => item.id === Step1?.region
-    )?.name;
-    if (regionName) {
-      lines.push(`I come from the charming ${regionName}.`);
-    }
+  //   const languageName = language?.find(
+  //     (item: any) => item.id === Step1?.language
+  //   )?.name;
+  //   if (languageName) {
+  //     lines.push(
+  //       `In our future communication, I will communicate with you entirely in ${languageName} to ensure smooth interaction.`
+  //     );
+  //   }
 
-    const languageName = language?.find(
-      (item: any) => item.id === Step1?.language
-    )?.name;
-    if (languageName) {
-      lines.push(
-        `In our future communication, I will communicate with you entirely in ${languageName} to ensure smooth interaction.`
-      );
-    }
+  //   // 如果没有任何内容，使用默认消息
+  //   if (lines.length === 0) {
+  //     return "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
+  //   }
 
-    // 如果没有任何内容，使用默认消息
-    if (lines.length === 0) {
-      return "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
-    }
-
-    return lines.join("\n");
-  };
+  //   return lines.join("\n");
+  // };
 
   // 检查是否有足够的信息可以生成内容
   const hasEnoughInfo = () => {
@@ -236,9 +237,10 @@ export default function PreviewStepThree() {
       // 重置状态 - 先清空当前显示的内容
       setMessage(null); // 清空当前的message，包含tweet
       setDisplayedComments([]); // 清空当前显示的评论
-
+    
       // 然后设置其他状态
       setLoading(true);
+      setWaitingMessage([`Next, I will place my primary emphasis on the updates of the KOLs in ${Step3?.interactive.trim()}. I'll study the content of their relevant tweets and continuously engage in interactions with them.`])
       setPartialTweet("");
       setPartialComments([]);
       setPartialReasoning("");
@@ -271,7 +273,7 @@ export default function PreviewStepThree() {
 
         // 请求成功，清除超时
         clearTimeout(timeoutId);
-
+     
         const { content, reasoningContent } = await handleSSEResponse(
           response,
           (text: string, reasoningText: string) => {
@@ -381,7 +383,8 @@ export default function PreviewStepThree() {
 
     // 标记为已初始化
     initializedRef.current = true;
-    setSetp1Message(generateTemplateMessage())
+  
+    // setSetp1Message(generateTemplateMessage())
     // 检查是否有足够的信息可以生成内容
     if (hasEnoughInfo()) {
       console.log(
@@ -395,15 +398,16 @@ export default function PreviewStepThree() {
     <div className="px-4 space-y-4 text-md">
       {/* 显示思考过程 - 仅在加载中时显示 */}
       {loading && (
-        <div className="space-y-2">
-          {setp1Message.split("\n").map((line, index) => (
-            <div key={`${index}`} className="space-y-2">
-              <div className="bg-background rounded-md px-2 py-2 relative">
-                <Markdown>{line}</Markdown>
-              </div>
-            </div>
-          ))}
-        </div>
+        <TypingParagraphs messages={waitingMessage}></TypingParagraphs>
+        // <div className="space-y-2">
+        //   {setp1Message.split("\n").map((line, index) => (
+        //     <div key={`${index}`} className="space-y-2">
+        //       <div className="bg-background rounded-md px-2 py-2 relative">
+        //         <Markdown>{line}</Markdown>
+        //       </div>
+        //     </div>
+        //   ))}
+        // </div>
         // <>
         //   <PreviewLoader
         //     text="Thinking..."

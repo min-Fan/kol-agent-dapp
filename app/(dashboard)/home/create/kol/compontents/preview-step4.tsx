@@ -7,6 +7,7 @@ import PreviewThinking from "./preview-thinking";
 import PreviewPost from "./preview-post";
 import Markdown from "react-markdown";
 import FloatingMessages from "./floating-messages";
+import TypingParagraphs from "./typingParagraphs";
 // 定义消息结构
 interface Message {
   tweet: string;
@@ -18,62 +19,17 @@ export default function PreviewStepFour() {
   const Step2 = useAppSelector((state: any) => state.userReducer.from.step2);
   const Step3 = useAppSelector((state: any) => state.userReducer.from.step3);
   const Step4 = useAppSelector((state: any) => state.userReducer.from.step4);
-  const [setp1Message, setSetp1Message] = useState<string>("");
-  const region = useAppSelector(
-    (state: any) => state.userReducer.config.region
-  );
+  const [waitingMessage, setWaitingMessage] = useState<string[]>([]);
+  const prevDataRef = useRef<any>(null);
   const [message, setMessage] = useState<Message | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialTweet, setPartialTweet] = useState<string>("");
   const [partialReasoning, setPartialReasoning] = useState<string>("");
   const initializedRef = useRef<boolean>(false);
-
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const language = useAppSelector(
     (state: any) => state.userReducer.config.language
   );
-  const generateTemplateMessage = () => {
-    const lines = [];
-
-    // 根据提供的模板生成消息
-    if (Step1?.name && Step1.name.trim() !== "") {
-      lines.push(
-        `Hello! I'm your assistant, ${Step1.name.trim()}. It's my great honor to serve you.`
-      );
-    }
-
-    if (Step1?.gender) {
-      lines.push(`Let me introduce myself. I'm of ${Step1.gender} gender.`);
-    }
-
-    if (Step1?.character && Step1.character.trim() !== "") {
-      lines.push(
-        `I have a distinct personality, possessing traits such as ${Step1.character.trim()} and I look forward to providing you with an intimate and unique interactive experience.`
-      );
-    }
-
-    const regionName = region?.find(
-      (item: any) => item.id === Step1?.region
-    )?.name;
-    if (regionName) {
-      lines.push(`I come from the charming ${regionName}.`);
-    }
-
-    const languageName = language?.find(
-      (item: any) => item.id === Step1?.language
-    )?.name;
-    if (languageName) {
-      lines.push(
-        `In our future communication, I will communicate with you entirely in ${languageName} to ensure smooth interaction.`
-      );
-    }
-
-    // 如果没有任何内容，使用默认消息
-    if (lines.length === 0) {
-      return "Hello! I'm your KOL Agent assistant. It's a pity that you haven't set some of my attributes yet. By default, I will serve you with a friendly and enthusiastic attitude. Although I haven't been assigned a specific region of origin for now, I'm always ready to go beyond geographical boundaries to help you solve problems. In terms of communication, I will communicate with you in Chinese by default. If you have other needs in the future, you can adjust it at any time. I'm looking forward to starting a pleasant and efficient interactive journey with you.";
-    }
-
-    return lines.join("\n");
-  };
 
   // 构建提示信息
   const buildPrompt = () => {
@@ -100,6 +56,10 @@ export default function PreviewStepFour() {
     // 添加互动要求 (Step3)
     if (Step3.interactive) {
       prompt += `The KOL should interact with users interested in: ${Step3.interactive}. `;
+    }
+
+    if (Step4.topics) {
+      prompt += `The KOL will engage in interactions on topics related to ${Step4.topics}. `;
     }
 
     // 明确生成内容的要求
@@ -139,9 +99,32 @@ export default function PreviewStepFour() {
     return { tweet: randomTweet };
   };
 
+  const hasEnoughInfo = () => {
+    // 检查Step1, Step2, Step3 ,setp4是否存在且有值
+    if (!Step1 || !Step2 || !Step3) return false;
+
+    // 至少需要Step1中的名字和Step3中的互动数据
+    return (
+      Step1.name &&
+      Step1.name.trim() !== "" &&
+      Step3.interactive &&
+      Step3.interactive.trim() !== "" &&
+      Step4.topics &&
+      Step4.topics.trim() !== ""
+    );
+  };
+
   const generateTweet = async () => {
     try {
+      if (!hasEnoughInfo()) {
+        console.log("Not enough information to generate content");
+        return;
+      }
+
       setLoading(true);
+      setWaitingMessage([
+        `The tweet topics will revolve around ${Step4?.topics.trim()} as I create and publish related content.`,
+      ]);
       setPartialTweet("");
       setPartialReasoning("");
 
@@ -184,25 +167,77 @@ export default function PreviewStepFour() {
   };
 
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-    setSetp1Message(generateTemplateMessage());
-    generateTweet();
+    const combinedData = {
+      step1: Step1,
+      step2: Step2,
+      step3: Step3,
+      step4: Step4,
+    };
+    const currentDataJSON = JSON.stringify(combinedData);
+
+    // 如果数据没有变化，直接返回
+    if (prevDataRef.current === currentDataJSON) return;
+
+    // 更新之前的数据引用
+    prevDataRef.current = currentDataJSON;
+
+    // 如果没有足够的信息，直接返回
+    if (!hasEnoughInfo()) return;
+
+    // 清除任何现有的定时器
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    // 设置新的定时器，延迟生成内容
+    timerRef.current = setTimeout(() => {
+      generateTweet();
+      timerRef.current = null;
+    }, 500);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+    // if (initializedRef.current) return;
+    // initializedRef.current = true;
+    // if (!hasEnoughInfo()) return;
+    // setSetp1Message(generateTemplateMessage());
+    // generateTweet();
   }, [Step1, Step2, Step3, Step4]);
+
+  useEffect(() => {
+    // 如果已经初始化过，则返回
+    if (initializedRef.current) return;
+
+    // 标记为已初始化
+    initializedRef.current = true;
+
+    // setSetp1Message(generateTemplateMessage())
+    // 检查是否有足够的信息可以生成内容
+    if (hasEnoughInfo()) {
+      console.log(
+        "Detected existing data during component initialization, generating content"
+      );
+      generateTweet();
+    }
+  }, []); // 依赖数组为空，表示只在组件挂载时执行一次
 
   return (
     <div className="px-4 space-y-4 text-md">
       {/* 显示思考过程 */}
-      {(loading || message?.reasoningContent) && (
-        <div className="space-y-2">
-          {setp1Message.split("\n").map((line, index) => (
-            <div key={`${index}`} className="space-y-2">
-              <div className="bg-background rounded-md px-2 py-2 relative">
-                <Markdown>{line}</Markdown>
-              </div>
-            </div>
-          ))}
-        </div>
+      {loading && (
+        <TypingParagraphs messages={waitingMessage}></TypingParagraphs>
+        // <div className="space-y-2">
+        //   {setp1Message.split("\n").map((line, index) => (
+        //     <div key={`${index}`} className="space-y-2">
+        //       <div className="bg-background rounded-md px-2 py-2 relative">
+        //         <Markdown>{line}</Markdown>
+        //       </div>
+        //     </div>
+        //   ))}
+        // </div>
         // <>
         //   <PreviewLoader
         //     text={loading ? "Thinking..." : "Thought process:"}
