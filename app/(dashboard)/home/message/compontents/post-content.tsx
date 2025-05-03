@@ -13,7 +13,7 @@ export default function PostContent({ content, medias }: { content: string, medi
         />
       </div>
       {medias && medias.length > 0 && (
-        <div className="w-full aspect-video max-w-lg overflow-hidden rounded-md">
+        <div className="w-full aspect-video  overflow-hidden rounded-md">
           <img src={medias[0].media_url_https} alt="post" className="w-full h-full object-cover" />
         </div>
       )}
