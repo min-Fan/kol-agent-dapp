@@ -32,7 +32,7 @@ import {
 import { useGetInfo } from "@/app/hooks/useGetInfo";
 import { useGetConst } from "@/app/hooks/useGetConst";
 import NumberStepper from "./numberStepper";
-
+import { mathUtils } from "@/app/utils";
 export default function SubscribeDialog({
   TriggerButton,
   item,
@@ -43,7 +43,10 @@ export default function SubscribeDialog({
   const [isOpen, setIsOpen] = useState(false);
   const { address } = useAccount();
   const [loading, setLoading] = useState(false);
-  const [month, setMonth] = useState(1); //购买月数量
+  const [month, setMonth] = useState(1); // 购买月数量
+  const [orderId, setOrderId] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [orderLoading, setOrderLoading] = useState(false);
 
   // 处理连接钱包按钮点击
   const handleConnectClick = () => {
@@ -73,26 +76,17 @@ export default function SubscribeDialog({
     hash: hash,
   });
 
-  const [orderId, setOrderId] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
   const info = useAppSelector((state) => state.userReducer.userInfo);
   const openDialog = async (open: boolean) => {
     try {
       if (!item.purchase)
         return toast.error("This plan is not available for purchase");
+      
       if (open) {
-        // setLoading(true);
-        // const res = await createBuyMemberOrder({
-        //   member_id: item.id,
-        // });
-        // setLoading(false);
-        // if (res.code === 200) {
         setIsOpen(open);
-        //   setOrderId(res.data.order_no);
-        //   setAmount(res.data.amount);
-        // } else {
-        //   toast.error(res.msg);
-        // }
+        // 初始化时重置月数，避免上次选择的值影响新订单
+        setMonth(1);
+        await orderCreate(1); // 创建默认1个月的订单
       } else {
         setIsOpen(open);
       }
@@ -105,12 +99,6 @@ export default function SubscribeDialog({
   const handleSubscribe = async () => {
     try {
       setLoading(true);
-      const order = await createBuyMemberOrder({
-        member_id: item.id,
-        month_num: month,
-      });
-      setOrderId(order.data.order_no);
-      setAmount(order.data.amount);
 
       const res = await getWalletReceiveAddress();
       if (res.code !== 200) return;
@@ -122,7 +110,7 @@ export default function SubscribeDialog({
         args: [
           // pay_member_receiver_address,
           res.data.platform_receive_address, //钱包收款地址
-          BigInt(amount) * BigInt(10 ** Number(decimals)),
+          mathUtils.convertAmountToBigInt(amount, Number(decimals)),
         ],
       });
     } catch (error: any) {
@@ -174,9 +162,32 @@ export default function SubscribeDialog({
     }
   }, [isErrorTransfer, errorTransfer, isConfirmedTransfer, isPendingTransfer]);
 
-  //计算价格
-  const TotalPrice = (price: number) => {
-    return useMemo(() => price * month, [month]);
+  // 修改订单创建函数，接受月数参数
+  const orderCreate = async (monthsToOrder = month) => {
+    try {
+      setOrderLoading(true);
+      const order = await createBuyMemberOrder({
+        member_id: item.id,
+        month_num: monthsToOrder,
+      });
+      
+      if (order && order.data) {
+        setOrderId(order.data.order_no);
+        setAmount(order.data.amount);
+      } else {
+        toast.error("Failed to create order");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create order");
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  // 处理月数变更，确保在变更后创建新订单
+  const handleMonthChange = async (value: number) => {
+    setMonth(value);
+    await orderCreate(value); // 立即用新的月数创建订单
   };
 
   return (
@@ -208,18 +219,19 @@ export default function SubscribeDialog({
         </DialogHeader>
         <div className="w-full flex flex-col items-center justify-center gap-2 p-4 pt-0">
           <div className="w-full border rounded-md p-4 flex items-center justify-between bg-slate-100 text-md">
-            <span className="text-slate-500 flex">{item.name} - 1 mounth </span>
+            <span className="text-slate-500 flex">{item.name} - {month} month{month > 1 ? 's' : ''}</span>
             <span className="font-bold ">${item.price}</span>
           </div>
           <div className="w-full flex flex-col items-center justify-center gap-2">
             <div className="w-full flex items-center justify-between">
               <span className="text-md">Month</span>
-              <span className=" font-bold text-xl">
+              <span className="font-bold text-xl">
                 <NumberStepper
                   value={month}
                   min={1}
                   max={12}
-                  onChange={setMonth}
+                  onChange={handleMonthChange}
+                  disabled={orderLoading} // 订单创建过程中禁用月数选择
                 ></NumberStepper>
               </span>
             </div>
@@ -228,7 +240,13 @@ export default function SubscribeDialog({
             <div className="w-full flex items-center justify-between">
               <span className="text-md">Total</span>
               <span className="text-secondary font-bold text-xl">
-                {TotalPrice(item.price)} USDT
+                {orderLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                ) : (
+                  <>
+                    {amount || (item.price * month)} USDT
+                  </>
+                )}
               </span>
             </div>
           </div>
@@ -248,10 +266,10 @@ export default function SubscribeDialog({
               <Button
                 className="w-full font-bold"
                 variant="primary"
-                disabled={loading}
+                disabled={loading || orderLoading}
                 onClick={handleSubscribe}
               >
-                {loading ? (
+                {loading || orderLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   "Subscribe"

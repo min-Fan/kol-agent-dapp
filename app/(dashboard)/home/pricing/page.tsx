@@ -83,7 +83,7 @@ export default function page() {
               <Subscribe
                 title={item.name}
                 price={`$${item.price}`}
-                isActive={item.id === info.details.current_member.id}
+                isActive={item.id === info.details.current_member?.id}
                 discount={"0"}
                 isHighlight={item.id === 3}
                 item={item}
