@@ -7,6 +7,7 @@ import { getOrderList } from "@/app/request/api";
 import { NotepadTextDashed } from "lucide-react";
 import OrderSkeleton from "./compontents/order-skeleton";
 import { useAppSelector } from "@/app/store/hooks";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [orderList, setOrderList] = useState<DatumOrder[]>([]);
@@ -29,6 +30,13 @@ export default function Page() {
   useEffect(() => {
     getOrders();
   }, [activeTab, isLoggedIn]);
+
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/home");
+    }
+  }, [isLoggedIn]);
   return (
     <div className="w-full h-full p-2 md:p-4 lg:p-6">
       <h1 className="text-lg font-bold mb-4">Order List</h1>

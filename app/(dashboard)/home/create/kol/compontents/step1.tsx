@@ -136,7 +136,7 @@ export default function StepOne() {
         name: step1Init.name || "",
         gender: step1Init.gender || "male",
         character: step1Init.character || "",
-        region: step1Init.region || region[0]?.id || 0,
+        region: step1Init.region || region[0]?.name || "",
         language: step1Init.language || language[0]?.name || "",
       });
       initialRenderRef.current = false;
@@ -277,7 +277,7 @@ export default function StepOne() {
                         >
                           {field.value
                             ? region.find(
-                                (item: any) => item.id === field.value
+                                (item: any) => item.name === field.value
                               )?.name
                             : "Select region..."}
                           <ChevronsUpDown className="opacity-50" />
@@ -295,13 +295,13 @@ export default function StepOne() {
                               {region.map((item: any) => (
                                 <CommandItem
                                   key={item.id}
-                                  value={item.id}
+                                  value={item.name}
                                   onSelect={(currentValue) => {
                                     const value = region.find(
                                       (item: any) => item.name === currentValue
                                     );
                                     field.onChange(
-                                      value.id === field.value ? "" : value.id
+                                      value.name === field.value ? "" : value.name
                                     );
                                     setOpen(false);
                                   }}
@@ -310,7 +310,7 @@ export default function StepOne() {
                                   <Check
                                     className={cn(
                                       "ml-auto text-primary",
-                                      field.value === item.id
+                                      field.value === item.name
                                         ? "opacity-100"
                                         : "opacity-0"
                                     )}
