@@ -446,7 +446,20 @@ export async function deleteAgent(agent_id: string) {
 //下单金额最多的5个project
 export async function getProjectTopFive() {
   try {
-    const res = await request.get(`/kol/api/v1/kols/top-projects/`);
+    const res = await request.get(`/kol/api/v1/top-projects/`);
+    return res;
+  } catch (error: any) {
+    console.log(error);
+    return error;
+  }
+}
+
+// 获取钱包收款地址
+export async function getWalletReceiveAddress() {
+  try {
+    const res = await request.get(
+      `/kol/api/v1/platform/wallet/receive/address`
+    );
     return res;
   } catch (error: any) {
     console.log(error);

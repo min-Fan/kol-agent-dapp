@@ -26,10 +26,10 @@ export default function page() {
   const agents = useAppSelector((state) => state.userReducer.agents);
   const { agentId } = useParams();
   return (
-    <div className="flex flex-1  overflow-auto flex-row h-full   space-x-4">
+    <div className="flex gap-4 ">
       <div className="flex-1 space-y-4">
-        <div className="flex space-x-4 ">
-          <div className=" bg-foreground  rounded-md w-80 p-6">
+        <div className="flex flex-col xl:flex-row gap-4">
+          <div className=" bg-foreground  rounded  xl:w-80 p-4">
             <div className="flex h-14 justify-center">
               <div className="text-lg w-full text-center">
                 <p className=" font-bold">10,000</p>
@@ -42,7 +42,7 @@ export default function page() {
               </div>
             </div>
           </div>
-          <div className="flex-1  bg-foreground  rounded-md">
+          <div className="flex-1 bg-foreground  rounded">
             <CardHeader>
               <CardTitle>Invitation Record</CardTitle>
             </CardHeader>
@@ -71,14 +71,13 @@ export default function page() {
         </div>
         <Message></Message>
       </div>
-
-      <aside className="w-72  space-y-4">
-        <div className="f-full  bg-foreground  rounded-md">
+      <div className="lg:w-[30%]">
+        <div className="f-full  bg-foreground  rounded">
           <CardContent className="pt-6">
             <div className="space-y-4">
               <div className="text-md">
-                <label className="">Promote price</label>
-                <Progress value={33} className="mt-2" />
+                <label className="text-md font-bold">Promote price</label>
+                <Progress value={0} className="mt-2" />
               </div>
 
               <div>
@@ -137,11 +136,11 @@ export default function page() {
             </div>
           </CardContent>
         </div>
-
+        <Separator   />
         <div className="space-y-4">
           <Project></Project>
         </div>
-      </aside>
+      </div>
     </div>
   );
 }

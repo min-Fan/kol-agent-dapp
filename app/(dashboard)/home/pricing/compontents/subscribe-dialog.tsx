@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -16,17 +16,22 @@ import {
   useWriteContract,
 } from "wagmi";
 import EvmConnect from "@/app/components/evm-connect";
-import { createBuyMemberOrder, payBuyMemberOrder } from "@/app/request/api";
+import {
+  createBuyMemberOrder,
+  getWalletReceiveAddress,
+  payBuyMemberOrder,
+} from "@/app/request/api";
 import { toast } from "sonner";
 import { erc20Abi } from "viem";
 import { useAppSelector } from "@/app/store/hooks";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronRight } from "lucide-react";
 import {
   pay_member_receiver_address,
   pay_member_token_address,
 } from "@/app/constants/config";
 import { useGetInfo } from "@/app/hooks/useGetInfo";
 import { useGetConst } from "@/app/hooks/useGetConst";
+import NumberStepper from "./numberStepper";
 
 export default function SubscribeDialog({
   TriggerButton,
@@ -38,6 +43,7 @@ export default function SubscribeDialog({
   const [isOpen, setIsOpen] = useState(false);
   const { address } = useAccount();
   const [loading, setLoading] = useState(false);
+  const [month, setMonth] = useState(1); //购买月数量
 
   // 处理连接钱包按钮点击
   const handleConnectClick = () => {
@@ -72,20 +78,21 @@ export default function SubscribeDialog({
   const info = useAppSelector((state) => state.userReducer.userInfo);
   const openDialog = async (open: boolean) => {
     try {
-      if (!item.purchase) return toast.error("This plan is not available for purchase");
+      if (!item.purchase)
+        return toast.error("This plan is not available for purchase");
       if (open) {
-        setLoading(true);
-        const res = await createBuyMemberOrder({
-          member_id: item.id,
-        });
-        setLoading(false);
-        if (res.code === 200) {
-          setIsOpen(open);
-          setOrderId(res.data.order_no);
-          setAmount(res.data.amount);
-        } else {
-          toast.error(res.msg);
-        }
+        // setLoading(true);
+        // const res = await createBuyMemberOrder({
+        //   member_id: item.id,
+        // });
+        // setLoading(false);
+        // if (res.code === 200) {
+        setIsOpen(open);
+        //   setOrderId(res.data.order_no);
+        //   setAmount(res.data.amount);
+        // } else {
+        //   toast.error(res.msg);
+        // }
       } else {
         setIsOpen(open);
       }
@@ -97,20 +104,32 @@ export default function SubscribeDialog({
 
   const handleSubscribe = async () => {
     try {
-      // setLoading(true);
+      setLoading(true);
+      const order = await createBuyMemberOrder({
+        member_id: item.id,
+        month_num: month,
+      });
+      setOrderId(order.data.order_no);
+      setAmount(order.data.amount);
+
+      const res = await getWalletReceiveAddress();
+      if (res.code !== 200) return;
       // 转账代币
       await writeContractTransfer({
         address: pay_member_token_address,
         abi: erc20Abi,
         functionName: "transfer",
         args: [
-          pay_member_receiver_address,
+          // pay_member_receiver_address,
+          res.data.platform_receive_address, //钱包收款地址
           BigInt(amount) * BigInt(10 ** Number(decimals)),
         ],
       });
     } catch (error: any) {
       setLoading(false);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -155,6 +174,11 @@ export default function SubscribeDialog({
     }
   }, [isErrorTransfer, errorTransfer, isConfirmedTransfer, isPendingTransfer]);
 
+  //计算价格
+  const TotalPrice = (price: number) => {
+    return useMemo(() => price * month, [month]);
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -184,14 +208,27 @@ export default function SubscribeDialog({
         </DialogHeader>
         <div className="w-full flex flex-col items-center justify-center gap-2 p-4 pt-0">
           <div className="w-full border rounded-md p-4 flex items-center justify-between bg-slate-100 text-md">
-            <span className="text-slate-500">{item.name} - 1 mounth</span>
-            <span className="font-bold">${item.price}</span>
+            <span className="text-slate-500 flex">{item.name} - 1 mounth </span>
+            <span className="font-bold ">${item.price}</span>
+          </div>
+          <div className="w-full flex flex-col items-center justify-center gap-2">
+            <div className="w-full flex items-center justify-between">
+              <span className="text-md">Month</span>
+              <span className=" font-bold text-xl">
+                <NumberStepper
+                  value={month}
+                  min={1}
+                  max={12}
+                  onChange={setMonth}
+                ></NumberStepper>
+              </span>
+            </div>
           </div>
           <div className="w-full flex flex-col items-center justify-center gap-2">
             <div className="w-full flex items-center justify-between">
               <span className="text-md">Total</span>
               <span className="text-secondary font-bold text-xl">
-                {item.price} USDT
+                {TotalPrice(item.price)} USDT
               </span>
             </div>
           </div>
