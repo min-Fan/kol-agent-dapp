@@ -2,10 +2,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { OrderDetail } from "@/app/types/types";
 import { useOrderPreview } from "@/app/context/OrderPreviewContext";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, RefreshCw } from "lucide-react";
 import { checkPostRelevance, getPostDetail } from "@/app/request/api";
 import { useParams } from "next/navigation";
 import Markdown from "react-markdown";
+import { Button } from "@/components/ui/button";
 
 export default function PostView({
   orderDetail,
@@ -37,26 +38,42 @@ export default function PostView({
           return res.data;
         }
       } else {
-        setText(res.msg);
+        setText(res.msg || "Failed to get post details");
         setIsVerified(false);
         return null;
       }
     } catch (error) {
       setIsVerified(false);
+      setText("Error fetching post details");
       console.error(error);
+      return null;
     }
   };
 
   const verifyTweet = async () => {
+    if (!tweetId) {
+      setText("No tweet ID provided");
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setTime(0);
+      setText("Verifying post...");
 
       timerRef.current = setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
 
       const postResult = await getPost();
+      
+      // 如果没有获取到推文内容，提前结束
+      if (!postResult) {
+        clearTimer();
+        setIsLoading(false);
+        return;
+      }
+      
       const res = await checkPostRelevance({
         tweet: postResult.text,
         order_item_id: orderid,
@@ -68,17 +85,19 @@ export default function PostView({
       if (res.code === 200) {
         if (res.data.is_pass) {
           setIsVerified(true);
+          setText("Verification successful");
         } else {
           setIsVerified(false);
-          setText("Verification failed");
+          setText(res.data.reason || "Verification failed: Content doesn't match requirements");
         }
       } else {
         setIsVerified(false);
-        setText("Verification failed");
+        setText(res.msg || "Verification API failed");
       }
     } catch (error) {
       setIsVerified(false);
       setIsLoading(false);
+      setText("Error during verification");
       clearTimer();
       console.error(error);
     }
@@ -98,23 +117,33 @@ export default function PostView({
 
   return (
     <div className="w-full h-full flex flex-col gap-2">
-      {tweetId ? (
-        <div className="bg-background rounded-md px-2 py-2 flex items-center space-x-1">
+      <div className="bg-background rounded-md px-2 py-2 flex items-center justify-between">
+        <div className="flex items-center space-x-1">
           {isLoading && <LoaderCircle className="w-4 h-4 animate-spin" />}
           <span className="text-md">
             {isLoading
               ? `Verifying... `
               : text
-              ? `Verified: ${text}`
+              ? `${text} `
               : `Verified `}
             {`(use time ${time}s)`}
           </span>
         </div>
-      ) : (
-        <div className="bg-background rounded-md px-2 py-2 flex items-center space-x-1">
-          <span className="text-md">Please verify the post</span>
-        </div>
-      )}
+        
+        {/* 添加重新验证按钮 */}
+        {!isLoading && tweetId && !isVerified && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={verifyTweet} 
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className="w-3 h-3" />
+            <span>Retry</span>
+          </Button>
+        )}
+      </div>
+      
       {isVerified && post && (
         <div className="bg-background rounded-md px-2 py-2 text-md flex flex-col gap-2">
           <div className="w-full flex items-center gap-2">
@@ -134,6 +163,15 @@ export default function PostView({
               </div>
             )}
           </div>
+        </div>
+      )}
+      
+      {/* 当验证失败时显示失败原因和建议 */}
+      {!isVerified && !isLoading && tweetId && text.includes("failed") && (
+        <div className="bg-red-50 border border-red-200 rounded-md px-4 py-3 text-sm text-red-800">
+          <p className="font-semibold mb-1">Verification failed</p>
+          <p>{text}</p>
+          <p className="mt-2">Tips: Make sure your tweet contains the required content and matches the project requirements.</p>
         </div>
       )}
     </div>
