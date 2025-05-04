@@ -29,6 +29,7 @@ import { useAccount } from "wagmi";
 import { extractTweetId } from "@/app/utils/twitter-utils";
 import { OrderPreviewType } from "@/app/types/types";
 import { useOrderPreview } from "@/app/context/OrderPreviewContext";
+
 export default function Page() {
   const { orderid } = useParams();
   const router = useRouter();
@@ -57,6 +58,7 @@ export default function Page() {
       console.error(error);
     }
   };
+  
   useEffect(() => {
     if (isLoggedIn) {
       getDetail();
@@ -81,12 +83,19 @@ export default function Page() {
       console.error(error);
     }
   };
+  
   const { status, setStatus, setTweetId, tweetId, isVerified } = useOrderPreview();
   const [isUploading, setIsUploading] = useState(false);
+  
   const uploadTweet = async () => {
     try {
+      if (!tweetId) {
+        toast.error("Please enter a valid tweet URL first");
+        return;
+      }
+      
       if (!isVerified) {
-        toast.error("Please verify the post");
+        toast.error("Please verify the post first. If verification failed, please check your content and retry verification.");
         return;
       }
 
@@ -97,6 +106,7 @@ export default function Page() {
         order_item_id: orderid,
       });
       setIsUploading(false);
+      
       if (res.code === 200) {
         const upd = await updateOrderOption({
           order_item_id: orderid,
@@ -106,26 +116,27 @@ export default function Page() {
           toast.success("Tweet uploaded successfully");
           router.push(`/home/order`);
         } else {
-          toast.error(upd.msg);
+          toast.error(upd.msg || "Failed to update order status");
         }
       } else {
-        toast.error(res.msg);
+        toast.error(res.msg || "Failed to upload tweet");
       }
     } catch (error) {
       console.error(error);
       setIsUploading(false);
+      toast.error("An error occurred during upload");
     }
   };
 
   const handleTweetLinkSubmit = () => {
-    const tweetId = extractTweetId(tweetUrl);
-    if (!tweetId) {
+    const extractedTweetId = extractTweetId(tweetUrl);
+    if (!extractedTweetId) {
       toast.error("Invalid tweet URL");
       return;
     }
 
-    console.log("Tweet ID:", tweetId);
-    setTweetId(tweetId);
+    console.log("Tweet ID:", extractedTweetId);
+    setTweetId(extractedTweetId);
     setTweetUrl(tweetUrl);
     setStatus(OrderPreviewType.POST_VIEW);
     setIsPostLink(false);
@@ -292,7 +303,10 @@ export default function Page() {
                   <Button
                     variant="outline"
                     className="w-full hover:bg-foreground hover:text-primary"
-                    onClick={() => setIsPostLink(false)}
+                    onClick={() => {
+                      setIsPostLink(false);
+                      setStatus(OrderPreviewType.POST_CONTENT);
+                    }}
                   >
                     <span className="text-base font-bold">Cancel</span>
                   </Button>
@@ -322,12 +336,11 @@ export default function Page() {
                       variant="outline"
                       className="w-auto rounded-full h-6 hover:bg-foreground hover:text-primary"
                       onClick={() => {
-                        setStatus(OrderPreviewType.POST_CONTENT);
                         setIsPostLink(true);
                         setIsComplete(false);
                       }}
                     >
-                      <span className="text-sm font-bold">Cancel</span>
+                      <span className="text-sm font-bold">Change Link</span>
                     </Button>
                     <Button
                       variant="primary"
@@ -360,6 +373,7 @@ export default function Page() {
                 className="h-10 w-full flex gap-2 hover:bg-foreground hover:text-primary"
                 onClick={() => {
                   setIsPostLink(true);
+                  setStatus(OrderPreviewType.POST_VIEW);
                 }}
               >
                 <span className="text-base font-bold">

@@ -20,12 +20,14 @@ export default function OrderPreview({
   const { status, setStatus } = useOrderPreview();
 
   useEffect(() => {
-    if (orderDetail.kol_audit_status === "pending" || orderDetail.kol_audit_status === "doing") {
-      setStatus(OrderPreviewType.POST_CONTENT);
-    } else {
-      setStatus(OrderPreviewType.POST_VIEW);
+    if (status === undefined || status === null) {
+      if (orderDetail.kol_audit_status === "pending" || orderDetail.kol_audit_status === "doing") {
+        setStatus(OrderPreviewType.POST_CONTENT);
+      } else {
+        setStatus(OrderPreviewType.POST_VIEW);
+      }
     }
-  }, [orderDetail]);
+  }, [orderDetail, status, setStatus]);
 
   const handleMouseEnter = () => {
     setShouldAutoScroll(false);
