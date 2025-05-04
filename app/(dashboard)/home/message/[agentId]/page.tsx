@@ -29,20 +29,20 @@ export default function page() {
     <div className="flex gap-4 ">
       <div className="flex-1 space-y-4">
         <div className="flex flex-col xl:flex-row gap-4">
-          <div className=" bg-foreground  rounded  xl:w-80 p-4">
+          <div className=" bg-foreground  rounded-md  xl:w-80 p-4">
             <div className="flex h-14 justify-center">
               <div className="text-lg w-full text-center">
-                <p className=" font-bold">10,000</p>
+                <p className=" font-bold">0</p>
                 <p className="text-md">My reward points</p>
               </div>
               <Separator orientation="vertical" />
               <div className="text-lg w-full text-center ">
-                <p className="font-bold">10,000</p>
+                <p className="font-bold">0</p>
                 <p className="text-md">Invited KOLs</p>
               </div>
             </div>
           </div>
-          <div className="flex-1 bg-foreground  rounded">
+          <div className="flex-1 bg-foreground  rounded-md">
             <CardHeader>
               <CardTitle>Invitation Record</CardTitle>
             </CardHeader>
@@ -59,11 +59,18 @@ export default function page() {
                 </TableHeader>
                 <TableBody>
                   <TableRow>
+                    <TableCell colSpan={4} className="text-center">
+                      <div className="flex justify-center items-center h-full w-full">
+                        <span className="text-muted-foreground">No data</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {/* <TableRow>
                     <TableCell>INV001</TableCell>
                     <TableCell>Paid</TableCell>
                     <TableCell>Credit Card</TableCell>
                     <TableCell>$250.00</TableCell>
-                  </TableRow>
+                  </TableRow> */}
                 </TableBody>
               </Table>
             </CardContent>
@@ -72,7 +79,7 @@ export default function page() {
         <Message></Message>
       </div>
       <div className="lg:w-[30%]">
-        <div className="f-full  bg-foreground  rounded">
+        <div className="f-full  bg-foreground  rounded-md">
           <CardContent className="pt-6">
             <div className="space-y-4">
               <div className="text-md">
@@ -80,13 +87,14 @@ export default function page() {
                 <Progress value={0} className="mt-2" />
               </div>
 
-              <div>
+              {/* tips: 邀请用户赚取积分暂时不显示 */}
+              {/* <div>
                 <div className="flex space-x-4 justify-center h-10 ">
                   <Button className="flex-1">2158hf</Button>
                   <Separator orientation="vertical" />
                   <Button className="flex-1">Invite to Earn</Button>
                 </div>
-              </div>
+              </div> */}
 
               <Separator />
 
@@ -136,7 +144,7 @@ export default function page() {
             </div>
           </CardContent>
         </div>
-        <Separator   />
+        <Separator />
         <div className="space-y-4">
           <Project></Project>
         </div>
