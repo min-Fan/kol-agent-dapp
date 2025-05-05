@@ -41,6 +41,8 @@
     "dotenv": "^16.4.7",
     "drizzle-kit": "^0.30.5",
     "drizzle-orm": "^0.40.0",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "ethereum-blockies": "^0.1.1",
     "framer-motion": "^11.18.2",
     "input-otp": "^1.4.2",
