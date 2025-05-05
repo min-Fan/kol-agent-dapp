@@ -466,3 +466,14 @@ export async function getWalletReceiveAddress() {
     return error;
   }
 }
+
+//查询平台信息
+export async function getKOLNotice(params:any) {
+  try {
+    const res = await request.get(`/kol/api/v1/platform/msg`, params);
+    return res;
+  } catch (error: any) {
+    console.log(error);
+    return error;
+  }
+}

@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import Project from "./project";
 import { Separator } from "@/components/ui/separator";
+import Notice from "./notice";
 export default function page() {
   const agents = useAppSelector((state) => state.userReducer.agents);
   const { agentId } = useParams();
@@ -29,7 +30,7 @@ export default function page() {
     <div className="flex gap-4 ">
       <div className="flex-1 space-y-4">
         <div className="flex flex-col xl:flex-row gap-4">
-          <div className=" bg-foreground  rounded-md  xl:w-80 p-4">
+          <div className=" bg-foreground  rounded-md  xl:w-75 p-4">
             <div className="flex h-14 justify-center">
               <div className="text-lg w-full text-center">
                 <p className=" font-bold">0</p>
@@ -78,17 +79,15 @@ export default function page() {
         </div>
         <Message></Message>
       </div>
-      <div className="lg:w-[30%]">
-        <div className="f-full  bg-foreground  rounded-md">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="text-md">
-                <label className="text-md font-bold">Promote price</label>
-                <Progress value={0} className="mt-2" />
-              </div>
+      <div className="lg:w-[30%] rounded-md f-full  bg-foreground ">
+        <div>
+          <div className="text-md p-6">
+            <label className="text-md font-bold">Promote price</label>
+            <Progress value={0} className="mt-2" />
+          </div>
 
-              {/* tips: 邀请用户赚取积分暂时不显示 */}
-              {/* <div>
+          {/* tips: 邀请用户赚取积分暂时不显示 */}
+          {/* <div>
                 <div className="flex space-x-4 justify-center h-10 ">
                   <Button className="flex-1">2158hf</Button>
                   <Separator orientation="vertical" />
@@ -96,56 +95,56 @@ export default function page() {
                 </div>
               </div> */}
 
-              <Separator />
-
-              <TurnOffConfirmation
-                isTurnOff={
-                  agents.find((agent) => agent.id == Number(agentId))
-                    ?.status === AgentStatus.RUNING
-                }
+          <Separator />
+          <div className="p-6 space-y-4">
+            <Notice></Notice>
+            <TurnOffConfirmation
+              isTurnOff={
+                agents.find((agent) => agent.id == Number(agentId))?.status ===
+                AgentStatus.RUNING
+              }
+            >
+              <Button
+                variant="outline"
+                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground w-full"
               >
-                <Button
-                  variant="outline"
-                  className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground w-full"
+                {agents.find((agent) => agent.id == Number(agentId))?.status ===
+                AgentStatus.RUNING ? (
+                  <Power className="size-4 min-w-4 text-destructive" />
+                ) : (
+                  <Play className="size-4 min-w-4 text-secondary" />
+                )}
+                <span
+                  className={cn(
+                    "text-md font-bold",
+                    agents.find((agent) => agent.id == Number(agentId))
+                      ?.status === AgentStatus.RUNING
+                      ? "text-destructive"
+                      : "text-secondary"
+                  )}
                 >
                   {agents.find((agent) => agent.id == Number(agentId))
-                    ?.status === AgentStatus.RUNING ? (
-                    <Power className="size-4 min-w-4 text-destructive" />
-                  ) : (
-                    <Play className="size-4 min-w-4 text-secondary" />
-                  )}
-                  <span
-                    className={cn(
-                      "text-md font-bold",
-                      agents.find((agent) => agent.id == Number(agentId))
-                        ?.status === AgentStatus.RUNING
-                        ? "text-destructive"
-                        : "text-secondary"
-                    )}
-                  >
-                    {agents.find((agent) => agent.id == Number(agentId))
-                      ?.status === AgentStatus.RUNING
-                      ? "Turn Off"
-                      : "Turn On"}
-                  </span>
-                </Button>
-              </TurnOffConfirmation>
-              <DeleteConfirmation>
-                <Button
-                  variant="outline"
-                  className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground w-full"
-                >
-                  <Trash className="size-4 min-w-4 text-destructive" />
-                  <span className="text-md font-bold text-destructive">
-                    Delete
-                  </span>
-                </Button>
-              </DeleteConfirmation>
-            </div>
-          </CardContent>
+                    ?.status === AgentStatus.RUNING
+                    ? "Turn Off"
+                    : "Turn On"}
+                </span>
+              </Button>
+            </TurnOffConfirmation>
+            <DeleteConfirmation>
+              <Button
+                variant="outline"
+                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground w-full"
+              >
+                <Trash className="size-4 min-w-4 text-destructive" />
+                <span className="text-md font-bold text-destructive">
+                  Delete
+                </span>
+              </Button>
+            </DeleteConfirmation>
+          </div>
         </div>
         <Separator />
-        <div className="space-y-4">
+        <div className="space-y-4 ">
           <Project></Project>
         </div>
       </div>
