@@ -48,12 +48,14 @@ export default function TurnOffConfirmation(props: {
         );
         setOpen(false);
         toast.success("Agent status updated successfully");
+      } else {
+        toast.error(res.msg);
       }
     } catch (error) {
       console.log(error);
       toast.error("Failed to update agent status");
       setIsLoading(false);
-    }
+    } 
   };
 
   return (

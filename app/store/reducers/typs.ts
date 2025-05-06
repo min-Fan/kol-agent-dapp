@@ -33,7 +33,7 @@ export type Config = {
     agent: number;
   };
   currentStep: number;
-}
+};
 
 export type From = {
   step1: any;
@@ -41,8 +41,8 @@ export type From = {
   step3: any;
   step4: any;
   step5: any;
-  step6: any; 
-}
+  step6: any;
+};
 
 export enum AgentStatus {
   RUNING = "RUNING",
@@ -78,4 +78,8 @@ export interface Agent {
    * 推特名
    */
   x_username?: string;
+  /**
+   * 性别
+   */
+  sex?: string;
 }

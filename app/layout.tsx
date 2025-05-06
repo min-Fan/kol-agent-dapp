@@ -10,8 +10,8 @@ import { CreateXauthProvider } from "./hooks/useCreateXauthDialog";
 import WagmiProviderContext from "./context/WagmiProviderContext";
 import "@rainbow-me/rainbowkit/styles.css";
 export const metadata: Metadata = {
-  title: "KOL AGENT",
-  description: "KOL AGENT",
+  title: "Linkol",
+  description: "Linkol",
 };
 
 export const viewport: Viewport = {
