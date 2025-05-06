@@ -7,6 +7,7 @@ import {
   bindOrderOptionAgentId,
   uploadSelfPostLink,
   updateOrderOption,
+  updateOrderOptionStatus,
 } from "@/app/request/api";
 import {
   CircleDashed,
@@ -58,7 +59,7 @@ export default function Page() {
       console.error(error);
     }
   };
-  
+
   useEffect(() => {
     if (isLoggedIn) {
       getDetail();
@@ -83,19 +84,22 @@ export default function Page() {
       console.error(error);
     }
   };
-  
-  const { status, setStatus, setTweetId, tweetId, isVerified } = useOrderPreview();
+
+  const { status, setStatus, setTweetId, tweetId, isVerified } =
+    useOrderPreview();
   const [isUploading, setIsUploading] = useState(false);
-  
+
   const uploadTweet = async () => {
     try {
       if (!tweetId) {
         toast.error("Please enter a valid tweet URL first");
         return;
       }
-      
+
       if (!isVerified) {
-        toast.error("Please verify the post first. If verification failed, please check your content and retry verification.");
+        toast.error(
+          "Please verify the post first. If verification failed, please check your content and retry verification."
+        );
         return;
       }
 
@@ -106,7 +110,7 @@ export default function Page() {
         order_item_id: orderid,
       });
       setIsUploading(false);
-      
+
       if (res.code === 200) {
         const upd = await updateOrderOption({
           order_item_id: orderid,
@@ -143,6 +147,32 @@ export default function Page() {
     setIsComplete(true);
   };
 
+  const [isRejecting, setIsRejecting] = useState(false);
+  const handleReject = async () => {
+    try {
+      if (!orderDetail) return;
+      setIsRejecting(true);
+      const res = await updateOrderOptionStatus({
+        order_item_id: Number(orderid),
+        kol_audit_status: "reject",
+      });
+      setIsRejecting(false);
+      if (res.code === 200) {
+        toast.success("Order rejected successfully");
+        setOrderDetail({
+          ...orderDetail,
+          kol_audit_status: "reject",
+        });
+        router.push(`/home/order`);
+      } else {
+        toast.error(res.msg || "Failed to reject order");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to reject order");
+      setIsRejecting(false);
+    }
+  };
   return (
     <div className="w-full h-full space-y-4">
       <div className="grid grid-cols-24 gap-1 p-4 bg-foreground shadow-sm rounded-md border">
@@ -177,14 +207,50 @@ export default function Page() {
         <div className="col-span-4 border-l">
           <div className="w-full h-full flex items-center justify-center">
             {orderDetail?.kol_audit_status === "pending" ? (
-              <div className="w-full h-md flex items-center justify-center gap-1">
-                <CircleDashed className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-500 font-bold">Pending</span>
+              <div className="w-full h-full flex flex-col gap-2 items-center justify-center pl-2">
+                <div className="w-full h-md flex items-center justify-center gap-1">
+                  <CircleDashed className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm text-gray-500 font-bold">
+                    Pending
+                  </span>
+                </div>
+                <div className="w-full h-md flex items-center justify-center gap-1">
+                  <Button
+                    variant="destructive"
+                    className="w-full h-full"
+                    onClick={handleReject}
+                    disabled={isRejecting}
+                  >
+                    {isRejecting ? (
+                      <LoaderCircle className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <span className="text-sm font-bold">Reject</span>
+                    )}
+                  </Button>
+                </div>
               </div>
             ) : orderDetail?.kol_audit_status === "doing" ? (
-              <div className="w-full h-md flex items-center justify-center gap-1">
-                <LoaderCircle className="w-4 h-4 text-orange-500 animate-spin" />
-                <span className="text-sm text-orange-500 font-bold">Doing</span>
+              <div className="w-full h-full flex flex-col gap-2 items-center justify-center pl-2">
+                <div className="w-full h-md flex items-center justify-center gap-1">
+                  <LoaderCircle className="w-4 h-4 text-orange-500 animate-spin" />
+                  <span className="text-sm text-orange-500 font-bold">
+                    Doing
+                  </span>
+                </div>
+                <div className="w-full h-md flex items-center justify-center gap-1">
+                  <Button
+                    variant="destructive"
+                    className="w-full h-full"
+                    onClick={handleReject}
+                    disabled={isRejecting}
+                  >
+                    {isRejecting ? (
+                      <LoaderCircle className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <span className="text-sm font-bold">Reject</span>
+                    )}
+                  </Button>
+                </div>
               </div>
             ) : orderDetail?.kol_audit_status === "finished" ? (
               <div className="w-full h-md flex items-center justify-center gap-1">
@@ -247,12 +313,15 @@ export default function Page() {
               <div
                 className={cn(
                   "w-full flex items-center justify-between bg-white rounded-md p-4 shadow-sm border",
-                  selectedAgent.status !== "RUNING" &&
-                    "opacity-50 pointer-events-none"
                 )}
                 key={selectedAgent.id}
               >
-                <div className="flex flex-col gap-1 w-full">
+                <div
+                  className={cn(
+                    "flex flex-col gap-1 w-full",
+                    selectedAgent.status !== "RUNING" && "opacity-50"
+                  )}
+                >
                   <div className="text-md font-bold flex items-center gap-1">
                     <span className="text-md font-bold">
                       {selectedAgent.name}

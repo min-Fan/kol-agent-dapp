@@ -8,7 +8,7 @@ import { NotepadTextDashed } from "lucide-react";
 import OrderSkeleton from "./compontents/order-skeleton";
 import { useAppSelector } from "@/app/store/hooks";
 import { useRouter } from "next/navigation";
-
+import { toast } from "sonner";
 export default function Page() {
   const [orderList, setOrderList] = useState<DatumOrder[]>([]);
   const [activeTab, setActiveTab] = useState<string>("pending");
@@ -21,6 +21,9 @@ export default function Page() {
       setLoading(false);
       if (res.code === 200) {
         setOrderList(res.data);
+      } else {
+        toast.error(res.msg);
+        setOrderList([]);
       }
     } catch (error) {
       console.error(error);
@@ -43,7 +46,7 @@ export default function Page() {
       <div className="w-full flex flex-col gap-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-4 w-full md:w-sm">
-            <TabsTrigger value="pending">Agreement</TabsTrigger>
+            <TabsTrigger value="pending">Pending</TabsTrigger>
             <TabsTrigger value="doing">Doing</TabsTrigger>
             <TabsTrigger value="finished">Finished</TabsTrigger>
             <TabsTrigger value="reject">Reject</TabsTrigger>

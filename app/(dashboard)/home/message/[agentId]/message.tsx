@@ -101,13 +101,13 @@ export default function Message() {
                 </div>
               </div>
             )}
-            {item.msg_type === "string" && (
+            {item.msg_type === "order" && (
               <div className="flex space-x-4 w-full bg-foreground">
                 <div className="space-y-1">
                   <div className="text-md text-muted-foreground   rounded-md p-4">
                     Advertised co-op request from {item.detail.user}, paid{" "}
                     {item.detail.amount}USDT, paid on{" "}
-                    {formatDate(item.detail.pay_at * 1000)}, platform gets{" "}
+                    {formatDate(item.detail.pay_at)}, platform gets{" "}
                     {item.detail.platform_percent}% commission,{" "}
                     {item.detail.platform_amount}USDT, you can get{" "}
                     {item.detail.agent_amount}USDT, item name "
@@ -125,8 +125,8 @@ export default function Message() {
             {item.msg_type === "task" &&
               item.detail.task_type === "comment" && (
                 <div className="flex space-x-4 w-full bg-foreground">
-                  <div className="space-y-1">
-                    <div className="text-md text-muted-foreground   rounded-md p-4">
+                  <div className="space-y-1 w-full">
+                    <div className="text-md text-muted-foreground   rounded-md p-4 w-full">
                       <Post
                         agent={agents.find(
                           (agent) => agent.id == Number(agentId)

@@ -43,7 +43,7 @@ export default function OrderItem({ order }: { order: DatumOrder }) {
         </div>
         <div className="flex items-center">
           <span className="text-sm text-muted-foreground">
-            {formatDate(Number(order.created_at) * 1000)}
+            {formatDate(order.created_at)}
           </span>
         </div>
       </div>
@@ -53,9 +53,9 @@ export default function OrderItem({ order }: { order: DatumOrder }) {
             Project
           </span>
           <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden">
-            {order.buy_agent_order.project.icon ? (
+            {order.buy_agent_order.project?.icon ? (
               <img
-                src={order.buy_agent_order.project.icon}
+                src={order.buy_agent_order.project?.icon}
                 alt=""
                 className="w-10 h-10 object-cover"
               />
@@ -68,7 +68,7 @@ export default function OrderItem({ order }: { order: DatumOrder }) {
             )}
           </div>
           <span className="text-base font-bold my-auto">
-            {order.buy_agent_order.project.name}
+            {order.buy_agent_order.project?.name}
           </span>
         </div>
         <div className="col-span-6 w-full flex flex-col gap-1 items-center justify-center p-1">
