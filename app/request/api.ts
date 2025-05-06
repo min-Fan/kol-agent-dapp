@@ -339,7 +339,17 @@ export async function bindOrderOptionAgentId(params: any) {
 }
 
 // 修改订单选项审核状态
-export async function updateOrderOptionStatus(params: any) {
+export interface UpdateOrderOptionStatusRequest {
+  /**
+   * kol审核状态，doing,finished,reject
+   */
+  kol_audit_status: string;
+  /**
+   * 订单选项ID
+   */
+  order_item_id: number;
+}
+export async function updateOrderOptionStatus(params: UpdateOrderOptionStatusRequest) {
   try {
     const res = await request.post("/kol/api/v1/kol/order/item/edit", {
       ...params,
