@@ -182,7 +182,7 @@ export default function Page() {
               Project Name
             </span>
             <span className="text-base">
-              {orderDetail?.buy_agent_order.project.name}
+              {orderDetail?.buy_agent_order.project?.name || "-"}
             </span>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function Page() {
               Project Website
             </span>
             <span className="text-base">
-              {orderDetail?.buy_agent_order.project.website}
+              {orderDetail?.buy_agent_order.project?.website || "-"}
             </span>
           </div>
         </div>
@@ -268,12 +268,12 @@ export default function Page() {
           </div>
         </div>
       </div>
-      {orderDetail?.buy_agent_order.project.desc && (
+      {orderDetail?.buy_agent_order.project?.desc && (
         <div className="w-full flex flex-col gap-4">
           <h1 className="text-base font-bold pl-3 relative before:content-[''] before:w-1 before:h-full before:bg-secondary before:absolute before:left-0 before:rounded-none before:shadow-md before:shadow-secondary">
             Project Description
           </h1>
-          <p className="text-md">{orderDetail?.buy_agent_order.project.desc}</p>
+          <p className="text-md">{orderDetail?.buy_agent_order.project?.desc}</p>
         </div>
       )}
       {orderDetail?.buy_agent_order.promotional_materials && (
