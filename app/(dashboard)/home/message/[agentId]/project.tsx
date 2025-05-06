@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import banner from "@/app/assets/image/banner.png";
 import Autoplay from "embla-carousel-autoplay";
+import Projects from "@/app/assets/image/Projects.png";
 import {
   Carousel,
   CarouselContent,
@@ -33,13 +34,17 @@ export default function Project() {
   return (
     <>
       {projectList.length && !loading ? (
-        <div className="bg-foreground p-6">
-          <h1 className="mb-2 font-bold">Project</h1>
+        <div className="bg-[rgba(111,109,232,0.1)] rounded-xl p-2 box-border ">
+          <div className="text-[#6F6DE8] text-sm flex items-center gap-1">
+            <Image src={Projects} alt="" className="w-7"></Image>
+            <span>Projects</span>
+          </div>
           <Carousel
             opts={{
               loop: true,
             }}
             plugins={[plugin.current]}
+            className="mt-2"
           >
             <CarouselContent>
               {projectList.map((item: any) => (

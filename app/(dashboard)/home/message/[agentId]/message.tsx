@@ -71,7 +71,7 @@ export default function Message() {
     getKolMessageList();
   }, [agentId]);
   return (
-    <div className="w-full h-full">
+    <div className="w-full ">
       {/* <div className="w-[600px] relative bg-primary/10">
         <Image src={banner} alt="avatar" className="w-full" />
         <div className="w-20 h-20 size-8 rounded-full overflow-hidden  absolute bottom-0">
@@ -80,85 +80,92 @@ export default function Message() {
       </div> */}
 
       {loading ? (
-        <div className="w-full h-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-center">
           <LoaderCircle className="w-10 h-10 animate-spin text-secondary" />
         </div>
       ) : messageList.length === 0 ? (
-        <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+        <div className="w-full  flex flex-col items-center justify-center gap-2">
           <MessageSquareDashed className="w-10 h-10 text-muted-foreground" />
           <span className="text-muted-foreground text-md">No messages</span>
         </div>
       ) : (
         messageList.map((item: any, index: number) => (
-          <div className="w-full  mb-4  py-2 bg-foreground  rounded-md"  key={index}>
-            {typeof item === "string" && (
-              <div className="flex space-x-4 w-full">
-                <div className="space-y-1">
-                  <div
-                    className="text-md text-muted-foreground   rounded-md p-4 whitespace-pre-line"
-                    dangerouslySetInnerHTML={{ __html: item }}
-                  />
-                </div>
-              </div>
-            )}
-            {item.msg_type === "order" && (
-              <div className="flex space-x-4 w-full bg-foreground">
-                <div className="space-y-1">
-                  <div className="text-md text-muted-foreground   rounded-md p-4">
-                    Advertised co-op request from {item.detail.user}, paid{" "}
-                    {item.detail.amount}USDT, paid on{" "}
-                    {formatDate(item.detail.pay_at)}, platform gets{" "}
-                    {item.detail.platform_percent}% commission,{" "}
-                    {item.detail.platform_amount}USDT, you can get{" "}
-                    {item.detail.agent_amount}USDT, item name "
-                    {item.detail.user}. "
-                  </div>
-                  <dl className="flex items-baseline space-x-2 justify-end  px-4">
-                    <dd className="text-md text-muted-foreground">
-                      {formatDate(item.created_at)}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            )}
-
-            {item.msg_type === "task" &&
-              item.detail.task_type === "comment" && (
-                <div className="flex space-x-4 w-full bg-foreground">
-                  <div className="space-y-1 w-full">
-                    <div className="text-md text-muted-foreground   rounded-md p-4 w-full">
-                      <Post
-                        agent={agents.find(
-                          (agent) => agent.id == Number(agentId)
-                        )}
-                        content={item.detail.content}
-                        time={item.created_at}
-                        views={item.detail.view}
-                        type={item.detail.task_type}
-                        medias={null}
+          <>
+            {item.msg_type == "order" ? (
+              <></>
+            ) : (
+              <div
+                className="w-full  mb-4  py-2 bg-foreground  rounded-md"
+                key={index}
+              >
+                {typeof item === "string" && (
+                  <div className="flex space-x-4 w-full">
+                    <div className="space-y-1">
+                      <div
+                        className="text-md text-muted-foreground   rounded-md p-4 whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: item }}
                       />
                     </div>
-                    <dl className="flex items-baseline space-x-2 justify-end  px-4">
-                      {/* <dt className="text-base font-bold leading-8">
+                  </div>
+                )}
+                {item.msg_type === "string" && (
+                  <div className="flex space-x-4 w-full bg-foreground">
+                    <div className="space-y-1">
+                      <div className="text-md text-muted-foreground   rounded-md p-4">
+                        Advertised co-op request from {item.detail.user}, paid{" "}
+                        {item.detail.amount}USDT, paid on{" "}
+                        {formatDate(item.detail.pay_at * 1000)}, platform gets{" "}
+                        {item.detail.platform_percent}% commission,{" "}
+                        {item.detail.platform_amount}USDT, you can get{" "}
+                        {item.detail.agent_amount}USDT, item name "
+                        {item.detail.user}. "
+                      </div>
+                      <dl className="flex items-baseline space-x-2 justify-end  px-4">
+                        <dd className="text-md text-muted-foreground">
+                          {formatDate(item.created_at)}
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                )}
+
+                {item.msg_type === "task" &&
+                  item.detail.task_type === "comment" && (
+                    <div className="flex space-x-4 w-full bg-foreground">
+                      <div className="space-y-1">
+                        <div className="text-md text-muted-foreground   rounded-md p-4">
+                          <Post
+                            agent={agents.find(
+                              (agent) => agent.id == Number(agentId)
+                            )}
+                            content={item.detail.content}
+                            time={item.created_at}
+                            views={item.detail.view}
+                            type={item.detail.task_type}
+                            medias={null}
+                          />
+                        </div>
+                        <dl className="flex items-baseline space-x-2 justify-end  px-4">
+                          {/* <dt className="text-base font-bold leading-8">
                           {agents.find((agent) => agent.id == Number(agentId))
                             ?.name || "Agent"}
                         </dt> */}
-                      <dd className="text-md text-muted-foreground">
-                        {formatDate(item.created_at)}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              )}
+                          <dd className="text-md text-muted-foreground">
+                            {formatDate(item.created_at)}
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  )}
 
-            {item.msg_type === "task" &&
-              (item.detail.task_type === "likes" ||
-                item.detail.task_type === "quote" ||
-                item.detail.task_type === "repost" ||
-                item.detail.task_type === "reply" ||
-                item.detail.task_type === "post") && (
-                <div className="flex space-x-4 w-full bg-foreground">
-                  {/* <div className="min-w-8 size-8 rounded-full overflow-hidden">
+                {item.msg_type === "task" &&
+                  (item.detail.task_type === "likes" ||
+                    item.detail.task_type === "quote" ||
+                    item.detail.task_type === "repost" ||
+                    item.detail.task_type === "reply" ||
+                    item.detail.task_type === "post") && (
+                    <div className="flex space-x-4 w-full bg-foreground">
+                      {/* <div className="min-w-8 size-8 rounded-full overflow-hidden">
                       {agents.find((agent) => agent.id == Number(agentId))
                         ?.icon ? (
                         <img
@@ -177,55 +184,61 @@ export default function Message() {
                         />
                       )}
                     </div> */}
-                  <div className="space-y-1 w-full ">
-                    <div className="text-md text-muted-foreground    rounded-md p-4 relative">
-                      <Post
-                        agent={
-                          item.detail.target_tweetinfo ||
-                          agents.find((agent) => agent.id == Number(agentId))
-                        }
-                        content={
-                          item.detail.target_tweetinfo?.content ||
-                          item.detail.content
-                        }
-                        time={
-                          item.detail.target_tweetinfo?.create_time ||
-                          item.created_at
-                        }
-                        views={
-                          item.detail.target_tweetinfo?.views ||
-                          item.detail.view
-                        }
-                        type={item.detail.task_type}
-                        medias={item.detail.target_tweetinfo?.medias || null}
-                      />
-                      {item.detail.target_tweetinfo?.x_id && (
-                        <div
-                          className="absolute top-2 right-2"
-                          onClick={() => {
-                            window.open(
-                              `https://x.com/${item.detail.target_tweetinfo?.user_screen_name}/status/${item.detail.target_tweetinfo?.x_id}`,
-                              "_blank"
-                            );
-                          }}
-                        >
-                          <SquareArrowOutUpRight className="w-4 h-4 hover:text-secondary cursor-pointer" />
+                      <div className="space-y-1 w-full ">
+                        <div className="text-md text-muted-foreground    rounded-md p-4 relative">
+                          <Post
+                            agent={
+                              item.detail.target_tweetinfo ||
+                              agents.find(
+                                (agent) => agent.id == Number(agentId)
+                              )
+                            }
+                            content={
+                              item.detail.target_tweetinfo?.content ||
+                              item.detail.content
+                            }
+                            time={
+                              item.detail.target_tweetinfo?.create_time ||
+                              item.created_at
+                            }
+                            views={
+                              item.detail.target_tweetinfo?.views ||
+                              item.detail.view
+                            }
+                            type={item.detail.task_type}
+                            medias={
+                              item.detail.target_tweetinfo?.medias || null
+                            }
+                          />
+                          {item.detail.target_tweetinfo?.x_id && (
+                            <div
+                              className="absolute top-2 right-2"
+                              onClick={() => {
+                                window.open(
+                                  `https://x.com/${item.detail.target_tweetinfo?.user_screen_name}/status/${item.detail.target_tweetinfo?.x_id}`,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              <SquareArrowOutUpRight className="w-4 h-4 hover:text-secondary cursor-pointer" />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <dl className="flex items-baseline space-x-2 justify-end  px-4">
-                      {/* <dt className="text-base font-bold leading-8">
+                        <dl className="flex items-baseline space-x-2 justify-end  px-4">
+                          {/* <dt className="text-base font-bold leading-8">
                           {agents.find((agent) => agent.id == Number(agentId))
                             ?.name || "Agent"}
                         </dt> */}
-                      <dd className="text-md text-muted-foreground">
-                        {formatDate(item.created_at)}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              )}
-          </div>
+                          <dd className="text-md text-muted-foreground">
+                            {formatDate(item.created_at)}
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  )}
+              </div>
+            )}
+          </>
         ))
       )}
     </div>
