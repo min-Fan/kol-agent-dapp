@@ -10,6 +10,7 @@ import PreviewLoader from "./preview-loader";
 import Markdown from "react-markdown";
 import PreviewRepost from "./preview-repost";
 import PreviewPost from "./preview-post";
+import TypingParagraphs from "./typingParagraphs";
 
 // 定义消息结构，包含内容和思考过程
 interface Message {
@@ -20,6 +21,7 @@ interface Message {
 export default function PreviewStepTwo() {
   const Step1 = useAppSelector((state: any) => state.userReducer.from.step1);
   const Step2 = useAppSelector((state: any) => state.userReducer.from.step2);
+  const [defaultMessage, setDefaultMessage] = useState<string[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialOutput, setPartialOutput] = useState<string>("");
@@ -28,11 +30,10 @@ export default function PreviewStepTwo() {
   const language = useAppSelector(
     (state: any) => state.userReducer.config.language
   );
-
   // 添加逐字输出相关的状态和引用
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const fullMessageRef = useRef<string>("");
   const typingIndexRef = useRef<number>(0);
   const prevDataRef = useRef<any>(null);
@@ -51,71 +52,71 @@ export default function PreviewStepTwo() {
   const componentActiveRef = useRef<boolean>(true);
 
   // 逐字打印效果函数
-  const typeMessage = (message: string, isDefault: boolean = false) => {
-    // 清理之前可能的计时器
-    if (typingTimerRef.current) {
-      clearTimeout(typingTimerRef.current);
-    }
+  // const typeMessage = (message: string, isDefault: boolean = false) => {
+  //   // 清理之前可能的计时器
+  //   if (typingTimerRef.current) {
+  //     clearTimeout(typingTimerRef.current);
+  //   }
 
-    // 设置是否为默认消息标志
-    isDefaultMessageTypingRef.current = isDefault;
+  //   // 设置是否为默认消息标志
+  //   isDefaultMessageTypingRef.current = isDefault;
 
-    fullMessageRef.current = message;
-    typingIndexRef.current = 0;
-    setLoading(true);
-    setPartialOutput("");
+  //   fullMessageRef.current = message;
+  //   typingIndexRef.current = 0;
+  //   setLoading(true);
+  //   setPartialOutput("");
 
-    // 开始打字效果
-    typeNextChar();
-  };
+  //   // 开始打字效果
+  //   // typeNextChar();
+  // };
 
   // 逐字打印的递归函数
-  const typeNextChar = () => {
-    if (typingIndexRef.current < fullMessageRef.current.length) {
-      setPartialOutput(
-        fullMessageRef.current.substring(0, typingIndexRef.current + 1)
-      );
-      typingIndexRef.current++;
+  // const typeNextChar = () => {
+  //   if (typingIndexRef.current < fullMessageRef.current.length) {
+  //     setPartialOutput(
+  //       fullMessageRef.current.substring(0, typingIndexRef.current + 1)
+  //     );
+  //     typingIndexRef.current++;
 
-      // 随机打字速度，更自然
-      const randomDelay = Math.floor(Math.random() * 10) + 0; // 20-50ms之间的随机延迟
+  //     // 随机打字速度，更自然
+  //     const randomDelay = Math.floor(Math.random() * 10) + 0; // 20-50ms之间的随机延迟
 
-      typingTimerRef.current = setTimeout(typeNextChar, randomDelay);
-    } else {
-      // 打字结束，保存完整消息
-      setMessages((prev) => [
-        ...prev,
-        {
-          content: fullMessageRef.current,
-          reasoningContent: "",
-        },
-      ]);
-      setLoading(false);
-      setPartialOutput("");
+  //     typingTimerRef.current = setTimeout(typeNextChar, randomDelay);
+  //   } else {
+  //     // 打字结束，保存完整消息
+  //     setMessages((prev) => [
+  //       ...prev,
+  //       {
+  //         content: fullMessageRef.current,
+  //         reasoningContent: "",
+  //       },
+  //     ]);
+  //     setLoading(false);
+  //     setPartialOutput("");
 
-      // 检查打字完成后是否为默认消息，且是否有待处理的API响应
-      if (isDefaultMessageTypingRef.current && pendingApiResponseRef.current) {
-        // 设置一个短暂延迟，让用户有时间查看默认消息
-        setTimeout(() => {
-          // 显示API返回的消息
-          setMessages((prev) => [
-            ...prev,
-            {
-              content: pendingApiResponseRef.current!.content,
-              reasoningContent: pendingApiResponseRef.current!.reasoningContent,
-            },
-          ]);
-          // 清空待处理响应
-          pendingApiResponseRef.current = null;
-          // 重置默认消息标志
-          isDefaultMessageTypingRef.current = false;
-        }, 500); // 500ms延迟，可根据需要调整
-      } else {
-        // 重置默认消息标志
-        isDefaultMessageTypingRef.current = false;
-      }
-    }
-  };
+  //     // 检查打字完成后是否为默认消息，且是否有待处理的API响应
+  //     if (isDefaultMessageTypingRef.current && pendingApiResponseRef.current) {
+  //       // 设置一个短暂延迟，让用户有时间查看默认消息
+  //       setTimeout(() => {
+  //         // 显示API返回的消息
+  //         setMessages((prev) => [
+  //           ...prev,
+  //           {
+  //             content: pendingApiResponseRef.current!.content,
+  //             reasoningContent: pendingApiResponseRef.current!.reasoningContent,
+  //           },
+  //         ]);
+  //         // 清空待处理响应
+  //         pendingApiResponseRef.current = null;
+  //         // 重置默认消息标志
+  //         isDefaultMessageTypingRef.current = false;
+  //       }, 500); // 500ms延迟，可根据需要调整
+  //     } else {
+  //       // 重置默认消息标志
+  //       isDefaultMessageTypingRef.current = false;
+  //     }
+  //   }
+  // };
 
   // 检查是否有足够的信息可以生成描述
   const hasEnoughInfo = () => {
@@ -131,18 +132,20 @@ export default function PreviewStepTwo() {
   // 构建默认消息，替换变量
   const buildDefaultMessage = () => {
     // 从Step2中获取能力相关信息
-    const ability = Step2?.ability || "advanced abilities";
-    const abilityDescription =
-      Step2?.abilityDescription || "help you achieve your goals effectively";
+    // const ability = Step2?.ability || "advanced abilities";
+    // const abilityDescription =
+    //   Step2?.abilityDescription || "help you achieve your goals effectively";
 
-    // 替换消息模板中的变量
-    let message =
-      "You have chosen $[Ability] and I will acquire $[Ability.description]. Moreover, I will use these abilities to post tweets and interact with KOLs and followers.";
+    // // 替换消息模板中的变量
+    // let message =
+    //   "You have chosen $[Ability] and I will acquire $[Ability.description]. Moreover, I will use these abilities to post tweets and interact with KOLs and followers.";
 
-    message = message.replace("$[Ability]", ability);
-    message = message.replace("$[Ability.description]", abilityDescription);
-
-    return message;
+    // message = message.replace("$[Ability]", ability);
+    // message = message.replace("$[Ability.description]", abilityDescription);
+    if (Step2?.ability) {
+      return `You have chosen ${Step2?.name}, and I will acquire  ${Step2?.ability} Moreover, I will use these abilities to post tweets and interact with KOLs and followers.`;
+    }
+    return "Once the ability is selected, the Agent will immediately acquire and activate this function.";
   };
 
   // 构建提示信息，结合Step1和Step2的值
@@ -222,6 +225,8 @@ export default function PreviewStepTwo() {
 
       // 重置状态，确保清除之前的可能影响
       setLoading(true);
+      console.log("生成描述开始");
+      setDefaultMessage([buildDefaultMessage()]);
       setPartialOutput("");
       setPartialReasoning("");
       apiResponseReceivedRef.current = false;
@@ -231,29 +236,30 @@ export default function PreviewStepTwo() {
       componentActiveRef.current = true;
 
       // 强制清除并重置所有已有的计时器
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
+      // if (timeoutRef.current) {
+      //   clearTimeout(timeoutRef.current);
+      //   timeoutRef.current = null;
+      // }
 
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
-        typingTimerRef.current = null;
-      }
+      // if (typingTimerRef.current) {
+      //   clearTimeout(typingTimerRef.current);
+      //   typingTimerRef.current = null;
+      // }
 
       // 仅在组件初始化的useEffect外调用generateDescription时设置超时计时器
-      if (!timeoutRef.current) {
-        console.log("设置1秒超时计时器");
-        timeoutRef.current = setTimeout(() => {
-          // 如果组件仍然激活且1秒内API没有响应，使用默认消息
-          if (componentActiveRef.current && !apiResponseReceivedRef.current) {
-            console.log("API响应超时，使用默认消息");
-            const defaultMessage = buildDefaultMessage();
-            typeMessage(defaultMessage, true); // 标记为默认消息
-          }
-          timeoutRef.current = null;
-        }, 1000);
-      }
+      // if (!timeoutRef.current) {
+      //   console.log("设置1秒超时计时器");
+      //   timeoutRef.current = setTimeout(() => {
+      //     // 如果组件仍然激活且1秒内API没有响应，使用默认消息
+      //     if (componentActiveRef.current && !apiResponseReceivedRef.current) {
+      //       console.log("API响应超时，使用默认消息");
+
+      //       setDefaultMessage([buildDefaultMessage()]);
+      //       // typeMessage(defaultMessage, true); // 标记为默认消息
+      //     }
+      //     timeoutRef.current = null;
+      //   }, 1000);
+      // }
 
       const prompt = buildPrompt();
       console.log("生成提示:", prompt);
@@ -281,13 +287,7 @@ export default function PreviewStepTwo() {
 
           const { content, reasoningContent } = await handleSSEResponse(
             response,
-            (text: string, reasoningText: string) => {
-              // 只有在不是默认消息输出时才更新部分输出
-              if (!isDefaultMessageTypingRef.current) {
-                setPartialOutput(text);
-                setPartialReasoning(reasoningText);
-              }
-            }
+            () => {}
           );
 
           console.log("生成的对话:", content);
@@ -324,8 +324,8 @@ export default function PreviewStepTwo() {
           !isDefaultMessageTypingRef.current
         ) {
           console.log("API请求失败，使用默认消息");
-          const defaultMessage = buildDefaultMessage();
-          typeMessage(defaultMessage, true); // 标记为默认消息
+          setDefaultMessage([buildDefaultMessage()]);
+          // typeMessage(defaultMessage, true); // 标记为默认消息
         }
         throw error;
       }
@@ -388,9 +388,9 @@ export default function PreviewStepTwo() {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
-      }
+      // if (typingTimerRef.current) {
+      //   clearTimeout(typingTimerRef.current);
+      // }
     };
   }, [Step1, Step2, currentStep]);
 
@@ -398,6 +398,9 @@ export default function PreviewStepTwo() {
   useEffect(() => {
     // 组件挂载时，设置为激活状态
     componentActiveRef.current = true;
+
+    // setDefaultMessage([""]);
+    setDefaultMessage([buildDefaultMessage()])
 
     // 如果未初始化过，启动初始化流程
     if (!initializedRef.current) {
@@ -415,15 +418,15 @@ export default function PreviewStepTwo() {
         pendingApiResponseRef.current = null;
 
         // 设置1秒超时计时器
-        timeoutRef.current = setTimeout(() => {
-          // 如果组件仍然激活且1秒内API没有响应，使用默认消息
-          if (componentActiveRef.current && !apiResponseReceivedRef.current) {
-            console.log("初始化API响应超时，使用默认消息");
-            const defaultMessage = buildDefaultMessage();
-            typeMessage(defaultMessage, true); // 标记为默认消息
-          }
-          timeoutRef.current = null;
-        }, 1000);
+        // timeoutRef.current = setTimeout(() => {
+        //   // 如果组件仍然激活且1秒内API没有响应，使用默认消息
+        //   if (componentActiveRef.current && !apiResponseReceivedRef.current) {
+        //     console.log("初始化API响应超时，使用默认消息");
+        //     // setDefaultMessage([buildDefaultMessage()]);
+        //     // typeMessage(defaultMessage, true); // 标记为默认消息
+        //   }
+        //   timeoutRef.current = null;
+        // }, 1000);
 
         // 然后再调用generateDescription
         generateDescription();
@@ -444,10 +447,10 @@ export default function PreviewStepTwo() {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
-        typingTimerRef.current = null;
-      }
+      // if (typingTimerRef.current) {
+      //   clearTimeout(typingTimerRef.current);
+      //   typingTimerRef.current = null;
+      // }
     };
   }, []); // 依赖数组为空，表示只在组件挂载和卸载时执行
 
@@ -457,19 +460,19 @@ export default function PreviewStepTwo() {
         messages.map((message, index) => (
           <div key={index} className="space-y-2">
             {/* 显示主要内容 */}
-            <div className="bg-background rounded-md px-2 py-2 break-words">
+            {/* <div className="bg-background rounded-md px-2 py-2 break-words">
               <Markdown>{message.content}</Markdown>
-            </div>
+            </div> */}
             <PreviewPost
               content={`🤖 Hello! I'm your exclusive ${Step1.gender} AI assistant ${Step1.name}.🌟 Personality Traits | ${Step1.character}🗺 Cultural Background | An expert in [Language] from [Region]`}
+              key="preview-post"
             />
           </div>
         ))}
 
       {/* 显示正在加载的内容 */}
-      {loading && (
+      {/* {loading && (
         <div className="space-y-2">
-          {/* 显示正在加载的思考过程 */}
           {partialReasoning && (
             <>
               <PreviewLoader text="Thinking..." isThinking={loading} />
@@ -487,9 +490,11 @@ export default function PreviewStepTwo() {
             <PreviewLoader text="Thinking..." isThinking={loading} />
           )}
         </div>
-      )}
+      )} */}
 
-      {!loading && messages.length === 0 && <Skeleton className="w-full h-8" />}
+      {(loading || messages.length === 0) && (
+        <TypingParagraphs messages={defaultMessage}></TypingParagraphs>
+      )}
     </div>
   );
 }

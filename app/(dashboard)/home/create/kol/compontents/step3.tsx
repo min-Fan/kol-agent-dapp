@@ -95,21 +95,21 @@ export default function StepThree() {
     if (selectedKOL.includes(id)) {
       return;
     }
-    
+
     setSelectedKOL([...selectedKOL, id]);
-    
+
     const kol = kols.find((k: any) => k.id === id);
-    
+
     if (kol) {
       const currentValue = form.getValues("interactive") || "";
-      
+
       let newValue;
       if (currentValue && currentValue.trim() !== "") {
         newValue = `${currentValue},${kol.name}`;
       } else {
         newValue = kol.name;
       }
-      
+
       form.setValue("interactive", newValue);
     }
   };
@@ -120,72 +120,72 @@ export default function StepThree() {
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
   const ITEMS_PER_PAGE = 24;
-  
+
   // 搜索相关状态
   const [filteredKols, setFilteredKols] = useState<any[]>([]);
-  
+
   // 实现模糊搜索的函数
   useEffect(() => {
     // 重置分页
     setPage(1);
-    
+
     // 如果搜索框为空，使用完整的kols数据
     if (!search.trim()) {
       setFilteredKols(kols);
-      
+
       // 加载第一页数据
       const initialItems = kols.slice(0, ITEMS_PER_PAGE);
       setDisplayedKols(initialItems);
       setHasMore(kols.length > ITEMS_PER_PAGE);
       return;
     }
-    
+
     // 执行模糊搜索
     const searchLower = search.toLowerCase();
-    const results = kols.filter((kol: any) => 
+    const results = kols.filter((kol: any) =>
       kol.name.toLowerCase().includes(searchLower)
     );
-    
+
     // 更新过滤后的KOLs
     setFilteredKols(results);
-    
+
     // 设置第一页的显示数据
     const firstPageResults = results.slice(0, ITEMS_PER_PAGE);
     setDisplayedKols(firstPageResults);
     setHasMore(results.length > ITEMS_PER_PAGE);
   }, [search, kols]);
-  
+
   // 加载更多KOLs的函数 - 现在基于filteredKols而不是kols
   const loadMoreKols = useCallback(() => {
     if (!hasMore) return;
-    
+
     const nextPage = page + 1;
     const startIndex = (nextPage - 1) * ITEMS_PER_PAGE;
     const endIndex = nextPage * ITEMS_PER_PAGE;
-    
+
     // 检查是否还有更多数据可加载
     if (startIndex >= filteredKols.length) {
       setHasMore(false);
       return;
     }
-    
+
     // 从过滤后的数据中获取下一页数据
     const nextItems = filteredKols.slice(startIndex, endIndex);
-    
+
     // 更新展示数据和页码
-    setDisplayedKols(prev => [...prev, ...nextItems]);
+    setDisplayedKols((prev) => [...prev, ...nextItems]);
     setPage(nextPage);
-    
+
     // 检查是否还有更多数据
     setHasMore(endIndex < filteredKols.length);
   }, [filteredKols, page, hasMore]);
-  
+
   // 设置Intersection Observer来监测滚动到底部
   useEffect(() => {
     const currentLoaderRef = loaderRef.current;
-    
+
     if (!currentLoaderRef) return;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
@@ -194,16 +194,16 @@ export default function StepThree() {
       },
       { threshold: 0.5 }
     );
-    
+
     observer.observe(currentLoaderRef);
-    
+
     return () => {
       if (currentLoaderRef) {
         observer.unobserve(currentLoaderRef);
       }
     };
   }, [loadMoreKols, hasMore]);
-  
+
   // 处理搜索输入变化
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -238,7 +238,7 @@ export default function StepThree() {
                           placeholder="Enter your KOL"
                           maxLength={200}
                           minLength={1}
-                          className="text-md border-none shadow-none pl-0 pr-10 "
+                          className="text-md border-none shadow-none pl-0 pr-10 min-h-30"
                         />
                         <div className="absolute bottom-1 right-2 text-xs text-gray-400">
                           {field.value?.length || 0}/200
@@ -260,13 +260,13 @@ export default function StepThree() {
                             />
                           </div>
                         </div>
-                        <ScrollArea className="h-38 pb-2">
+                        <ScrollArea className="h-74 pb-2 ">
                           <div className="grid grid-cols-3 gap-1">
                             {displayedKols.map((kol: any, index: number) => (
                               <div
                                 key={index}
                                 className={cn(
-                                  "flex items-center gap-1 p-1 rounded-sm bg-slate-100 hover:bg-slate-200 cursor-pointer",
+                                  "flex items-center gap-1 p-1 rounded-sm bg-slate-100 hover:bg-slate-200 cursor-pointer"
                                   // selectedKOL.includes(kol.id)
                                   //   ? "bg-slate-50 text-primary/50 cursor-not-allowed pointer-events-none opacity-80"
                                   //   : ""
@@ -301,22 +301,24 @@ export default function StepThree() {
                               </div>
                             ))}
                           </div>
-                          
+
                           {/* 加载更多触发区域 */}
                           {hasMore && (
-                            <div 
-                              ref={loaderRef} 
+                            <div
+                              ref={loaderRef}
                               className="h-4 w-full flex items-center justify-center my-2"
                             >
                               <div className="animate-spin h-4 w-4 border-2 border-primary rounded-full border-t-transparent"></div>
                             </div>
                           )}
-                          
+
                           {/* 没有结果时显示提示 */}
                           {displayedKols.length === 0 && (
                             <div className="flex flex-col items-center justify-center h-20 text-gray-500">
                               <p>No KOLs found</p>
-                              <p className="text-xs">Try a different search term</p>
+                              <p className="text-xs">
+                                Try a different search term
+                              </p>
                             </div>
                           )}
                         </ScrollArea>

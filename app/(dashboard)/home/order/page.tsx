@@ -7,7 +7,8 @@ import { getOrderList } from "@/app/request/api";
 import { NotepadTextDashed } from "lucide-react";
 import OrderSkeleton from "./compontents/order-skeleton";
 import { useAppSelector } from "@/app/store/hooks";
-
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 export default function Page() {
   const [orderList, setOrderList] = useState<DatumOrder[]>([]);
   const [activeTab, setActiveTab] = useState<string>("pending");
@@ -20,6 +21,9 @@ export default function Page() {
       setLoading(false);
       if (res.code === 200) {
         setOrderList(res.data);
+      } else {
+        toast.error(res.msg);
+        setOrderList([]);
       }
     } catch (error) {
       console.error(error);
@@ -29,13 +33,20 @@ export default function Page() {
   useEffect(() => {
     getOrders();
   }, [activeTab, isLoggedIn]);
+
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/home");
+    }
+  }, [isLoggedIn]);
   return (
     <div className="w-full h-full p-2 md:p-4 lg:p-6">
       <h1 className="text-lg font-bold mb-4">Order List</h1>
       <div className="w-full flex flex-col gap-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-4 w-full md:w-sm">
-            <TabsTrigger value="pending">Agreement</TabsTrigger>
+            <TabsTrigger value="pending">Pending</TabsTrigger>
             <TabsTrigger value="doing">Doing</TabsTrigger>
             <TabsTrigger value="finished">Finished</TabsTrigger>
             <TabsTrigger value="reject">Reject</TabsTrigger>

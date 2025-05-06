@@ -7,6 +7,7 @@ import PreviewThinking from "./preview-thinking";
 import PreviewPost from "./preview-post";
 import Markdown from "react-markdown";
 import FloatingMessages from "./floating-messages";
+import TypingParagraphs from "./typingParagraphs";
 // 定义消息结构
 interface Message {
   tweet: string;
@@ -18,12 +19,14 @@ export default function PreviewStepFour() {
   const Step2 = useAppSelector((state: any) => state.userReducer.from.step2);
   const Step3 = useAppSelector((state: any) => state.userReducer.from.step3);
   const Step4 = useAppSelector((state: any) => state.userReducer.from.step4);
+  const [waitingMessage, setWaitingMessage] = useState<string[]>([]);
+  const prevDataRef = useRef<any>(null);
   const [message, setMessage] = useState<Message | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [partialTweet, setPartialTweet] = useState<string>("");
   const [partialReasoning, setPartialReasoning] = useState<string>("");
   const initializedRef = useRef<boolean>(false);
-
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const language = useAppSelector(
     (state: any) => state.userReducer.config.language
   );
@@ -53,6 +56,10 @@ export default function PreviewStepFour() {
     // 添加互动要求 (Step3)
     if (Step3.interactive) {
       prompt += `The KOL should interact with users interested in: ${Step3.interactive}. `;
+    }
+
+    if (Step4.topics) {
+      prompt += `The KOL will engage in interactions on topics related to ${Step4.topics}. `;
     }
 
     // 明确生成内容的要求
@@ -92,9 +99,32 @@ export default function PreviewStepFour() {
     return { tweet: randomTweet };
   };
 
+  const hasEnoughInfo = () => {
+    // 检查Step1, Step2, Step3 ,setp4是否存在且有值
+    if (!Step1 || !Step2 || !Step3) return false;
+
+    // 至少需要Step1中的名字和Step3中的互动数据
+    return (
+      Step1.name &&
+      Step1.name.trim() !== "" &&
+      Step3.interactive &&
+      Step3.interactive.trim() !== "" &&
+      Step4.topics &&
+      Step4.topics.trim() !== ""
+    );
+  };
+
   const generateTweet = async () => {
     try {
+      if (!hasEnoughInfo()) {
+        console.log("Not enough information to generate content");
+        return;
+      }
+
       setLoading(true);
+      setWaitingMessage([
+        `The tweet topics will revolve around ${Step4?.topics.trim()} as I create and publish related content.`,
+      ]);
       setPartialTweet("");
       setPartialReasoning("");
 
@@ -137,24 +167,86 @@ export default function PreviewStepFour() {
   };
 
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-    generateTweet();
+    const combinedData = {
+      step1: Step1,
+      step2: Step2,
+      step3: Step3,
+      step4: Step4,
+    };
+    const currentDataJSON = JSON.stringify(combinedData);
+
+    // 如果数据没有变化，直接返回
+    if (prevDataRef.current === currentDataJSON) return;
+
+    // 更新之前的数据引用
+    prevDataRef.current = currentDataJSON;
+
+    // 如果没有足够的信息，直接返回
+    if (!hasEnoughInfo()) return;
+
+    // 清除任何现有的定时器
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    // 设置新的定时器，延迟生成内容
+    timerRef.current = setTimeout(() => {
+      generateTweet();
+      timerRef.current = null;
+    }, 500);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+    // if (initializedRef.current) return;
+    // initializedRef.current = true;
+    // if (!hasEnoughInfo()) return;
+    // setSetp1Message(generateTemplateMessage());
+    // generateTweet();
   }, [Step1, Step2, Step3, Step4]);
+
+  useEffect(() => {
+    // 如果已经初始化过，则返回
+    if (initializedRef.current) return;
+
+    // 标记为已初始化
+    initializedRef.current = true;
+
+    // setSetp1Message(generateTemplateMessage())
+    // 检查是否有足够的信息可以生成内容
+    if (hasEnoughInfo()) {
+      console.log(
+        "Detected existing data during component initialization, generating content"
+      );
+      generateTweet();
+    }
+  }, []); // 依赖数组为空，表示只在组件挂载时执行一次
 
   return (
     <div className="px-4 space-y-4 text-md">
       {/* 显示思考过程 */}
-      {(loading || message?.reasoningContent) && (
-        <>
-          <PreviewLoader
-            text={loading ? "Thinking..." : "Thought process:"}
-            isThinking={loading && !partialTweet}
-          />
-          <PreviewThinking
-            texts={loading ? partialReasoning : message?.reasoningContent || ""}
-          />
-        </>
+      {loading && (
+        <TypingParagraphs messages={waitingMessage}></TypingParagraphs>
+        // <div className="space-y-2">
+        //   {setp1Message.split("\n").map((line, index) => (
+        //     <div key={`${index}`} className="space-y-2">
+        //       <div className="bg-background rounded-md px-2 py-2 relative">
+        //         <Markdown>{line}</Markdown>
+        //       </div>
+        //     </div>
+        //   ))}
+        // </div>
+        // <>
+        //   <PreviewLoader
+        //     text={loading ? "Thinking..." : "Thought process:"}
+        //     isThinking={loading && !partialTweet}
+        //   />
+        //   <PreviewThinking
+        //     texts={loading ? partialReasoning : message?.reasoningContent || ""}
+        //   />
+        // </>
       )}
       {/* 显示推文 */}
       {message?.tweet && (

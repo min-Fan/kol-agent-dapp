@@ -29,9 +29,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [isLoggedIn]);
 
   return (
-    <div className="w-full h-full overflow-hidden flex">
+    <div className="w-full h-full overflow-hidden flex ">
       <div className="w-full h-full overflow-hidden flex flex-col flex-1 box-border p-2 md:p-4 lg:p-6">
-        <div className="w-full flex items-center justify-between shadow-[0_10px_10px_20px_rgba(251,249,250,1)] pb-4">
+        <div className="w-full flex items-center justify-between  pb-4">
           <Link href="/home">
             <div className="flex items-center gap-2">
               <ChevronLeft className="w-6 h-6" />
@@ -39,49 +39,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            <TurnOffConfirmation
-              isTurnOff={
-                agents.find((agent) => agent.id == Number(agentId))?.status ===
-                AgentStatus.RUNING
-              }
-            >
-              <Button
-                variant="outline"
-                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
-              >
-                {agents.find((agent) => agent.id == Number(agentId))?.status ===
-                AgentStatus.RUNING ? (
-                  <Power className="size-4 min-w-4 text-destructive" />
-                ) : (
-                  <Play className="size-4 min-w-4 text-secondary" />
-                )}
-                <span
-                  className={cn(
-                    "text-md font-bold",
-                    agents.find((agent) => agent.id == Number(agentId))
-                      ?.status === AgentStatus.RUNING
-                      ? "text-destructive"
-                      : "text-secondary"
-                  )}
-                >
-                  {agents.find((agent) => agent.id == Number(agentId))
-                    ?.status === AgentStatus.RUNING
-                    ? "Turn Off"
-                    : "Turn On"}
-                </span>
-              </Button>
-            </TurnOffConfirmation>
-            <DeleteConfirmation>
-              <Button
-                variant="outline"
-                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground"
-              >
-                <Trash className="size-4 min-w-4 text-destructive" />
-                <span className="text-md font-bold text-destructive">
-                  Delete
-                </span>
-              </Button>
-            </DeleteConfirmation>
+           
           </div>
         </div>
         <div className="w-full flex-1 overflow-auto">{children}</div>

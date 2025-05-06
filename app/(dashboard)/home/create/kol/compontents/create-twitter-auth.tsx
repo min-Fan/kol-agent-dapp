@@ -50,6 +50,8 @@ export default function CreateTwitterAuth({
   const ability = useAppSelector(
     (state: any) => state.userReducer.config.ability
   );
+  const [isCallbackInProgress, setIsCallbackInProgress] = useState(false);
+
   const clearUrlParams = () => {
     const url = new URL(window.location.href);
     url.search = ""; // 清空查询参数
@@ -163,12 +165,14 @@ export default function CreateTwitterAuth({
       if (res && res.code === 200) {
         handleGetUserInfoByTwitter(res.data);
       } else {
+        setIsCallbackInProgress(false);
         clearUrlParams();
         closeCreateXauthDialog();
       }
     } catch (error) {
       setIsLoading(false);
       console.log(error);
+      setIsCallbackInProgress(false);
       clearUrlParams();
       closeCreateXauthDialog();
     }
@@ -237,6 +241,7 @@ export default function CreateTwitterAuth({
     const oauth_token = params.get("oauth_token");
     const oauth_verifier = params.get("oauth_verifier");
     if (oauth_token && oauth_verifier) {
+      setIsCallbackInProgress(true);
       handleTwitterAuthCallback();
     }
   }, [params]);
@@ -261,14 +266,22 @@ export default function CreateTwitterAuth({
       return;
     }
     
-    // 如果是尝试关闭弹窗，且已有Twitter个人资料，阻止关闭
-    if (!open && twitterFullProfile && Object.keys(twitterFullProfile).length > 0) {
+    // 如果是尝试关闭弹窗，且在以下情况阻止关闭：
+    // 1. 已有Twitter个人资料
+    // 2. 回调流程正在进行中
+    if (!open && (
+        (twitterFullProfile && Object.keys(twitterFullProfile).length > 0) || 
+        isCallbackInProgress
+      )) {
       return;
     }
     
     // 其他情况，切换弹窗状态
     toggleCreateXauthDialog();
   };
+
+  // 判断是否应该显示关闭按钮
+  const shouldShowCloseButton = !((twitterFullProfile && Object.keys(twitterFullProfile).length > 0) || isCallbackInProgress);
 
   return (
     <Dialog 
@@ -282,16 +295,16 @@ export default function CreateTwitterAuth({
       </DialogTrigger>
       <DialogContent 
         className="w-xs min-w-[300px] text-primary" 
-        showClose={!(twitterFullProfile && Object.keys(twitterFullProfile).length > 0)}
+        showClose={shouldShowCloseButton}
         onEscapeKeyDown={(e) => {
-          // 如果有Twitter个人资料，阻止Esc键关闭
-          if (twitterFullProfile && Object.keys(twitterFullProfile).length > 0) {
+          // 如果有Twitter个人资料或回调流程中，阻止Esc键关闭
+          if ((twitterFullProfile && Object.keys(twitterFullProfile).length > 0) || isCallbackInProgress) {
             e.preventDefault();
           }
         }}
         onPointerDownOutside={(e) => {
-          // 如果有Twitter个人资料，阻止点击外部关闭
-          if (twitterFullProfile && Object.keys(twitterFullProfile).length > 0) {
+          // 如果有Twitter个人资料或回调流程中，阻止点击外部关闭
+          if ((twitterFullProfile && Object.keys(twitterFullProfile).length > 0) || isCallbackInProgress) {
             e.preventDefault();
           }
         }}
@@ -326,8 +339,8 @@ export default function CreateTwitterAuth({
                 className="w-20 h-8"
                 onClick={() => {
                   clearUrlParams();
-                  create();
                   setTwitterAuth(true);
+                  create();
                   closeCreateXauthDialog();
                 }}
                 disabled={isLoading}

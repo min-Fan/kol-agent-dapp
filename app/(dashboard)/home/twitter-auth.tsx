@@ -113,7 +113,7 @@ export default function TwitterAuthContent({
         app_id: params.get("app_id"),
         kol_user_id: params.get("kol_user_id"),
         oauth_token: data.oauth_token,
-        user_id: full_profile.id,
+        user_id: full_profile.id_str,
         screen_name: full_profile.screen_name,
         oauth_token_secret: data.oauth_token_secret,
         profile_image_url_https: full_profile.profile_image_url_https,
