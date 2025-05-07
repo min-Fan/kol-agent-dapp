@@ -101,7 +101,7 @@ export default function PreviewStepFour() {
 
   const hasEnoughInfo = () => {
     // 检查Step1, Step2, Step3 ,setp4是否存在且有值
-    if (!Step1 || !Step2 || !Step3) return false;
+    if (!Step1 || !Step2 || !Step3  || !Step4) return false;
 
     // 至少需要Step1中的名字和Step3中的互动数据
     return (

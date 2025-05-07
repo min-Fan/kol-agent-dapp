@@ -130,13 +130,13 @@ export default function StepOne() {
       return;
     }
 
-    const newAbilityStr = [...abilityStr, val];
-    setAbilityStr(newAbilityStr);
-    form.setValue("ability", newAbilityStr.join("\n"));
+    // const newAbilityStr = [...abilityStr, val];
+    setAbilityStr([val]);
+    form.setValue("ability", val);
     form.setValue("name", name);
 
     // 添加到已选择的模板ID列表
-    setSelectedTemplateIds([...selectedTemplateIds, id]);
+    setSelectedTemplateIds([id]);
 
     toast.success("Input Success");
   };
@@ -195,7 +195,7 @@ export default function StepOne() {
                             <AnimatedList
                               items={ability.map((template: any) => (
                                 <div
-                                  className={`w-full flex items-center justify-between rounded-md p-2 ${
+                                  className={`w-full flex items-center justify-between rounded-md p-2 gap-1 ${
                                     selectedTemplateIds.includes(template.id)
                                       ? "bg-primary/10 border border-primary/20"
                                       : "bg-gray-100"

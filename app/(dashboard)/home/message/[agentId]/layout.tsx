@@ -57,8 +57,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {userAgent?.sex} | Smart and clever
               </div>
               <div className="flex">
-                {userAgent?.characters.map((item: any) => {
-                  return <Badge className="bg-[#5C99F4]">{item}</Badge>;
+                {userAgent?.characters.map((item: any, index: any) => {
+                  return (
+                    <Badge className="bg-[#5C99F4]" key={index}>
+                      {item}
+                    </Badge>
+                  );
                 })}
               </div>
             </div>

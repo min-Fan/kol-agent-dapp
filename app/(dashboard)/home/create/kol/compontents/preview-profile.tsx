@@ -11,8 +11,11 @@ import { useEffect, useState, useRef } from "react";
 import { chat } from "@/app/request/api";
 import { handleSSEResponse } from "@/app/utils/api";
 import CountUp from "@/app/components/comm/CountUp";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-
+import dynamic from "next/dynamic";
+// import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+const DotLottieReact = dynamic(() => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact), {
+  ssr: false,
+})
 export default function PreviewProfile() {
   const Step1 = useAppSelector((state: any) => state.userReducer.from.step1);
   const [description, setDescription] = useState<string>("");

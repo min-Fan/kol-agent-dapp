@@ -1,5 +1,5 @@
 "use client";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+// import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import StepOne from "./compontents/step1";
 import StepTwo from "./compontents/step2";
 import StepThree from "./compontents/step3";
@@ -24,7 +24,11 @@ import { useRouter } from "next/navigation";
 import { useCreateXauthDialog } from "@/app/hooks/useCreateXauthDialog";
 import { useSearchParams } from "next/navigation";
 import { useGetAgents } from "@/app/hooks/useGetAgents";
-
+import dynamic from 'next/dynamic'
+// import type { DotLottieReactProps } from '@lottiefiles/dotlottie-react'
+const DotLottieReact = dynamic(() => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact), {
+  ssr: false,
+})
 const CreateSuccess = () => {
   const { getAgents } = useGetAgents();
   const dispatch = useAppDispatch();
