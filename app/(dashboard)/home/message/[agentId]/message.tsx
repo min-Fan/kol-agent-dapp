@@ -81,7 +81,7 @@ export default function Message() {
 
       {loading ? (
         <div className="w-full flex items-center justify-center">
-          <LoaderCircle className="w-10 h-10 animate-spin text-secondary" />
+          <LoaderCircle className="w-10 h-10 animate-spin text-[#5C99F4]" />
         </div>
       ) : messageList.length === 0 ? (
         <div className="w-full  flex flex-col items-center justify-center gap-2">
@@ -150,9 +150,9 @@ export default function Message() {
                           {agents.find((agent) => agent.id == Number(agentId))
                             ?.name || "Agent"}
                         </dt> */}
-                          <dd className="text-md text-muted-foreground">
+                          {/* <dd className="text-md text-muted-foreground">
                             {formatDate(item.created_at)}
-                          </dd>
+                          </dd> */}
                         </dl>
                       </div>
                     </div>
@@ -220,7 +220,7 @@ export default function Message() {
                                 );
                               }}
                             >
-                              <SquareArrowOutUpRight className="w-4 h-4 hover:text-secondary cursor-pointer" />
+                              <SquareArrowOutUpRight className="w-4 h-4 hover:text-[#5C99F4] cursor-pointer" />
                             </div>
                           )}
                         </div>
@@ -229,9 +229,9 @@ export default function Message() {
                           {agents.find((agent) => agent.id == Number(agentId))
                             ?.name || "Agent"}
                         </dt> */}
-                          <dd className="text-md text-muted-foreground">
+                          {/* <dd className="text-md text-muted-foreground">
                             {formatDate(item.created_at)}
-                          </dd>
+                          </dd> */}
                         </dl>
                       </div>
                     </div>

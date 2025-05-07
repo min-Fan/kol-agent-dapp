@@ -26,7 +26,7 @@ export default function Subscribe(props: {
       className={clsx(
         "space-y-4 text-center p-4 py-8 relative",
         isHighlight
-          ? "bg-gradient-to-r from-[#0bbdb6]/90 to-[#00d179]/90 text-foreground"
+          ? "bg-gradient-to-r from-[#88BBF3]/90 to-[#5C99F4]/90 text-foreground"
           : "bg-foreground border-b border-border"
       )}
     >
@@ -57,7 +57,7 @@ export default function Subscribe(props: {
         isActive ? (
           <Button
             variant="outline"
-            className="hover:bg-foreground text-[#0bbdb6]/90 hover:text-[#0bbdb6]/90"
+            className="hover:bg-foreground text-[#88BBF3]/90 hover:text-[#5C99F4]/90"
           >
             <span className="text-base font-bold">Active</span>
           </Button>
@@ -67,7 +67,7 @@ export default function Subscribe(props: {
             TriggerButton={
               <Button
                 variant="outline"
-                className="hover:bg-foreground text-[#0bbdb6]/90 hover:text-[#0bbdb6]/90"
+                className="hover:bg-foreground text-[#88BBF3]/90 hover:text-[#5C99F4]/90"
               >
                 <span className="text-base font-bold">Subscribe</span>
               </Button>

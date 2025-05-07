@@ -82,4 +82,10 @@ export interface Agent {
    * 性别
    */
   sex?: string;
+
+  // 系统最高价格
+  max_price: number;
+
+  //价格
+  price: number;
 }

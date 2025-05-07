@@ -75,8 +75,8 @@ export default function page() {
           {subscribes.map((item) => (
             <div
               className={cn(
-                "shadow-sm rounded-md bg-foreground overflow-hidden border border-border hover:border-secondary transition-colors",
-                item.id === 3 && "border-secondary"
+                "shadow-sm rounded-md bg-foreground overflow-hidden border border-border hover:border-[#5C99F4] transition-colors",
+                item.id === 3 && "border-[#5C99F4]"
               )}
               key={item.id}
             >

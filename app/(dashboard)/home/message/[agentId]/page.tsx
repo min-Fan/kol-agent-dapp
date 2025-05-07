@@ -1,22 +1,30 @@
 "use client";
 
 import Message from "./message";
-import { AgentStatus } from "@/app/store/reducers/typs";
-import DeleteConfirmation from "../compontents/delete-confirmation";
-import { Trash, Loader2, Power, Play } from "lucide-react";
+
 import { useAppSelector } from "@/app/store/hooks";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import fire from "@/app/assets/image/fire.png";
-import FocusScore from "@/app/assets/image/FocusScore.png";
-import Performance from "@/app/assets/image/Performance.png";
 
 import { Progress } from "@/components/ui/progress";
 import Notice from "./notice";
 import Project from "./project";
+import { useMemo } from "react";
 export default function page() {
   const agents = useAppSelector((state) => state.userReducer.agents);
   const { agentId } = useParams();
+
+  const userAgent = useMemo(() => {
+    return agents.find((agent) => agent.id === Number(agentId));
+  }, [agentId]);
+
+  //计算价格占比
+  const ratio = useMemo(() => {
+    const agent = agents.find((agent) => agent.id === Number(agentId));
+    return ((agent?.price || 0) / (agent?.max_price || 0)) * 100 || 0;
+  }, [agentId]);
+
   return (
     <div className="flex  h-full">
       <div className="flex-1 overflow-auto  p-2 md:p-4 lg:p-6 ">
@@ -28,19 +36,33 @@ export default function page() {
             <Image src={fire} alt="" className="w-7"></Image>
             <span>Promote price</span>
           </div>
-          <div className="relative pb-10">
+
+          <div className="relative pb-14">
             <Progress
-              value={0}
+              value={ratio}
               className="mt-2  bg-[rgba(118,118,128,0.12)] [&>*]:bg-[#DB5AEA]"
             ></Progress>
-            <div className="absolute right-[0] top-4 text-sm ">
-              <p className="text-[#DB5AEA]">$1000</p>
-              <p className="text-[rgba(127,127,127,0.5)]">/tweet</p>
-            </div>
+            {/* 当前价格 */}
+            {userAgent?.price && (
+              <div
+                className={`absolute top-4 text-sm lef-0`}
+                style={{ left: `${ratio}%` }}
+              >
+                <p className="text-[#DB5AEA]">${userAgent?.price}</p>
+                <p className="text-[rgba(127,127,127,0.5)]">/tweet</p>
+              </div>
+            )}
+            {/* 最大价格 */}
+            {userAgent?.max_price && (
+              <div className="absolute right-[0] top-4 text-sm ">
+                <p className="text-[#DB5AEA]">${userAgent?.max_price}</p>
+                <p className="text-[rgba(127,127,127,0.5)]">/tweet</p>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="flex gap-2  ">
+        {/* <div className="flex gap-2  ">
           <div className="bg-[rgba(92,153,244,0.1)] rounded-xl p-2 box-border  flex-1 ">
             <div className="text-[#5C99F4] text-sm flex items-center gap-1">
               <Image src={FocusScore} alt="" className="w-7"></Image>
@@ -56,7 +78,7 @@ export default function page() {
               <span>Performance</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <Notice></Notice>
 

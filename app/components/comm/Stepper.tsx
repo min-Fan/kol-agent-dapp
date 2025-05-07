@@ -363,7 +363,7 @@ function StepIndicator({
           <div className="text-primary text-base pl-3 relative transition-all duration-300 whitespace-nowrap">
             <span>{stepText}</span>
             <motion.div
-              className="absolute top-0 left-[2px] w-[2px] bg-secondary rounded-full shadow-[10px_0_15px_var(--secondary)]"
+              className="absolute top-0 left-[2px] w-[2px] bg-[#5C99F4] rounded-full shadow-[10px_0_15px_#5C99F4]"
               initial={{ height: 0 }}
               animate={{ height: "100%" }}
               transition={{ duration: 0.3, ease: "easeOut" }}

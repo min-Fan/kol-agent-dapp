@@ -57,7 +57,7 @@ const formSchema = z.object({
     errorMap: () => ({ message: "Please select a gender" }),
   }),
   character: z.string().min(1).max(200),
-  region: z.number().min(1, {
+  region: z.string().min(1, {
     message: "Please select a region",
   }),
   language: z.string({
@@ -94,7 +94,7 @@ export default function StepOne() {
       name: step1Init?.name || "",
       gender: step1Init?.gender || "male",
       character: step1Init?.character || "",
-      region: step1Init?.region || 0,
+      region: step1Init?.region || '',
       language: step1Init?.language || 0,
     },
   });

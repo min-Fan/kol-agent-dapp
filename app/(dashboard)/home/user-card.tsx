@@ -112,7 +112,7 @@ export default function UserCard() {
               </div>
             </div>
             <div className="w-full">
-              <Progress value={progress} className="w-full h-1" />
+              <Progress value={progress} className="w-full h-1 [&>*]:bg-[#5C99F4]" />
             </div>
           </div>
           <div className="w-full h-full rounded-lg bg-slate-50 p-2">
