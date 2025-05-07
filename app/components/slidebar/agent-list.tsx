@@ -39,8 +39,8 @@ const AgentItem = (props: {
       className={clsx(
         "flex items-center space-x-2 overflow-hidden rounded-md p-2 cursor-pointer bg-background group",
         isActive
-          ? "text-foreground bg-gradient-to-r from-[#0bbdb6] to-[#00d179] hover:bg-gradient-to-r hover:from-[#0bbdb6] hover:to-[#00d179]"
-          : "hover:text-foreground hover:bg-gradient-to-r hover:from-[#0bbdb6]/90 hover:to-[#00d179]/90"
+          ? "text-foreground bg-gradient-to-r from-[#88BBF3] to-[#5C99F4] hover:bg-gradient-to-r hover:from-[#88BBF3] hover:to-[#5C99F4]"
+          : "hover:text-foreground hover:bg-gradient-to-r hover:from-[#88BBF3]/90 hover:to-[#5C99F4]/90"
       )}
       onClick={handleClick}
     >

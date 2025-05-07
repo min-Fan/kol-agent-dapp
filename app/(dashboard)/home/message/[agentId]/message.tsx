@@ -150,9 +150,9 @@ export default function Message() {
                           {agents.find((agent) => agent.id == Number(agentId))
                             ?.name || "Agent"}
                         </dt> */}
-                          <dd className="text-md text-muted-foreground">
+                          {/* <dd className="text-md text-muted-foreground">
                             {formatDate(item.created_at)}
-                          </dd>
+                          </dd> */}
                         </dl>
                       </div>
                     </div>
@@ -229,9 +229,9 @@ export default function Message() {
                           {agents.find((agent) => agent.id == Number(agentId))
                             ?.name || "Agent"}
                         </dt> */}
-                          <dd className="text-md text-muted-foreground">
+                          {/* <dd className="text-md text-muted-foreground">
                             {formatDate(item.created_at)}
-                          </dd>
+                          </dd> */}
                         </dl>
                       </div>
                     </div>

@@ -56,24 +56,6 @@ export default function Notice() {
           ))}
         </CarouselContent>
       </Carousel>
-
-      {/* <div className="flex-1 flex-wrap">
-        {noticeList.length ? (
-          <Carousel
-            orientation="vertical"
-            opts={{
-              loop: true,
-            }}
-            plugins={[plugin.current]}
-          >
-            <CarouselContent className="h-20">
-             
-            </CarouselContent>
-          </Carousel>
-        ) : (
-          <div> no notice</div>
-        )}
-      </div> */}
     </div>
   );
 }

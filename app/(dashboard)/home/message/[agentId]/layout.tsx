@@ -63,53 +63,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-
-          <TurnOffConfirmation
-            isTurnOff={
-              agents.find((agent) => agent.id == Number(agentId))?.status ===
-              AgentStatus.RUNING
-            }
-          >
-            <Switch
-              className={cn(
-                agents.find((agent) => agent.id == Number(agentId))?.status ===
-                  AgentStatus.RUNING
-                  ? "bg-[linear-gradient(90deg,_#88BBF3_0%,_#5C99F4_100%)]"
-                  : "bg-[#e1e1e1]"
-              )}
-              checked={
+          <div className="flex items-center gap-2">
+            <TurnOffConfirmation
+              isTurnOff={
                 agents.find((agent) => agent.id == Number(agentId))?.status ===
                 AgentStatus.RUNING
-                  ? true
-                  : false
               }
-            ></Switch>
-            {/* <Button
-                variant="outline"
-                className="flex gap-2 hover:bg-foreground hover:text-destructive-foreground w-full"
-              >
-                {agents.find((agent) => agent.id == Number(agentId))?.status ===
-                AgentStatus.RUNING ? (
-                  <Power className="size-4 min-w-4 text-destructive" />
-                ) : (
-                  <Play className="size-4 min-w-4 text-secondary" />
-                )}
-                <span
-                  className={cn(
-                    "text-md font-bold",
-                    agents.find((agent) => agent.id == Number(agentId))
-                      ?.status === AgentStatus.RUNING
-                      ? "text-destructive"
-                      : "text-secondary"
-                  )}
-                >
-                  {agents.find((agent) => agent.id == Number(agentId))
+            >
+              <Switch
+                className={cn(
+                  agents.find((agent) => agent.id == Number(agentId))
                     ?.status === AgentStatus.RUNING
-                    ? "Turn Off"
-                    : "Turn On"}
-                </span>
-              </Button> */}
-          </TurnOffConfirmation>
+                    ? "bg-gradient-to-r from-[#88BBF3] to-[#5C99F4]    "
+                    : "bg-[#e1e1e1]"
+                )}
+                checked={
+                  agents.find((agent) => agent.id == Number(agentId))
+                    ?.status === AgentStatus.RUNING
+                    ? true
+                    : false
+                }
+              ></Switch>
+            </TurnOffConfirmation>
+            <DeleteConfirmation>
+              <Button className="flex gap-2  bg-red-500  hover:bg-red-500  ">
+                <Trash className="size-4 min-w-4 text-white" />
+                <span className="text-md font-bold text-white">Delete</span>
+              </Button>
+            </DeleteConfirmation>
+          </div>
         </div>
 
         {/* <Link href="/home">
