@@ -92,7 +92,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       form: {
         step1: {
           name: "Aria",
-          gender: "Female",
+          gender: "female",
           character: "Smart and clever",
           region: "Afghanistan",
           language: "English",
@@ -115,7 +115,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       form: {
         step1: {
           name: "Alexander",
-          gender: "Male",
+          gender: "male",
           character: "Smart and highly affable",
           region: "Singapore",
           language: "English",
@@ -138,7 +138,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       form: {
         step1: {
           name: "Caleb",
-          gender: "Female",
+          gender: "female",
           character: "Cheerful and outgoing",
           region: "Japan",
           language: "Japanese",
@@ -161,7 +161,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       form: {
         step1: {
           name: "Isabella",
-          gender: "Female",
+          gender: "female",
           character: "Introverted and focused",
           region: "South Korea",
           language: "Korean",
