@@ -25,6 +25,7 @@ export default function PostContent({
 
   const getPosts = async () => {
     try {
+      if (!orderDetail.buy_agent_order.project?.id) return toast.error("Project not found");
       setIsLoading(true);
       setTime(0); // 重置计时器
       // 启动计时器
@@ -67,7 +68,7 @@ export default function PostContent({
 
   useEffect(() => {
     getPosts();
-  }, []);
+  }, [orderDetail, orderDetail.buy_agent_order.project?.id]);
 
   const handleEdit = (index: number) => {
     setEditingIndex(index);

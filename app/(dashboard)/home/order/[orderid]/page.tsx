@@ -336,7 +336,7 @@ export default function Page() {
                     </span>
                     {selectedAgent.characters.length > 0 &&
                       selectedAgent.characters.map((character: any) => (
-                        <span className="text-sm text-gray-500 bg-gray-100 rounded-md px-2">
+                        <span className="text-sm text-gray-500 bg-gray-100 rounded-md px-2" key={character}>
                           {character}
                         </span>
                       ))}
@@ -407,6 +407,8 @@ export default function Page() {
                       onClick={() => {
                         setIsPostLink(true);
                         setIsComplete(false);
+                        setTweetUrl("");
+                        setTweetId("");
                       }}
                     >
                       <span className="text-sm font-bold">Change Link</span>
@@ -443,6 +445,8 @@ export default function Page() {
                 onClick={() => {
                   setIsPostLink(true);
                   setStatus(OrderPreviewType.POST_VIEW);
+                  setTweetUrl("");
+                  setTweetId("");
                 }}
               >
                 <span className="text-base font-bold">
