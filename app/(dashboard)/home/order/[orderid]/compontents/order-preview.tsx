@@ -22,12 +22,14 @@ export default function OrderPreview({
   useEffect(() => {
     if (status === undefined || status === null) {
       if (orderDetail.kol_audit_status === "pending" || orderDetail.kol_audit_status === "doing") {
+        console.log('xxxxxx')
         setStatus(OrderPreviewType.POST_CONTENT);
       } else {
+        console.log('======')
         setStatus(OrderPreviewType.POST_VIEW);
       }
     }
-  }, [orderDetail, status, setStatus]);
+  }, [orderDetail, status]);
 
   const handleMouseEnter = () => {
     setShouldAutoScroll(false);
